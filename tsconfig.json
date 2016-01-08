@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "declaration": false,
+        "sourceMap": true,
+        "sourceRoot": "src",
+        "experimentalDecorators": true,
+        "outFile": "site/js/app.js"
+    },
+    "exclude": [
+        "bower_components"
+    ]
+}

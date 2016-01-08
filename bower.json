@@ -1,0 +1,22 @@
+{
+  "name": "wordworks",
+  "authors": [
+    "Ryan Smith <rys@pobox.com>"
+  ],
+  "description": "Word art generation",
+  "main": "main.js",
+  "moduleType": [],
+  "license": "",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "paper": "~0.9.25"
+  }
+}
