@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "module": "commonjs",
+        "target": "es5",
         "declaration": false,
         "sourceMap": true,
         "sourceRoot": "src",
