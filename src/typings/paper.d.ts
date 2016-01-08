@@ -3989,7 +3989,7 @@ declare module paper {
          * Creates a point text item from the properties described by an object literal.
          * @param object - an object literal containing properties describing the path's attributes
          */
-        constructor(object: any);
+        constructor(object?: any);
 
         /**
          * The PointText's anchor point

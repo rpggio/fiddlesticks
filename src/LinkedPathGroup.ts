@@ -1,7 +1,15 @@
 // <reference path="typings/paper.d.ts" />
 
+interface PathLike {
+    length: number;
+    getLocationAt(offset: number, isParameter?: boolean): paper.CurveLocation;
+    getPointAt(offset: number, isPatameter?: boolean): paper.Point;
+    getTangentAt(offset: number, isPatameter?: boolean): paper.Point;
+}
 
-class LinkedPathGroup extends paper.Group {
+class LinkedPathGroup extends paper.Group
+    implements PathLike 
+{
     
     addChild(path: paper.Path): paper.Item {
         return super.addChild(path);
