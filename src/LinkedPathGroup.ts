@@ -5,6 +5,7 @@ interface PathLike {
     getLocationAt(offset: number, isParameter?: boolean): paper.CurveLocation;
     getPointAt(offset: number, isPatameter?: boolean): paper.Point;
     getTangentAt(offset: number, isPatameter?: boolean): paper.Point;
+    getNearestPoint(point: paper.Point): paper.Point;
 }
 
 class LinkedPathGroup extends paper.Group
@@ -57,5 +58,22 @@ class LinkedPathGroup extends paper.Group
             offset -= len;
         }
         return path.getTangentAt(offset, isPatameter);    
+    }
+    
+    getNearestPoint(point: paper.Point): paper.Point {
+        let nearestAgg: paper.Point;
+        let distAgg: number;
+        for(let path of this.paths){
+            if(path.segments.length < 2){
+                continue;
+            }
+            let nearest = path.getNearestPoint(point);
+            let dist = nearest.getDistance(point);
+            if(!nearestAgg || dist < distAgg){
+                nearestAgg = nearest;
+                distAgg = dist;   
+            }
+        }
+        return nearestAgg;
     }
 }
