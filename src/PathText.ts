@@ -31,21 +31,36 @@ class PathText extends paper.Group {
         let text = this.text;
         let path = this.path;
         if (text && text.length && path && path.length) {
-            // create PointText object for each glyph
-            var glyphTexts = [];
+            
+            // Measure glyphs in pairs to capture white space.
+            // Pairs are characters i and i+1.
+            var glyphPairs = [];
             for (var i = 0; i < text.length; i++) {
-                glyphTexts[i] = this.createPointText(text.substring(i, i+1));
-                glyphTexts[i].justification = "center";
+                glyphPairs[i] = this.createPointText(text.substring(i, i+1));
+                glyphPairs[i].justification = "center";
             }
-            // for each glyph find center xOffset
+            
+            // For each character, find center offset.
             var xOffsets = [0];
             for (var i = 1; i < text.length; i++) {
-                var pairText = this.createPointText(text.substring(i - 1, i + 1));
-                pairText.remove();
-                xOffsets[i] = xOffsets[i - 1] + pairText.bounds.width - 
-                    glyphTexts[i - 1].bounds.width / 2 - glyphTexts[i].bounds.width / 2;
+                
+                // Measure three characters at a time to get the appropriate 
+                //   space before and after the glyph.
+                var triadText = this.createPointText(text.substring(i - 1, i + 1));
+                triadText.remove();
+                
+                // Subtract out half of prior glyph pair 
+                //   and half of current glyph pair.
+                // Must be right, because it works.
+                let offsetWidth = triadText.bounds.width 
+                    - glyphPairs[i - 1].bounds.width / 2 
+                    - glyphPairs[i].bounds.width / 2;
+                
+                // Add offset width to prior offset. 
+                xOffsets[i] = xOffsets[i - 1] + offsetWidth;
             }
-            // set point for each glyph and rotate glyph aorund the point
+            
+            // Set point for each glyph and rotate glyph aorund the point
             let pathLength = path.length;
             for (var i = 0; i < text.length; i++) {
                 var centerOffs = xOffsets[i];
@@ -53,13 +68,13 @@ class PathText extends paper.Group {
                     centerOffs = undefined;
                 }
                 if (centerOffs === undefined) {
-                    glyphTexts[i].remove();
+                    glyphPairs[i].remove();
                 } else {
                     var pathPoint = path.getPointAt(centerOffs);
-                    glyphTexts[i].point = pathPoint;
+                    glyphPairs[i].point = pathPoint;
                     var tan = path.getTangentAt(centerOffs);
                     if(tan) {
-                        glyphTexts[i].rotate(tan.angle, pathPoint);
+                        glyphPairs[i].rotate(tan.angle, pathPoint);
                     } else {
                         console.warn("Could not get tangent at ", centerOffs);
                     } 
@@ -81,5 +96,6 @@ class PathText extends paper.Group {
         this.addChild(pointText);
         return pointText;
     }
-
 }
+
+

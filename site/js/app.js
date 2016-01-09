@@ -62,31 +62,163 @@ var LinkedPathGroup = (function (_super) {
         }
         return path.getTangentAt(offset, isPatameter);
     };
+    LinkedPathGroup.prototype.getNearestPoint = function (point) {
+        var nearestAgg;
+        var distAgg;
+        for (var _i = 0, _a = this.paths; _i < _a.length; _i++) {
+            var path = _a[_i];
+            if (path.segments.length < 2) {
+                continue;
+            }
+            var nearest = path.getNearestPoint(point);
+            var dist = nearest.getDistance(point);
+            if (!nearestAgg || dist < distAgg) {
+                nearestAgg = nearest;
+                distAgg = dist;
+            }
+        }
+        return nearestAgg;
+    };
     return LinkedPathGroup;
 })(paper.Group);
 // <reference path="typings/paper.d.ts" />
+var PathText = (function (_super) {
+    __extends(PathText, _super);
+    function PathText(path, text, style) {
+        _super.call(this);
+        this.path = path;
+        this._text = text;
+        this.style = style;
+        this.update();
+    }
+    Object.defineProperty(PathText.prototype, "text", {
+        get: function () {
+            return this._text;
+        },
+        set: function (value) {
+            this._text = value;
+            this.update();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    PathText.prototype.update = function () {
+        this.removeChildren();
+        var text = this.text;
+        var path = this.path;
+        if (text && text.length && path && path.length) {
+            // Measure glyphs in pairs to capture white space.
+            // Pairs are characters i and i+1.
+            var glyphPairs = [];
+            for (var i = 0; i < text.length; i++) {
+                glyphPairs[i] = this.createPointText(text.substring(i, i + 1));
+                glyphPairs[i].justification = "center";
+            }
+            // For each character, find center offset.
+            var xOffsets = [0];
+            for (var i = 1; i < text.length; i++) {
+                // Measure three characters at a time to get the appropriate 
+                //   space before and after the glyph.
+                var triadText = this.createPointText(text.substring(i - 1, i + 1));
+                triadText.remove();
+                // Subtract out half of prior glyph pair 
+                //   and half of current glyph pair.
+                // Must be right, because it works.
+                var offsetWidth = triadText.bounds.width
+                    - glyphPairs[i - 1].bounds.width / 2
+                    - glyphPairs[i].bounds.width / 2;
+                // Add offset width to prior offset. 
+                xOffsets[i] = xOffsets[i - 1] + offsetWidth;
+            }
+            // Set point for each glyph and rotate glyph aorund the point
+            var pathLength = path.length;
+            for (var i = 0; i < text.length; i++) {
+                var centerOffs = xOffsets[i];
+                if (pathLength < centerOffs) {
+                    centerOffs = undefined;
+                }
+                if (centerOffs === undefined) {
+                    glyphPairs[i].remove();
+                }
+                else {
+                    var pathPoint = path.getPointAt(centerOffs);
+                    glyphPairs[i].point = pathPoint;
+                    var tan = path.getTangentAt(centerOffs);
+                    if (tan) {
+                        glyphPairs[i].rotate(tan.angle, pathPoint);
+                    }
+                    else {
+                        console.warn("Could not get tangent at ", centerOffs);
+                    }
+                }
+            }
+        }
+    };
+    // create a PointText object for a string and a style
+    PathText.prototype.createPointText = function (text) {
+        var pointText = new paper.PointText();
+        pointText.content = text;
+        var style = this.style;
+        if (style) {
+            if (style.fontFamily)
+                pointText.fontFamily = style.fontFamily;
+            if (style.fontSize)
+                pointText.fontSize = style.fontSize;
+            if (style.fontWieght)
+                pointText.fontWeight = style.fontWeight;
+        }
+        this.addChild(pointText);
+        return pointText;
+    };
+    return PathText;
+})(paper.Group);
+// <reference path="typings/paper.d.ts" />
 // <reference path="LinkedPaths.ts" />
-var path = new paper.Path();
-path.strokeColor = 'black';
-var start = new paper.Point(100, 100);
-path.moveTo(start);
-path.lineTo(start + [100, -50]);
-var path2 = new paper.Path([new paper.Point(20, 20), new paper.Point(220, 20)]);
-path2.strokeColor = 'red';
-var paths = new LinkedPathGroup([path, path2]);
-console.log(path.length);
-console.log(path2.length);
-console.log(paths.length);
-paper.Path.Circle({
-    center: paths.getLocationAt(10).point,
-    radius: 10,
-    strokeColor: 'green'
-});
-paper.Path.Circle({
-    center: paths.getLocationAt(150).point,
-    radius: 20,
-    strokeColor: 'blue'
-});
-// console.log(paths.getLocationAt(10).point);
-// console.log(paths.getLocationAt(150).point);
+console.clear();
+var ps23 = "The Lord is my shepherd; I shall not want. He makes me lie down in green pastures. He leads me beside still waters. He restores my soul. He leads me in paths of righteousness for his name's sake. Even though I walk through the valley of the shadow of death, I will fear no evil, for you are with me; your rod and your staff, they comfort me. You prepare a table before me in the presence of my enemies; you anoint my head with oil; my cup overflows. Surely goodness and mercy shall follow me all the days of my life, and I shall dwell in the house of the Lord forever.";
+var drawPaths = new LinkedPathGroup();
+var textSize = 64;
+var textPath = new PathText(drawPaths, ps23, { fontSize: textSize });
+var startTime = new Date();
+var currentPath;
+//---------------------------------------------
+function startPath(point) {
+    if (currentPath) {
+        finishPath();
+    }
+    currentPath = new paper.Path({ strokeColor: 'lightgray', strokeWidth: textSize });
+    drawPaths.addChild(currentPath);
+    currentPath.add(point);
+}
+function appendPath(point) {
+    if (currentPath) {
+        currentPath.add(point);
+    }
+}
+function finishPath() {
+    currentPath.simplify(textSize / 2);
+    textPath.update();
+    currentPath.visible = false;
+    currentPath = null;
+}
+function onMouseDrag(event) {
+    var point = event.middlePoint;
+    if (!currentPath) {
+        startPath(point);
+        return;
+    }
+    // No: need to check if same segment!
+    // let nearest = drawPaths.getNearestPoint(point);
+    // if(nearest) {
+    //     let nearestDist = nearest.getDistance(point);
+    //     if(nearest && nearestDist <= textSize){
+    //         finishPath();
+    //         return;        
+    //     }
+    // }
+    appendPath(point);
+}
+function onMouseUp(event) {
+    finishPath();
+}
 //# sourceMappingURL=app.js.map
