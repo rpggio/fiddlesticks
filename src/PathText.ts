@@ -13,6 +13,9 @@ class PathText extends paper.Group {
         this.path = path;
         this._text = text;
         this.style = style;
+        
+        console.log(style.fontSize);
+        
         this.update();
     }
  
@@ -37,7 +40,6 @@ class PathText extends paper.Group {
             var glyphPairs = [];
             for (var i = 0; i < text.length; i++) {
                 glyphPairs[i] = this.createPointText(text.substring(i, i+1));
-                glyphPairs[i].justification = "center";
             }
             
             // For each character, find center offset.
@@ -71,7 +73,7 @@ class PathText extends paper.Group {
                     glyphPairs[i].remove();
                 } else {
                     var pathPoint = path.getPointAt(centerOffs);
-                    glyphPairs[i].point = pathPoint;
+                    glyphPairs[i].position = pathPoint;
                     var tan = path.getTangentAt(centerOffs);
                     if(tan) {
                         glyphPairs[i].rotate(tan.angle, pathPoint);
@@ -82,20 +84,31 @@ class PathText extends paper.Group {
             }
         }
     }
-    
+       
     // create a PointText object for a string and a style
-    private createPointText (text) {
+    private createPointText (text): paper.Item {
         var pointText = new paper.PointText();
         pointText.content = text;
+        pointText.justification = "center";
         let style = this.style;
+        
         if (style) {
             if (style.fontFamily) pointText.fontFamily = style.fontFamily;
             if (style.fontSize) pointText.fontSize = style.fontSize;
             if (style.fontWieght) pointText.fontWeight = style.fontWeight;
         }
-        this.addChild(pointText);
-        return pointText;
+        
+        var rect = paper.Path.Rectangle(pointText.bounds);
+        rect.fillColor = 'lightgray';
+        
+        var group = new paper.Group();
+        group.style = style;
+        group.addChild(pointText);
+
+        this.addChild(group);
+        return group;
     }
+    
 }
 
 
