@@ -3,12 +3,9 @@
 
 interface Window {
     textTrace: any;
-    paper: paper.PaperScope;
 }
 
 window.textTrace = function () {
-
-    console.log(paper);
 
     console.log('textTrace started');
 
@@ -18,9 +15,6 @@ window.textTrace = function () {
     let textPath = new PathText(drawPaths, ps23, {fontSize: textSize});
     let startTime = new Date();
     let currentPath: paper.Path;
-
-
-    //---------------------------------------------
 
     function startPath(point) {
         if(currentPath){
