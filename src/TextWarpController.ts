@@ -1,17 +1,26 @@
 // <reference path="typings/paper.d.ts" />
 
-var sampleText = "Yellow world";
+var sampleText = "Yellow World";
 const AmaticUrl = 'http://fonts.gstatic.com/s/amaticsc/v8/IDnkRTPGcrSVo50UyYNK7y3USBnSvpkopQaUR-2r7iU.ttf';
 const Roboto100 = 'http://fonts.gstatic.com/s/roboto/v15/7MygqTe2zs9YkP0adA9QQQ.ttf';
+const Roboto500 = 'http://fonts.gstatic.com/s/roboto/v15/Uxzkqj-MIMWle-XP2pDNAA.ttf';
 
 class TextWarpController {
 
     constructor() {
 
         var lineDraw = new LineDrawTool();
+        let prevPath: paper.Path;
         lineDraw.onPathFinished = (path) => {
             path.flatten(20);
-            this.layoutTextBaseline(sampleText, path);
+            
+            //this.layoutTextBaseline(sampleText, path);
+            
+            if(prevPath){
+                this.layoutTextWarp(sampleText, prevPath, path);
+            }
+            
+            prevPath = path;
         };
     }
 
@@ -20,8 +29,50 @@ class TextWarpController {
         shape.strokeColor = color;         
     }
     
+    layoutTextWarp(text: string, bottom: paper.Path, top: paper.Path){
+        new FontLoader(Roboto500, font => {
+            let letterPaths = font.getPaths(sampleText, 0, 100, 200)
+                .map(p => new paper.Path(p.toPathData()));
+            let linearTextOrigin = letterPaths[0].bounds.bottomLeft; 
+            let linearLength = letterPaths[letterPaths.length - 1].bounds.right
+                - linearTextOrigin.x;
+                
+            let bottomScaling = new PathOffsetScaling(linearLength, bottom); 
+            let topScaling = new PathOffsetScaling(linearLength, top); 
+            
+            for(let letterPath of letterPaths){
+                letterPath.fillColor = '#07698A';    
+                let linearOffset = letterPath.bounds.left - linearTextOrigin.x;
+
+                // line up letter on lower left point
+                letterPath.position = bottomScaling.getToPointAt(linearOffset)
+                    .add(letterPath.bounds.center
+                        .subtract(letterPath.bounds.bottomLeft));
+                                        
+                let sourceQuad = Quad.fromRectangle(letterPath.bounds);
+
+                let destQuad = new Quad(
+                    topScaling.getToPointAt(linearOffset),
+                    topScaling.getToPointAt(linearOffset + letterPath.bounds.width),
+                    bottomScaling.getToPointAt(linearOffset),
+                    bottomScaling.getToPointAt(linearOffset + letterPath.bounds.width)
+                );
+                               
+                paper.Path.Line(sourceQuad.a, sourceQuad.d).strokeColor = "lightgray";
+                paper.Path.Line(sourceQuad.b, sourceQuad.c).strokeColor = "lightgray";
+
+                paper.Path.Line(destQuad.a, destQuad.d).strokeColor = "yellow";
+                paper.Path.Line(destQuad.b, destQuad.c).strokeColor = "yellow";
+                
+                let transform = new PerspectiveTransform(sourceQuad, destQuad);
+                transform.transformPath(letterPath);
+            }
+        });
+    }
+   
+    
     layoutTextBaseline(text: string, layoutPath: paper.Path) {
-        new FontLoader(Roboto100, font => {
+        new FontLoader(AmaticUrl, font => {
             let letterPaths = font.getPaths(sampleText, 0, 100, 200)
                 .map(p => new paper.CompoundPath(p.toPathData()));
             let textOrigin = letterPaths[0].bounds.bottomLeft; 
@@ -39,9 +90,6 @@ class TextWarpController {
                     Math.min(layoutPathLength,
                         letterOffset + letterPath.bounds.width * offsetScaling));
                 let bottomVectorPrime = bottomRightPrime.subtract(bottomLeftPrime);
-                
-                // this.marker(bottomLeftPrime, "green");
-                // this.marker(bottomRightPrime, "blue");
                     
                 let rotateAngle = 
                     new paper.Point(1, 0).getDirectedAngle(bottomRightPrime.subtract(bottomLeftPrime))
@@ -129,4 +177,20 @@ class TextWarpController {
                 paperPath.bounds.height / 2));
         return paperPath;
     };
+}
+
+class PathOffsetScaling {
+    
+    to: paper.Path;
+    scale: number;
+    
+    constructor(fromLength: number, to: paper.Path){
+        this.to = to;
+        this.scale = to.length / fromLength;
+    }
+    
+    getToPointAt(fromPathOffset: number): paper.Point {
+        let toOffset = Math.min(this.to.length, fromPathOffset * this.scale);
+        return this.to.getPointAt(toOffset);
+    }
 }

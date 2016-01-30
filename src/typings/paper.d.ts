@@ -507,7 +507,7 @@ declare module paper {
         /** 
          * Checks if this point has an undefined value for at least one of its coordinates.
          */
-        isNan(): boolean;
+        isNaN(): boolean;
 
         /**
          * Returns the dot product of the point and another point.

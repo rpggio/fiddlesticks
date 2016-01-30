@@ -17,6 +17,7 @@
     "tests"
   ],
   "dependencies": {
-    "paper": "~0.9.25"
+    "paper": "~0.9.25",
+    "perspective-transform": "~1.1.3"
   }
 }
