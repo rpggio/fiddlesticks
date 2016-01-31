@@ -1,14 +1,27 @@
 // <reference path="typings/paper.d.ts" />
 
-var sampleText = "Yellow World";
+var sampleText = "Fiddlesticks";
 const AmaticUrl = 'http://fonts.gstatic.com/s/amaticsc/v8/IDnkRTPGcrSVo50UyYNK7y3USBnSvpkopQaUR-2r7iU.ttf';
 const Roboto100 = 'http://fonts.gstatic.com/s/roboto/v15/7MygqTe2zs9YkP0adA9QQQ.ttf';
-const Roboto500 = 'http://fonts.gstatic.com/s/roboto/v15/Uxzkqj-MIMWle-XP2pDNAA.ttf';
+const Roboto500 = 'fonts/Roboto-500.ttf';
+
+var createSVG = function(str, attrs?) {
+    if (attrs) {
+        // Similar to SVGExport's createElement / setAttributes.
+        var node = document.createElementNS('http://www.w3.org/2000/svg', str);
+        for (var key in attrs)
+            node.setAttribute(key, attrs[key]);
+        return node;
+    } else {
+        return new window.DOMParser().parseFromString(
+            '<svg xmlns="http://www.w3.org/2000/svg">' + str + '</svg>',
+            'text/xml');
+    }
+};
 
 class TextWarpController {
 
     constructor() {
-
         var lineDraw = new LineDrawTool();
         let prevPath: paper.Path;
         lineDraw.onPathFinished = (path) => {
@@ -17,7 +30,7 @@ class TextWarpController {
             //this.layoutTextBaseline(sampleText, path);
             
             if(prevPath){
-                this.layoutTextWarp(sampleText, prevPath, path);
+                this.layoutMatrixProjection(sampleText, prevPath, path);
             }
             
             prevPath = path;
@@ -28,48 +41,95 @@ class TextWarpController {
         var shape = paper.Shape.Circle(point, 5);
         shape.strokeColor = color;         
     }
+
+    // layoutPathProjection(text: string, bottom: paper.Path, top: paper.Path){
+    //     new FontLoader(Roboto500, font => {
+    //         let letterPaths = font.getPaths(sampleText, 0, 100, 200)
+    //             .map(p => this.importOpenTypePath(p));
+    //         let linearTextOrigin = letterPaths[0].bounds.bottomLeft; 
+    //         let linearLength = letterPaths[letterPaths.length - 1].bounds.right
+    //             - linearTextOrigin.x;
+                
+    //         let bottomScaling = new PathOffsetScaling(linearLength, bottom); 
+    //         let topScaling = new PathOffsetScaling(linearLength, top); 
+                
+    //         for(let letterPath of letterPaths){
+    //             letterPath.strokeColor = 'red';
+    //             let linearOffset = letterPath.bounds.left - linearTextOrigin.x;
+    //             let letterOutline = this.outlinePath(letterPath, 1000);
+    //             //letterPath.remove();
+    //             letterOutline.fillColor = '#07698A';
+                
+    //             // line up letter on lower left point
+    //             letterOutline.position = bottomScaling.getToPointAt(linearOffset)
+    //                 .add(letterOutline.bounds.center
+    //                     .subtract(letterOutline.bounds.bottomLeft));
+
+                               
+    //         }
+            
+    //     });
+    // };
     
-    layoutTextWarp(text: string, bottom: paper.Path, top: paper.Path){
+    layoutMatrixProjection(text: string, bottom: paper.Path, top: paper.Path){
         new FontLoader(Roboto500, font => {
             let letterPaths = font.getPaths(sampleText, 0, 100, 200)
-                .map(p => new paper.Path(p.toPathData()));
+                .map(p => this.importOpenTypePath(p));
             let linearTextOrigin = letterPaths[0].bounds.bottomLeft; 
             let linearLength = letterPaths[letterPaths.length - 1].bounds.right
                 - linearTextOrigin.x;
                 
             let bottomScaling = new PathOffsetScaling(linearLength, bottom); 
             let topScaling = new PathOffsetScaling(linearLength, top); 
-            
+
+            //'#07698A'
             for(let letterPath of letterPaths){
-                letterPath.fillColor = '#07698A';    
                 let linearOffset = letterPath.bounds.left - linearTextOrigin.x;
+                let letterOutline = PathHelper.tracePathItem(letterPath, 400);
 
+                letterPath.remove();
+                //letterOutline.strokeColor = '#07698A';
+                //letterOutline.position.y += 100;
+                
                 // line up letter on lower left point
-                letterPath.position = bottomScaling.getToPointAt(linearOffset)
-                    .add(letterPath.bounds.center
-                        .subtract(letterPath.bounds.bottomLeft));
-                                        
-                let sourceQuad = Quad.fromRectangle(letterPath.bounds);
+                letterOutline.position = bottomScaling.getToPointAt(linearOffset)
+                    .add(letterOutline.bounds.center
+                        .subtract(letterOutline.bounds.bottomLeft));
 
+                // get source and dest quads for mapping                                        
+                let sourceQuad = Quad.fromRectangle(letterOutline.bounds);
                 let destQuad = new Quad(
                     topScaling.getToPointAt(linearOffset),
-                    topScaling.getToPointAt(linearOffset + letterPath.bounds.width),
+                    topScaling.getToPointAt(linearOffset + letterOutline.bounds.width),
                     bottomScaling.getToPointAt(linearOffset),
-                    bottomScaling.getToPointAt(linearOffset + letterPath.bounds.width)
+                    bottomScaling.getToPointAt(linearOffset + letterOutline.bounds.width)
                 );
                                
-                paper.Path.Line(sourceQuad.a, sourceQuad.d).strokeColor = "lightgray";
-                paper.Path.Line(sourceQuad.b, sourceQuad.c).strokeColor = "lightgray";
+                // paper.Path.Line(sourceQuad.a, sourceQuad.d).strokeColor = "lightgray";
+                // paper.Path.Line(sourceQuad.b, sourceQuad.c).strokeColor = "lightgray";
 
-                paper.Path.Line(destQuad.a, destQuad.d).strokeColor = "yellow";
-                paper.Path.Line(destQuad.b, destQuad.c).strokeColor = "yellow";
+                // paper.Path.Line(destQuad.a, destQuad.d).strokeColor = "yellow";
+                // paper.Path.Line(destQuad.b, destQuad.c).strokeColor = "yellow";
                 
                 let transform = new PerspectiveTransform(sourceQuad, destQuad);
-                transform.transformPath(letterPath);
+                transform.transformPathItem(letterOutline);
             }
         });
     }
    
+    importOpenTypePath(openPath: opentype.Path): paper.PathItem
+    {
+        return new paper.CompoundPath(openPath.toPathData());
+        
+        // let path = new paper.CompoundPath(openPath.toPathData());
+        // if(path.children.length === 1){
+        //     return <paper.Path>path.children[0];
+        // }
+        // return path;
+        
+        // let svg = openPath.toSVG(4);
+        // return <paper.Path>paper.project.importSVG(svg);
+    }
     
     layoutTextBaseline(text: string, layoutPath: paper.Path) {
         new FontLoader(AmaticUrl, font => {
@@ -112,20 +172,6 @@ class TextWarpController {
                 paperPath.strokeColor = '#07698A';    
                 paperPath.position.y += 50 + Math.random() * 30;                      
             }
-            
-            // var offset = new paper.Point(0, 150);
-            // for (let letter of "Yellow World".split('')) {
-                
-            //     var openTextPath = font.getPath(letter, 0, 100, 200);
-            //     var paperPath = new paper.CompoundPath(openTextPath.toPathData());
-            //     paperPath.strokeColor = '#07698A';
-            //     paperPath.bounds.bottomLeft = offset;
-                
-            //     offset = offset.add(
-            //         new paper.Point(
-            //             paperPath.bounds.width,
-            //             0))
-            // }
 
             paper.project.activeLayer.scale(.5, new paper.Point(0.5, 0.5));
         });

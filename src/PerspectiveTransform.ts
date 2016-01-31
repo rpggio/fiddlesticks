@@ -69,24 +69,26 @@ class PerspectiveTransform {
         ];
     }
     
+    transformPathItem(path: paper.PathItem){
+        if(path.className === 'CompoundPath'){
+            this.transformCompoundPath(<paper.CompoundPath>path);
+        } else {
+            this.transformPath(<paper.Path>path);
+        }
+    }
+    
+    transformCompoundPath(path: paper.CompoundPath){
+        for(let p of path.children){
+            this.transformPath(<paper.Path>p);
+        }
+    }
+    
     transformPath(path: paper.Path){
         for(let segment of path.segments){
             let origPoint = segment.point;
             let newPoint = this.transformPoint(segment.point);
             origPoint.x = newPoint.x;
             origPoint.y = newPoint.y;
-            // if(!segment.handleIn.isNaN() && !segment.handleIn.isZero()){
-            //     let absHandle = origPoint.add(segment.handleIn);
-            //     let newHandle = this.transformPoint(absHandle).subtract(segment.point);
-            //     segment.handleIn.x = newHandle.x;
-            //     segment.handleIn.y = newHandle.y;
-            // }
-            // if(!segment.handleOut.isNaN() && !segment.handleOut.isZero()){
-            //     let absHandle = origPoint.add(segment.handleOut);
-            //     let newHandle = this.transformPoint(absHandle).subtract(segment.point);
-            //     segment.handleOut.x = newHandle.x;
-            //     segment.handleOut.y = newHandle.y;
-            // }
         }
     }
 }

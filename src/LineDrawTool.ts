@@ -28,7 +28,7 @@ class LineDrawTool {
         if (this.currentPath) {
             this.finishPath();
         }
-        this.currentPath = new paper.Path({ strokeColor: 'gray', strokeWidth: 3 });
+        this.currentPath = new paper.Path({ strokeColor: 'lightgray', strokeWidth: 2 });
         this.group.addChild(this.currentPath);
         this.currentPath.add(point);
     }

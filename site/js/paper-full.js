@@ -13241,9 +13241,12 @@ new function() {
 			value = attr && attr.value;
 		if (!value) {
 			var style = Base.camelize(name);
-			value = node.style[style];
-			if (!value && styles.node[style] !== styles.parent[style])
-				value = styles.node[style];
+            // rs fix 2016-01-31
+            if(node.style) {
+                value = node.style[style];
+                if (!value && styles.node[style] !== styles.parent[style])
+                    value = styles.node[style];
+            }
 		}
 		return !value
 				? undefined

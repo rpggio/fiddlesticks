@@ -2,6 +2,7 @@
 
 interface Window {
     paper: paper.PaperScope;
+    DOMParser: any;
 }
 
 declare var opentype: any;
@@ -24,6 +25,7 @@ declare module opentype {
     
     interface Path {
         toPathData(decimalPlaces?: number): string;
+        toSVG(decimalPlaces?: number);
     }
     
     interface FontOptions {
