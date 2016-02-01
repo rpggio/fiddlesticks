@@ -21,7 +21,6 @@ class PerspectiveTransform {
     transformPoint(point: paper.Point): paper.Point {
         let p3 = PerspectiveTransform.multiply(this.matrix, [point.x, point.y, 0, 1]);
         let result = new paper.Point(p3[0] / p3[3], p3[1] / p3[3]);
-        //console.log('xform', point.toString(), result.toString());
         return result;
     }
     
@@ -67,29 +66,6 @@ class PerspectiveTransform {
             matrix[2] * vector[0] + matrix[6] * vector[1] + matrix[10] * vector[2] + matrix[14] * vector[3],
             matrix[3] * vector[0] + matrix[7] * vector[1] + matrix[11] * vector[2] + matrix[15] * vector[3]
         ];
-    }
-    
-    transformPathItem(path: paper.PathItem){
-        if(path.className === 'CompoundPath'){
-            this.transformCompoundPath(<paper.CompoundPath>path);
-        } else {
-            this.transformPath(<paper.Path>path);
-        }
-    }
-    
-    transformCompoundPath(path: paper.CompoundPath){
-        for(let p of path.children){
-            this.transformPath(<paper.Path>p);
-        }
-    }
-    
-    transformPath(path: paper.Path){
-        for(let segment of path.segments){
-            let origPoint = segment.point;
-            let newPoint = this.transformPoint(segment.point);
-            origPoint.x = newPoint.x;
-            origPoint.y = newPoint.y;
-        }
     }
 }
 

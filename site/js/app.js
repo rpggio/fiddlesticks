@@ -1,3 +1,56 @@
+var BottomTextLayout = (function () {
+    function BottomTextLayout(bottom) {
+        this.fontSize = 100;
+        this.bottom = bottom;
+    }
+    BottomTextLayout.prototype.layout = function (text, onComplete) {
+        var _this = this;
+        new FontLoader(AmaticUrl, function (font) {
+            var letterGroup = new paper.Group();
+            var letterPaths = font.getPaths(text, 0, 0, _this.fontSize)
+                .map(function (p) {
+                var path = PaperHelpers.importOpenTypePath(p);
+                letterGroup.addChild(path);
+                return path;
+            });
+            var textOrigin = letterGroup.bounds.bottomLeft;
+            var linearLength = letterGroup.bounds.width;
+            var layoutPathLength = _this.bottom.length;
+            var offsetScaling = layoutPathLength / linearLength;
+            var idx = 0;
+            for (var _i = 0; _i < letterPaths.length; _i++) {
+                var letterPath = letterPaths[_i];
+                var letterOffset = (letterPath.bounds.left - textOrigin.x) * offsetScaling;
+                var bottomLeftPrime = _this.bottom.getPointAt(letterOffset);
+                var bottomRightPrime = _this.bottom.getPointAt(Math.min(layoutPathLength, letterOffset + letterPath.bounds.width * offsetScaling));
+                var bottomVectorPrime = bottomRightPrime.subtract(bottomLeftPrime);
+                var rotateAngle = new paper.Point(1, 0).getDirectedAngle(bottomRightPrime.subtract(bottomLeftPrime));
+                // reposition using bottomLeft
+                letterPath.position = bottomLeftPrime
+                    .add(letterPath.bounds.center
+                    .subtract(letterPath.bounds.bottomLeft));
+                letterPath.rotate(rotateAngle, bottomLeftPrime);
+                letterPath.scale(offsetScaling, bottomLeftPrime);
+                idx++;
+            }
+            if (onComplete) {
+                onComplete(letterGroup);
+            }
+        });
+    };
+    return BottomTextLayout;
+})();
+var PathOffsetScaling = (function () {
+    function PathOffsetScaling(fromLength, to) {
+        this.to = to;
+        this.scale = to.length / fromLength;
+    }
+    PathOffsetScaling.prototype.getToPointAt = function (fromPathOffset) {
+        var toOffset = Math.min(this.to.length, fromPathOffset * this.scale);
+        return this.to.getPointAt(toOffset);
+    };
+    return PathOffsetScaling;
+})();
 // <reference path="typings/paper.d.ts" />
 // WORK IN PROGRESS
 var DragTool = (function () {
@@ -65,26 +118,6 @@ var DragTool = (function () {
         }
     };
     return DragTool;
-})();
-// <reference path="typings/paper.d.ts" />
-var ExplodedWord = (function () {
-    function ExplodedWord(text, fontUrl, onReady) {
-        var _this = this;
-        this.fontUrl = fontUrl;
-        var loader = new FontLoader(fontUrl, function (font) {
-            _this.font = font;
-            _this.createChars();
-            onReady.call(_this);
-        });
-    }
-    ExplodedWord.prototype.createChars = function () {
-    };
-    return ExplodedWord;
-})();
-var ExplodedChar = (function () {
-    function ExplodedChar() {
-    }
-    return ExplodedChar;
 })();
 var FontLoader = (function () {
     function FontLoader(fontUrl, onLoaded) {
@@ -228,10 +261,15 @@ var LinkedPathGroup = (function (_super) {
     };
     return LinkedPathGroup;
 })(paper.Group);
-var PathHelper = (function () {
-    function PathHelper() {
+var PaperHelpers = (function () {
+    function PaperHelpers() {
     }
-    PathHelper.tracePathItem = function (path, pointsPerPath) {
+    PaperHelpers.importOpenTypePath = function (openPath) {
+        return new paper.CompoundPath(openPath.toPathData());
+        // let svg = openPath.toSVG(4);
+        // return <paper.Path>paper.project.importSVG(svg);
+    };
+    PaperHelpers.tracePathItem = function (path, pointsPerPath) {
         if (path.className === 'CompoundPath') {
             return this.traceCompoundPath(path, pointsPerPath);
         }
@@ -239,7 +277,7 @@ var PathHelper = (function () {
             return this.tracePath(path, pointsPerPath);
         }
     };
-    PathHelper.traceCompoundPath = function (path, pointsPerPath) {
+    PaperHelpers.traceCompoundPath = function (path, pointsPerPath) {
         var _this = this;
         if (!path.children.length) {
             return null;
@@ -253,7 +291,7 @@ var PathHelper = (function () {
             fillColor: 'lightgray'
         });
     };
-    PathHelper.tracePath = function (path, numPoints) {
+    PaperHelpers.tracePath = function (path, numPoints) {
         // if(!path || !path.segments || path.segments.length){
         //     return new paper.Path();
         // }
@@ -272,7 +310,7 @@ var PathHelper = (function () {
         path.fillColor = 'lightgray';
         return path;
     };
-    PathHelper.pathProjection = function (topPath, bottomPath) {
+    PaperHelpers.pathProjection = function (topPath, bottomPath) {
         var topPathLength = topPath.length;
         var bottomPathLength = bottomPath.length;
         return function (unitPoint) {
@@ -284,18 +322,18 @@ var PathHelper = (function () {
             return topPoint.add(bottomPoint.subtract(topPoint).multiply(unitPoint.y));
         };
     };
-    PathHelper.simplify = function (path, tolerance) {
+    PaperHelpers.simplify = function (path, tolerance) {
         if (path.className === 'CompoundPath') {
             for (var _i = 0, _a = path.children; _i < _a.length; _i++) {
                 var p = _a[_i];
-                PathHelper.simplify(p, tolerance);
+                PaperHelpers.simplify(p, tolerance);
             }
         }
         else {
             path.simplify(tolerance);
         }
     };
-    return PathHelper;
+    return PaperHelpers;
 })();
 var PathSection = (function () {
     function PathSection(path, offset, length) {
@@ -449,7 +487,6 @@ var PerspectiveTransform = (function () {
     PerspectiveTransform.prototype.transformPoint = function (point) {
         var p3 = PerspectiveTransform.multiply(this.matrix, [point.x, point.y, 0, 1]);
         var result = new paper.Point(p3[0] / p3[3], p3[1] / p3[3]);
-        //console.log('xform', point.toString(), result.toString());
         return result;
     };
     PerspectiveTransform.createMatrix = function (source, target) {
@@ -490,29 +527,6 @@ var PerspectiveTransform = (function () {
             matrix[2] * vector[0] + matrix[6] * vector[1] + matrix[10] * vector[2] + matrix[14] * vector[3],
             matrix[3] * vector[0] + matrix[7] * vector[1] + matrix[11] * vector[2] + matrix[15] * vector[3]
         ];
-    };
-    PerspectiveTransform.prototype.transformPathItem = function (path) {
-        if (path.className === 'CompoundPath') {
-            this.transformCompoundPath(path);
-        }
-        else {
-            this.transformPath(path);
-        }
-    };
-    PerspectiveTransform.prototype.transformCompoundPath = function (path) {
-        for (var _i = 0, _a = path.children; _i < _a.length; _i++) {
-            var p = _a[_i];
-            this.transformPath(p);
-        }
-    };
-    PerspectiveTransform.prototype.transformPath = function (path) {
-        for (var _i = 0, _a = path.segments; _i < _a.length; _i++) {
-            var segment = _a[_i];
-            var origPoint = segment.point;
-            var newPoint = this.transformPoint(segment.point);
-            origPoint.x = newPoint.x;
-            origPoint.y = newPoint.y;
-        }
     };
     return PerspectiveTransform;
 })();
@@ -640,211 +654,73 @@ window.textTrace = function () {
     };
 };
 // <reference path="typings/paper.d.ts" />
-var sampleText = "Fiddlesticks";
-var AmaticUrl = 'http://fonts.gstatic.com/s/amaticsc/v8/IDnkRTPGcrSVo50UyYNK7y3USBnSvpkopQaUR-2r7iU.ttf';
-var Roboto100 = 'http://fonts.gstatic.com/s/roboto/v15/7MygqTe2zs9YkP0adA9QQQ.ttf';
-var Roboto500 = 'fonts/Roboto-500.ttf';
-var createSVG = function (str, attrs) {
-    if (attrs) {
-        // Similar to SVGExport's createElement / setAttributes.
-        var node = document.createElementNS('http://www.w3.org/2000/svg', str);
-        for (var key in attrs)
-            node.setAttribute(key, attrs[key]);
-        return node;
-    }
-    else {
-        return new window.DOMParser().parseFromString('<svg xmlns="http://www.w3.org/2000/svg">' + str + '</svg>', 'text/xml');
-    }
-};
 var TextWarpController = (function () {
     function TextWarpController() {
         var _this = this;
+        this.sampleText = "Fiddlesticks";
         var lineDraw = new LineDrawTool();
         var prevPath;
         lineDraw.onPathFinished = function (path) {
             path.flatten(40);
-            //this.layoutTextBaseline(sampleText, path);
+            path.smooth();
             if (prevPath) {
-                //this.layoutMatrixProjection(sampleText, path, prevPath);
-                _this.layoutPathProjection(sampleText, path, prevPath);
+                var layout = new VerticalBoundsTextLayout(path, prevPath);
+                layout.layout(_this.sampleText);
             }
             prevPath = path;
         };
     }
-    TextWarpController.prototype.marker = function (point, color) {
-        var shape = paper.Shape.Circle(point, 5);
-        shape.strokeColor = color;
-    };
-    TextWarpController.prototype.layoutPathProjection = function (text, top, bottom) {
+    return TextWarpController;
+})();
+var VerticalBoundsTextLayout = (function () {
+    function VerticalBoundsTextLayout(top, bottom) {
+        this.letterResolution = 400;
+        this.smoothTolerance = 0.25;
+        this.fontSize = 100;
+        this.top = top;
+        this.bottom = bottom;
+    }
+    VerticalBoundsTextLayout.prototype.layout = function (text, onComplete) {
         var _this = this;
         new FontLoader(Roboto500, function (font) {
             var letterGroup = new paper.Group();
-            var letterPaths = font.getPaths(sampleText, 0, 100, 200)
+            var letterPaths = font.getPaths(text, 0, 0, _this.fontSize)
                 .map(function (p) {
-                var path = _this.importOpenTypePath(p);
+                var path = PaperHelpers.importOpenTypePath(p);
                 letterGroup.addChild(path);
                 return path;
             });
             var orthOrigin = letterGroup.bounds.topLeft;
             var orthWidth = letterGroup.bounds.width;
             var orthHeight = letterGroup.bounds.height;
-            console.log('orth size', [orthWidth, orthHeight]);
-            var projection = PathHelper.pathProjection(top, bottom);
+            var projection = PaperHelpers.pathProjection(_this.top, _this.bottom);
             var transform = new PathTransform(function (point) {
                 var relative = point.subtract(orthOrigin);
                 var unit = new paper.Point(relative.x / orthWidth, relative.y / orthHeight);
-                //console.log('unit', unit);
                 var projected = projection(unit);
-                //console.log('projected', projected);
                 return projected;
             });
+            var finalGroup = new paper.Group();
             for (var _i = 0; _i < letterPaths.length; _i++) {
                 var letterPath = letterPaths[_i];
-                var letterOutline = PathHelper.tracePathItem(letterPath, 400);
+                var letterOutline = PaperHelpers.tracePathItem(letterPath, _this.letterResolution);
                 letterPath.remove();
-                letterOutline.fillColor = "lightblue";
                 transform.transformPathItem(letterOutline);
-                PathHelper.simplify(letterOutline, 1);
+                PaperHelpers.simplify(letterOutline, _this.smoothTolerance);
+                finalGroup.addChild(letterOutline);
+            }
+            letterGroup.remove();
+            if (onComplete) {
+                onComplete(finalGroup);
             }
         });
     };
-    TextWarpController.prototype.layoutMatrixProjection = function (text, top, bottom) {
-        var _this = this;
-        new FontLoader(Roboto500, function (font) {
-            var letterPaths = font.getPaths(sampleText, 0, 100, 200)
-                .map(function (p) { return _this.importOpenTypePath(p); });
-            var linearTextOrigin = letterPaths[0].bounds.bottomLeft;
-            var linearLength = letterPaths[letterPaths.length - 1].bounds.right
-                - linearTextOrigin.x;
-            var bottomScaling = new PathOffsetScaling(linearLength, bottom);
-            var topScaling = new PathOffsetScaling(linearLength, top);
-            //'#07698A'
-            for (var _i = 0; _i < letterPaths.length; _i++) {
-                var letterPath = letterPaths[_i];
-                var linearOffset = letterPath.bounds.left - linearTextOrigin.x;
-                var letterOutline = PathHelper.tracePathItem(letterPath, 400);
-                letterPath.remove();
-                //letterOutline.strokeColor = '#07698A';
-                //letterOutline.position.y += 100;
-                // line up letter on lower left point
-                letterOutline.position = bottomScaling.getToPointAt(linearOffset)
-                    .add(letterOutline.bounds.center
-                    .subtract(letterOutline.bounds.bottomLeft));
-                // get source and dest quads for mapping                                        
-                var sourceQuad = Quad.fromRectangle(letterOutline.bounds);
-                var destQuad = new Quad(topScaling.getToPointAt(linearOffset), topScaling.getToPointAt(linearOffset + letterOutline.bounds.width), bottomScaling.getToPointAt(linearOffset), bottomScaling.getToPointAt(linearOffset + letterOutline.bounds.width));
-                // paper.Path.Line(sourceQuad.a, sourceQuad.d).strokeColor = "lightgray";
-                // paper.Path.Line(sourceQuad.b, sourceQuad.c).strokeColor = "lightgray";
-                // paper.Path.Line(destQuad.a, destQuad.d).strokeColor = "yellow";
-                // paper.Path.Line(destQuad.b, destQuad.c).strokeColor = "yellow";
-                var transform = new PerspectiveTransform(sourceQuad, destQuad);
-                transform.transformPathItem(letterOutline);
-            }
-        });
-    };
-    TextWarpController.prototype.importOpenTypePath = function (openPath) {
-        return new paper.CompoundPath(openPath.toPathData());
-        // let path = new paper.CompoundPath(openPath.toPathData());
-        // if(path.children.length === 1){
-        //     return <paper.Path>path.children[0];
-        // }
-        // return path;
-        // let svg = openPath.toSVG(4);
-        // return <paper.Path>paper.project.importSVG(svg);
-    };
-    TextWarpController.prototype.layoutTextBaseline = function (text, layoutPath) {
-        new FontLoader(AmaticUrl, function (font) {
-            var letterPaths = font.getPaths(sampleText, 0, 100, 200)
-                .map(function (p) { return new paper.CompoundPath(p.toPathData()); });
-            var textOrigin = letterPaths[0].bounds.bottomLeft;
-            var linearLength = letterPaths[letterPaths.length - 1].bounds.right
-                - textOrigin.x;
-            var layoutPathLength = layoutPath.length;
-            var offsetScaling = layoutPathLength / linearLength;
-            var idx = 0;
-            for (var _i = 0; _i < letterPaths.length; _i++) {
-                var letterPath = letterPaths[_i];
-                letterPath.strokeColor = '#07698A';
-                var letterOffset = (letterPath.bounds.left - textOrigin.x) * offsetScaling;
-                var bottomLeftPrime = layoutPath.getPointAt(letterOffset);
-                var bottomRightPrime = layoutPath.getPointAt(Math.min(layoutPathLength, letterOffset + letterPath.bounds.width * offsetScaling));
-                var bottomVectorPrime = bottomRightPrime.subtract(bottomLeftPrime);
-                var rotateAngle = new paper.Point(1, 0).getDirectedAngle(bottomRightPrime.subtract(bottomLeftPrime));
-                // reposition using bottomLeft
-                letterPath.position = bottomLeftPrime
-                    .add(letterPath.bounds.center
-                    .subtract(letterPath.bounds.bottomLeft));
-                letterPath.rotate(rotateAngle, bottomLeftPrime);
-                letterPath.scale(offsetScaling, bottomLeftPrime);
-                idx++;
-            }
-        });
-    };
-    TextWarpController.prototype.drawPathsDemo = function () {
-        new FontLoader(Roboto100, function (font) {
-            for (var _i = 0, _a = font.getPaths("Fatty Two by Four", 0, 100, 200); _i < _a.length; _i++) {
-                var openPath = _a[_i];
-                var paperPath = new paper.CompoundPath(openPath.toPathData());
-                paperPath.strokeColor = '#07698A';
-                paperPath.position.y += 50 + Math.random() * 30;
-            }
-            paper.project.activeLayer.scale(.5, new paper.Point(0.5, 0.5));
-        });
-    };
-    TextWarpController.prototype.drawDemo = function () {
-        var _this = this;
-        new FontLoader(AmaticUrl, function (font) {
-            console.log('drawing in', font);
-            var offset = new paper.Point(0, 100);
-            var letters = "PoughKepsie".split('');
-            var prevPath;
-            var intersectionGroup = new paper.Group();
-            for (var _i = 0; _i < letters.length; _i++) {
-                var letter = letters[_i];
-                var path = _this.demoTextPath(font, letter, offset);
-                if (prevPath) {
-                    var intersections = path.getIntersections(prevPath);
-                    for (var i = 0; i < intersections.length; i++) {
-                        var intersectionPath = paper.Path.Circle({
-                            center: intersections[i].point,
-                            radius: 4,
-                            fillColor: 'red',
-                            parent: intersectionGroup
-                        });
-                    }
-                    var intersect = path.intersect(prevPath);
-                    intersect.fillColor = 'green';
-                }
-                offset = offset.add(new paper.Point(path.bounds.width * 0.9, (-0.5 + Math.random()) * path.bounds.height * 0.3));
-                prevPath = path;
-            }
-            paper.project.activeLayer.scale(2, new paper.Point(0.5, 0.5));
-        });
-    };
-    TextWarpController.prototype.demoTextPath = function (openTextFont, text, position) {
-        if (!position)
-            position = new paper.Point(0, 0);
-        var openTextPath = openTextFont.getPath(text, 0, 100, 200);
-        var paperPath = new paper.CompoundPath(openTextPath.toPathData());
-        paperPath.strokeColor = '#07698A';
-        paperPath.position = position.add(new paper.Point(paperPath.bounds.width / 2, paperPath.bounds.height / 2));
-        return paperPath;
-    };
-    ;
-    return TextWarpController;
-})();
-var PathOffsetScaling = (function () {
-    function PathOffsetScaling(fromLength, to) {
-        this.to = to;
-        this.scale = to.length / fromLength;
-    }
-    PathOffsetScaling.prototype.getToPointAt = function (fromPathOffset) {
-        var toOffset = Math.min(this.to.length, fromPathOffset * this.scale);
-        return this.to.getPointAt(toOffset);
-    };
-    return PathOffsetScaling;
+    return VerticalBoundsTextLayout;
 })();
 // <reference path="typings/paper.d.ts" />
+var AmaticUrl = 'http://fonts.gstatic.com/s/amaticsc/v8/IDnkRTPGcrSVo50UyYNK7y3USBnSvpkopQaUR-2r7iU.ttf';
+var Roboto100 = 'http://fonts.gstatic.com/s/roboto/v15/7MygqTe2zs9YkP0adA9QQQ.ttf';
+var Roboto500 = 'fonts/Roboto-500.ttf';
 var warp = new TextWarpController();
 //warp.drawDemo();
 //warp.drawPathsDemo(); 

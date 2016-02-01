@@ -1,5 +1,4 @@
 
-
 class PathSection implements paper.PathLike {
     path: paper.Path;
     offset: number;

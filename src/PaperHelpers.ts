@@ -1,5 +1,13 @@
 
-class PathHelper {
+class PaperHelpers {
+    
+    static importOpenTypePath(openPath: opentype.Path): paper.PathItem
+    {
+        return new paper.CompoundPath(openPath.toPathData());
+        
+        // let svg = openPath.toSVG(4);
+        // return <paper.Path>paper.project.importSVG(svg);
+    }
     
     static tracePathItem(path: paper.PathItem, pointsPerPath: number): paper.PathItem {
         if(path.className === 'CompoundPath'){
@@ -62,7 +70,7 @@ class PathHelper {
     static simplify(path: paper.PathItem, tolerance?: number){
         if(path.className === 'CompoundPath'){
             for(let p of path.children){
-                PathHelper.simplify(<paper.PathItem>p, tolerance);
+                PaperHelpers.simplify(<paper.PathItem>p, tolerance);
             }
         } else {
             (<paper.Path>path).simplify(tolerance);
