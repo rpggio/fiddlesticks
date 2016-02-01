@@ -25,12 +25,13 @@ class TextWarpController {
         var lineDraw = new LineDrawTool();
         let prevPath: paper.Path;
         lineDraw.onPathFinished = (path) => {
-            path.flatten(20);
+            path.flatten(40);
             
             //this.layoutTextBaseline(sampleText, path);
             
             if(prevPath){
-                this.layoutMatrixProjection(sampleText, prevPath, path);
+                //this.layoutMatrixProjection(sampleText, path, prevPath);
+                this.layoutPathProjection(sampleText, path, prevPath);
             }
             
             prevPath = path;
@@ -42,36 +43,44 @@ class TextWarpController {
         shape.strokeColor = color;         
     }
 
-    // layoutPathProjection(text: string, bottom: paper.Path, top: paper.Path){
-    //     new FontLoader(Roboto500, font => {
-    //         let letterPaths = font.getPaths(sampleText, 0, 100, 200)
-    //             .map(p => this.importOpenTypePath(p));
-    //         let linearTextOrigin = letterPaths[0].bounds.bottomLeft; 
-    //         let linearLength = letterPaths[letterPaths.length - 1].bounds.right
-    //             - linearTextOrigin.x;
+    layoutPathProjection(text: string, top: paper.Path, bottom: paper.Path){
+        new FontLoader(Roboto500, font => {
+            let letterGroup = new paper.Group();
+            let letterPaths = font.getPaths(sampleText, 0, 100, 200)
+                .map(p => { 
+                    let path = this.importOpenTypePath(p);
+                    letterGroup.addChild(path);
+                    return path;
+                    });
+            let orthOrigin = letterGroup.bounds.topLeft; 
+            let orthWidth = letterGroup.bounds.width;
+            let orthHeight = letterGroup.bounds.height;
+            console.log('orth size', [orthWidth, orthHeight]);
                 
-    //         let bottomScaling = new PathOffsetScaling(linearLength, bottom); 
-    //         let topScaling = new PathOffsetScaling(linearLength, top); 
-                
-    //         for(let letterPath of letterPaths){
-    //             letterPath.strokeColor = 'red';
-    //             let linearOffset = letterPath.bounds.left - linearTextOrigin.x;
-    //             let letterOutline = this.outlinePath(letterPath, 1000);
-    //             //letterPath.remove();
-    //             letterOutline.fillColor = '#07698A';
-                
-    //             // line up letter on lower left point
-    //             letterOutline.position = bottomScaling.getToPointAt(linearOffset)
-    //                 .add(letterOutline.bounds.center
-    //                     .subtract(letterOutline.bounds.bottomLeft));
+            let projection = PathHelper.pathProjection(top, bottom);
+            let transform = new PathTransform(point => {
+                let relative = point.subtract(orthOrigin);
+                let unit = new paper.Point(
+                    relative.x / orthWidth, 
+                    relative.y / orthHeight);
+                //console.log('unit', unit);
+                let projected = projection(unit);
+                //console.log('projected', projected);
+                return projected;
+            });  
 
-                               
-    //         }
-            
-    //     });
-    // };
+            for(let letterPath of letterPaths){
+                let letterOutline = PathHelper.tracePathItem(letterPath, 400);
+                letterPath.remove();
+                
+                letterOutline.fillColor = "lightblue";
+                transform.transformPathItem(letterOutline);
+                PathHelper.simplify(letterOutline, 1);
+            }
+        });
+    }
     
-    layoutMatrixProjection(text: string, bottom: paper.Path, top: paper.Path){
+    layoutMatrixProjection(text: string, top: paper.Path, bottom: paper.Path){
         new FontLoader(Roboto500, font => {
             let letterPaths = font.getPaths(sampleText, 0, 100, 200)
                 .map(p => this.importOpenTypePath(p));

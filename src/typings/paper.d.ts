@@ -549,8 +549,17 @@ declare module paper {
         abs(): Point;
 
         add(point: Point): Point;
-        
         subtract(point: Point): Point;
+        multiply(point: Point): Point;
+        divide(point: Point): Point;
+        modulo(point: Point): Point;
+        
+        add(number: number): Point;
+        subtract(number: number): Point;
+        multiply(number: number): Point;
+        divide(number: number): Point;
+        modulo(number: number): Point;
+
     }
     /**
      * A Rectangle specifies an area that is enclosed by it's top-left point (x, y), its width, and its height. It should not be confused with a rectangular path, it is not an item.

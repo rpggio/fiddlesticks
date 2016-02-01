@@ -40,7 +40,32 @@ class PathHelper {
         }
         
         var path = new paper.Path(points);
+        path.fillColor = 'lightgray';
         return path;
     }
     
+    static pathProjection(topPath: paper.PathLike, bottomPath: paper.PathLike)
+        : (unitPoint: paper.Point) => paper.Point
+    {
+        const topPathLength = topPath.length;
+        const bottomPathLength = bottomPath.length;
+        return function(unitPoint: paper.Point): paper.Point {
+           let topPoint = topPath.getPointAt(unitPoint.x * topPathLength);
+           let bottomPoint = bottomPath.getPointAt(unitPoint.x * bottomPathLength);
+           if(topPoint == null || bottomPoint == null){
+               throw "could not get projected point for unit point " + unitPoint.toString();
+           }
+           return topPoint.add(bottomPoint.subtract(topPoint).multiply(unitPoint.y));
+        }
+    }
+    
+    static simplify(path: paper.PathItem, tolerance?: number){
+        if(path.className === 'CompoundPath'){
+            for(let p of path.children){
+                PathHelper.simplify(<paper.PathItem>p, tolerance);
+            }
+        } else {
+            (<paper.Path>path).simplify(tolerance);
+        }
+    }
 }

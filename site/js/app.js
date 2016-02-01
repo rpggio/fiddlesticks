@@ -269,9 +269,44 @@ var PathHelper = (function () {
             offset += offsetIncr;
         }
         var path = new paper.Path(points);
+        path.fillColor = 'lightgray';
         return path;
     };
+    PathHelper.pathProjection = function (topPath, bottomPath) {
+        var topPathLength = topPath.length;
+        var bottomPathLength = bottomPath.length;
+        return function (unitPoint) {
+            var topPoint = topPath.getPointAt(unitPoint.x * topPathLength);
+            var bottomPoint = bottomPath.getPointAt(unitPoint.x * bottomPathLength);
+            if (topPoint == null || bottomPoint == null) {
+                throw "could not get projected point for unit point " + unitPoint.toString();
+            }
+            return topPoint.add(bottomPoint.subtract(topPoint).multiply(unitPoint.y));
+        };
+    };
+    PathHelper.simplify = function (path, tolerance) {
+        if (path.className === 'CompoundPath') {
+            for (var _i = 0, _a = path.children; _i < _a.length; _i++) {
+                var p = _a[_i];
+                PathHelper.simplify(p, tolerance);
+            }
+        }
+        else {
+            path.simplify(tolerance);
+        }
+    };
     return PathHelper;
+})();
+var PathSection = (function () {
+    function PathSection(path, offset, length) {
+        this.path = path;
+        this.offset = offset;
+        this.length = length;
+    }
+    PathSection.prototype.getPointAt = function (offset) {
+        return this.path.getPointAt(offset + this.offset);
+    };
+    return PathSection;
 })();
 // <reference path="typings/paper.d.ts" />
 var PathText = (function (_super) {
@@ -370,6 +405,38 @@ var PathText = (function (_super) {
     };
     return PathText;
 })(paper.Group);
+var PathTransform = (function () {
+    function PathTransform(pointTransform) {
+        this.pointTransform = pointTransform;
+    }
+    PathTransform.prototype.transformPoint = function (point) {
+        return this.pointTransform(point);
+    };
+    PathTransform.prototype.transformPathItem = function (path) {
+        if (path.className === 'CompoundPath') {
+            this.transformCompoundPath(path);
+        }
+        else {
+            this.transformPath(path);
+        }
+    };
+    PathTransform.prototype.transformCompoundPath = function (path) {
+        for (var _i = 0, _a = path.children; _i < _a.length; _i++) {
+            var p = _a[_i];
+            this.transformPath(p);
+        }
+    };
+    PathTransform.prototype.transformPath = function (path) {
+        for (var _i = 0, _a = path.segments; _i < _a.length; _i++) {
+            var segment = _a[_i];
+            var origPoint = segment.point;
+            var newPoint = this.transformPoint(segment.point);
+            origPoint.x = newPoint.x;
+            origPoint.y = newPoint.y;
+        }
+    };
+    return PathTransform;
+})();
 var PerspectiveTransform = (function () {
     function PerspectiveTransform(source, dest) {
         this.source = source;
@@ -595,10 +662,11 @@ var TextWarpController = (function () {
         var lineDraw = new LineDrawTool();
         var prevPath;
         lineDraw.onPathFinished = function (path) {
-            path.flatten(20);
+            path.flatten(40);
             //this.layoutTextBaseline(sampleText, path);
             if (prevPath) {
-                _this.layoutMatrixProjection(sampleText, prevPath, path);
+                //this.layoutMatrixProjection(sampleText, path, prevPath);
+                _this.layoutPathProjection(sampleText, path, prevPath);
             }
             prevPath = path;
         };
@@ -607,29 +675,40 @@ var TextWarpController = (function () {
         var shape = paper.Shape.Circle(point, 5);
         shape.strokeColor = color;
     };
-    // layoutPathProjection(text: string, bottom: paper.Path, top: paper.Path){
-    //     new FontLoader(Roboto500, font => {
-    //         let letterPaths = font.getPaths(sampleText, 0, 100, 200)
-    //             .map(p => this.importOpenTypePath(p));
-    //         let linearTextOrigin = letterPaths[0].bounds.bottomLeft; 
-    //         let linearLength = letterPaths[letterPaths.length - 1].bounds.right
-    //             - linearTextOrigin.x;
-    //         let bottomScaling = new PathOffsetScaling(linearLength, bottom); 
-    //         let topScaling = new PathOffsetScaling(linearLength, top); 
-    //         for(let letterPath of letterPaths){
-    //             letterPath.strokeColor = 'red';
-    //             let linearOffset = letterPath.bounds.left - linearTextOrigin.x;
-    //             let letterOutline = this.outlinePath(letterPath, 1000);
-    //             //letterPath.remove();
-    //             letterOutline.fillColor = '#07698A';
-    //             // line up letter on lower left point
-    //             letterOutline.position = bottomScaling.getToPointAt(linearOffset)
-    //                 .add(letterOutline.bounds.center
-    //                     .subtract(letterOutline.bounds.bottomLeft));
-    //         }
-    //     });
-    // };
-    TextWarpController.prototype.layoutMatrixProjection = function (text, bottom, top) {
+    TextWarpController.prototype.layoutPathProjection = function (text, top, bottom) {
+        var _this = this;
+        new FontLoader(Roboto500, function (font) {
+            var letterGroup = new paper.Group();
+            var letterPaths = font.getPaths(sampleText, 0, 100, 200)
+                .map(function (p) {
+                var path = _this.importOpenTypePath(p);
+                letterGroup.addChild(path);
+                return path;
+            });
+            var orthOrigin = letterGroup.bounds.topLeft;
+            var orthWidth = letterGroup.bounds.width;
+            var orthHeight = letterGroup.bounds.height;
+            console.log('orth size', [orthWidth, orthHeight]);
+            var projection = PathHelper.pathProjection(top, bottom);
+            var transform = new PathTransform(function (point) {
+                var relative = point.subtract(orthOrigin);
+                var unit = new paper.Point(relative.x / orthWidth, relative.y / orthHeight);
+                //console.log('unit', unit);
+                var projected = projection(unit);
+                //console.log('projected', projected);
+                return projected;
+            });
+            for (var _i = 0; _i < letterPaths.length; _i++) {
+                var letterPath = letterPaths[_i];
+                var letterOutline = PathHelper.tracePathItem(letterPath, 400);
+                letterPath.remove();
+                letterOutline.fillColor = "lightblue";
+                transform.transformPathItem(letterOutline);
+                PathHelper.simplify(letterOutline, 1);
+            }
+        });
+    };
+    TextWarpController.prototype.layoutMatrixProjection = function (text, top, bottom) {
         var _this = this;
         new FontLoader(Roboto500, function (font) {
             var letterPaths = font.getPaths(sampleText, 0, 100, 200)
