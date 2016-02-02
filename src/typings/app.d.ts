@@ -16,7 +16,7 @@ declare module opentype {
             left: number, 
             bottom:number, 
             fontSize: number, 
-            options: FontOptions): Path;
+            options?: FontOptions): Path;
             
         getPaths(text: string, 
             left: number, 

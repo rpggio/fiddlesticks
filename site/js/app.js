@@ -6,11 +6,15 @@ var Roboto100 = 'http://fonts.gstatic.com/s/roboto/v15/7MygqTe2zs9YkP0adA9QQQ.tt
 var Roboto500 = 'fonts/Roboto-500.ttf';
 var AppController = (function () {
     function AppController() {
+        var _this = this;
         this.textBlocks = [];
         var canvas = document.getElementById('mainCanvas');
         paper.setup(canvas);
         this.paper = paper;
-        this.warp = new TextWarpController(this);
+        new FontLoader(Roboto500, function (font) {
+            _this.font = font;
+            _this.warp = new TextWarpController(_this);
+        });
     }
     AppController.prototype.addText = function () {
         var text = $('#newText').val();
@@ -99,9 +103,21 @@ window.textTrace = function () {
 // <reference path="typings/paper.d.ts" />
 var TextWarpController = (function () {
     function TextWarpController(app) {
-        var _this = this;
-        this.sampleText = "Fiddlesticks";
         this.app = app;
+    }
+    TextWarpController.prototype.update = function () {
+        for (var _i = 0, _a = this.app.textBlocks; _i < _a.length; _i++) {
+            var block = _a[_i];
+            if (!block.item) {
+                var stretchy = new StretchyText(block.text, this.app.font, 64);
+                //stretchy.translate(new paper.Point(30, 30));
+                block.item = stretchy;
+            }
+        }
+    };
+    TextWarpController.prototype.fiddlesticks = function () {
+        var _this = this;
+        var sampleText = "Fiddlesticks";
         var lineDraw = new LineDrawTool();
         var prevPath;
         lineDraw.onPathFinished = function (path) {
@@ -109,23 +125,10 @@ var TextWarpController = (function () {
             path.smooth();
             if (prevPath) {
                 var layout = new VerticalBoundsTextLayout(path, prevPath);
-                layout.layout(_this.sampleText, function (item) { return _this.app.paper.view.draw(); });
+                layout.layout(sampleText, _this.app.font, function (item) { return _this.app.paper.view.draw(); });
             }
             prevPath = path;
         };
-    }
-    TextWarpController.prototype.update = function () {
-        for (var _i = 0, _a = this.app.textBlocks; _i < _a.length; _i++) {
-            var block = _a[_i];
-            if (!block.item) {
-                block.item = new paper.PointText({
-                    point: [50, 50],
-                    content: block.text,
-                    fillColor: 'black',
-                    fontSize: 25
-                });
-            }
-        }
     };
     return TextWarpController;
 })();
@@ -454,6 +457,49 @@ var LinkedPathGroup = (function (_super) {
     };
     return LinkedPathGroup;
 })(paper.Group);
+var MovableLine = (function (_super) {
+    __extends(MovableLine, _super);
+    function MovableLine(a, b) {
+        var _this = this;
+        this.path = paper.Path.Line(a, b);
+        var aMarker = paper.Shape.Circle(a, 5);
+        aMarker.fillColor = 'blue';
+        this.addChild(aMarker);
+        var movedA = false;
+        aMarker.on('mousedrag', function (event) {
+            aMarker.translate(event.delta);
+            var seg = _this.path.segments[0];
+            seg.point = seg.point.add(event.delta);
+            movedA = true;
+        });
+        aMarker.on('mouseup', function (event) {
+            if (movedA && _this.onMoveComplete) {
+                _this.onMoveComplete(_this.path);
+            }
+            movedA = false;
+        });
+        var bMarker = paper.Shape.Circle(b, 5);
+        bMarker.fillColor = 'blue';
+        this.addChild(bMarker);
+        var movedB = false;
+        bMarker.on('mousedrag', function (event) {
+            bMarker.translate(event.delta);
+            var seg = _this.path.segments[1];
+            seg.point = seg.point.add(event.delta);
+            movedB = true;
+        });
+        bMarker.on('mouseup', function (event) {
+            if (movedB && _this.onMoveComplete) {
+                _this.onMoveComplete(_this.path);
+            }
+            movedB = false;
+        });
+        _super.call(this, [
+            this.path, aMarker, bMarker
+        ]);
+    }
+    return MovableLine;
+})(paper.Group);
 var PaperHelpers = (function () {
     function PaperHelpers() {
     }
@@ -668,6 +714,65 @@ var PathTransform = (function () {
     };
     return PathTransform;
 })();
+var StretchyPath = (function (_super) {
+    __extends(StretchyPath, _super);
+    function StretchyPath(sourcePath) {
+        var _this = this;
+        this.sourcePath = sourcePath;
+        sourcePath.visible = false;
+        this.top = new MovableLine(sourcePath.bounds.topLeft, sourcePath.bounds.topRight);
+        this.top.path.strokeColor = 'lightgray';
+        this.top.path.dashArray = [5, 5];
+        this.top.onMoveComplete = function (path) { return _this.arrange(); };
+        this.bottom = new MovableLine(sourcePath.bounds.bottomLeft, sourcePath.bounds.bottomRight);
+        this.bottom.path.strokeColor = 'lightgray';
+        this.bottom.path.dashArray = [5, 5];
+        this.bottom.onMoveComplete = function (path) { return _this.arrange(); };
+        _super.call(this, [
+            this.top,
+            this.bottom
+        ]);
+        this.arrange();
+        // todo: need background rectangle?
+        // this.on('mousedrag', event => {
+        //     console.log('stretch.drag', event);
+        // });
+    }
+    StretchyPath.prototype.arrange = function () {
+        var orthOrigin = this.sourcePath.bounds.topLeft;
+        var orthWidth = this.sourcePath.bounds.width;
+        var orthHeight = this.sourcePath.bounds.height;
+        var projection = PaperHelpers.pathProjection(this.top.path, this.bottom.path);
+        var transform = new PathTransform(function (point) {
+            var relative = point.subtract(orthOrigin);
+            var unit = new paper.Point(relative.x / orthWidth, relative.y / orthHeight);
+            var projected = projection(unit);
+            return projected;
+        });
+        var newPath = this.sourcePath.clone();
+        newPath.visible = true;
+        newPath.fillColor = 'lightblue';
+        //newPath.fillColor = new paper.Color(Math.random(), Math.random(), Math.random());
+        transform.transformPathItem(newPath);
+        if (this.displayPath) {
+            this.displayPath.remove();
+        }
+        this.displayPath = newPath;
+        this.addChild(newPath);
+    };
+    return StretchyPath;
+})(paper.Group);
+var StretchyText = (function (_super) {
+    __extends(StretchyText, _super);
+    function StretchyText(text, font, fontSize) {
+        var openTypePath = font.getPath(text, 0, 0, fontSize);
+        var textPath = PaperHelpers.importOpenTypePath(openTypePath);
+        textPath.fillColor = 'red';
+        _super.call(this, textPath);
+        this.position = new paper.Point(this.strokeBounds.width / 2, this.strokeBounds.height / 2);
+    }
+    return StretchyText;
+})(StretchyPath);
 var TextRuler = (function () {
     function TextRuler() {
     }
@@ -719,46 +824,43 @@ var TextRuler = (function () {
 })();
 var VerticalBoundsTextLayout = (function () {
     function VerticalBoundsTextLayout(top, bottom) {
-        this.letterResolution = 400;
+        this.letterResolution = 100;
         this.smoothTolerance = 0.25;
-        this.fontSize = 100;
+        this.fontSize = 64;
         this.top = top;
         this.bottom = bottom;
     }
-    VerticalBoundsTextLayout.prototype.layout = function (text, onComplete) {
-        var _this = this;
-        new FontLoader(Roboto500, function (font) {
-            var letterGroup = new paper.Group();
-            var letterPaths = font.getPaths(text, 0, 0, _this.fontSize)
-                .map(function (p) {
-                var path = PaperHelpers.importOpenTypePath(p);
-                letterGroup.addChild(path);
-                return path;
-            });
-            var orthOrigin = letterGroup.bounds.topLeft;
-            var orthWidth = letterGroup.bounds.width;
-            var orthHeight = letterGroup.bounds.height;
-            var projection = PaperHelpers.pathProjection(_this.top, _this.bottom);
-            var transform = new PathTransform(function (point) {
-                var relative = point.subtract(orthOrigin);
-                var unit = new paper.Point(relative.x / orthWidth, relative.y / orthHeight);
-                var projected = projection(unit);
-                return projected;
-            });
-            var finalGroup = new paper.Group();
-            for (var _i = 0; _i < letterPaths.length; _i++) {
-                var letterPath = letterPaths[_i];
-                var letterOutline = PaperHelpers.tracePathItem(letterPath, _this.letterResolution);
-                letterPath.remove();
-                transform.transformPathItem(letterOutline);
-                PaperHelpers.simplify(letterOutline, _this.smoothTolerance);
-                finalGroup.addChild(letterOutline);
-            }
-            letterGroup.remove();
-            if (onComplete) {
-                onComplete(finalGroup);
-            }
+    VerticalBoundsTextLayout.prototype.layout = function (text, font, onComplete) {
+        var letterGroup = new paper.Group();
+        var letterPaths = font.getPaths(text, 0, 0, this.fontSize)
+            .map(function (p) {
+            var path = PaperHelpers.importOpenTypePath(p);
+            letterGroup.addChild(path);
+            return path;
         });
+        var orthOrigin = letterGroup.bounds.topLeft;
+        var orthWidth = letterGroup.bounds.width;
+        var orthHeight = letterGroup.bounds.height;
+        var projection = PaperHelpers.pathProjection(this.top, this.bottom);
+        var transform = new PathTransform(function (point) {
+            var relative = point.subtract(orthOrigin);
+            var unit = new paper.Point(relative.x / orthWidth, relative.y / orthHeight);
+            var projected = projection(unit);
+            return projected;
+        });
+        var finalGroup = new paper.Group();
+        for (var _i = 0; _i < letterPaths.length; _i++) {
+            var letterPath = letterPaths[_i];
+            var letterOutline = PaperHelpers.tracePathItem(letterPath, this.letterResolution);
+            letterPath.remove();
+            transform.transformPathItem(letterOutline);
+            PaperHelpers.simplify(letterOutline, this.smoothTolerance);
+            finalGroup.addChild(letterOutline);
+        }
+        letterGroup.remove();
+        if (onComplete) {
+            onComplete(finalGroup);
+        }
     };
     return VerticalBoundsTextLayout;
 })();

@@ -2,11 +2,23 @@
 
 class TextWarpController {
     app: AppController;
-    sampleText = "Fiddlesticks";
 
     constructor(app: AppController) {
         this.app = app;
-        
+    }
+    
+    update(){
+        for(let block of this.app.textBlocks){
+            if(!block.item){
+                let stretchy = new StretchyText(block.text, this.app.font, 64);
+                //stretchy.translate(new paper.Point(30, 30));
+                block.item = stretchy;
+            }
+        }        
+    }
+    
+    fiddlesticks(){
+        const sampleText = "Fiddlesticks";
         var lineDraw = new LineDrawTool();
         let prevPath: paper.Path;
         lineDraw.onPathFinished = (path) => {
@@ -15,23 +27,12 @@ class TextWarpController {
             
             if(prevPath){
                 let layout = new VerticalBoundsTextLayout(path, prevPath);
-                layout.layout(this.sampleText, (item) => this.app.paper.view.draw());
+                layout.layout(sampleText,
+                    this.app.font, 
+                    (item) => this.app.paper.view.draw());
             }
             
             prevPath = path;
         };
-    }
-    
-    update(){
-        for(let block of this.app.textBlocks){
-            if(!block.item){
-                block.item = new paper.PointText({
-                    point: [50, 50],
-                    content: block.text,
-                    fillColor: 'black',
-                    fontSize: 25
-                })
-            }
-        }        
     }
 }

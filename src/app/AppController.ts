@@ -5,6 +5,7 @@ const Roboto500 = 'fonts/Roboto-500.ttf';
 
 class AppController {
 
+    font: opentype.Font;
     warp: TextWarpController;
     textBlocks: TextBlock[] = [];
     paper: paper.PaperScope;
@@ -14,7 +15,11 @@ class AppController {
         paper.setup(<HTMLCanvasElement>canvas);
         this.paper = paper;        
         
-        this.warp = new TextWarpController(this);
+        new FontLoader(Roboto500, font => {
+            this.font = font;
+            this.warp = new TextWarpController(this);
+        });
+
     }
     
     addText(){
@@ -25,7 +30,9 @@ class AppController {
                 text: text
             };
             this.textBlocks.push(block);
+
             this.warp.update();
+            
             this.paper.view.draw();
         }    
     }

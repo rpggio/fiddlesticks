@@ -1,7 +1,7 @@
 
 class PaperHelpers {
     
-    static importOpenTypePath(openPath: opentype.Path): paper.PathItem
+    static importOpenTypePath(openPath: opentype.Path): paper.CompoundPath
     {
         return new paper.CompoundPath(openPath.toPathData());
         
