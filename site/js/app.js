@@ -1,3 +1,212 @@
+$(document).ready(function () {
+    window.app = new AppController();
+});
+var AmaticUrl = 'http://fonts.gstatic.com/s/amaticsc/v8/IDnkRTPGcrSVo50UyYNK7y3USBnSvpkopQaUR-2r7iU.ttf';
+var Roboto100 = 'http://fonts.gstatic.com/s/roboto/v15/7MygqTe2zs9YkP0adA9QQQ.ttf';
+var Roboto500 = 'fonts/Roboto-500.ttf';
+var AppController = (function () {
+    function AppController() {
+        this.textBlocks = [];
+        var canvas = document.getElementById('mainCanvas');
+        paper.setup(canvas);
+        this.paper = paper;
+        this.warp = new TextWarpController(this);
+    }
+    AppController.prototype.addText = function () {
+        var text = $('#newText').val();
+        if (text.trim().length) {
+            var block = {
+                _id: newid(),
+                text: text
+            };
+            this.textBlocks.push(block);
+            this.warp.update();
+            this.paper.view.draw();
+        }
+    };
+    return AppController;
+})();
+var FontLoader = (function () {
+    function FontLoader(fontUrl, onLoaded) {
+        opentype.load(fontUrl, function (err, font) {
+            if (err) {
+                console.error(err);
+            }
+            else {
+                if (onLoaded) {
+                    this.isLoaded = true;
+                    onLoaded.call(this, font);
+                }
+            }
+        });
+    }
+    return FontLoader;
+})();
+function newid() {
+    return (new Date().getTime() + Math.random()).toString(36);
+}
+// <reference path="typings/paper.d.ts" />
+// <reference path="LinkedPaths.ts" />
+window.textTrace = function () {
+    console.log('textTrace started');
+    var ps23 = "The Lord is my shepherd; I shall not want. He makes me lie down in green pastures. He leads me beside still waters. He restores my soul. He leads me in paths of righteousness for his name's sake. Even though I walk through the valley of the shadow of death, I will fear no evil, for you are with me; your rod and your staff, they comfort me. You prepare a table before me in the presence of my enemies; you anoint my head with oil; my cup overflows. Surely goodness and mercy shall follow me all the days of my life, and I shall dwell in the house of the Lord forever.";
+    var drawPaths = new LinkedPathGroup();
+    var textSize = 64;
+    var textPath = new PathText(drawPaths, ps23, { fontSize: textSize });
+    var startTime = new Date();
+    var currentPath;
+    function startPath(point) {
+        if (currentPath) {
+            finishPath();
+        }
+        currentPath = new paper.Path({ strokeColor: 'lightgray', strokeWidth: textSize });
+        drawPaths.addChild(currentPath);
+        currentPath.add(point);
+    }
+    function appendPath(point) {
+        if (currentPath) {
+            currentPath.add(point);
+        }
+    }
+    function finishPath() {
+        currentPath.simplify(textSize / 2);
+        textPath.update();
+        currentPath.visible = false;
+        currentPath = null;
+    }
+    var tool = new paper.Tool();
+    tool.onMouseDrag = function (event) {
+        var point = event.middlePoint;
+        if (!currentPath) {
+            startPath(point);
+            return;
+        }
+        // No: need to check if same segment!
+        // let nearest = drawPaths.getNearestPoint(point);
+        // if(nearest) {
+        //     let nearestDist = nearest.getDistance(point);
+        //     if(nearest && nearestDist <= textSize){
+        //         finishPath();
+        //         return;        
+        //     }
+        // }
+        appendPath(point);
+    };
+    tool.onMouseUp = function (event) {
+        finishPath();
+    };
+};
+// <reference path="typings/paper.d.ts" />
+var TextWarpController = (function () {
+    function TextWarpController(app) {
+        var _this = this;
+        this.sampleText = "Fiddlesticks";
+        this.app = app;
+        var lineDraw = new LineDrawTool();
+        var prevPath;
+        lineDraw.onPathFinished = function (path) {
+            path.flatten(40);
+            path.smooth();
+            if (prevPath) {
+                var layout = new VerticalBoundsTextLayout(path, prevPath);
+                layout.layout(_this.sampleText, function (item) { return _this.app.paper.view.draw(); });
+            }
+            prevPath = path;
+        };
+    }
+    TextWarpController.prototype.update = function () {
+        for (var _i = 0, _a = this.app.textBlocks; _i < _a.length; _i++) {
+            var block = _a[_i];
+            if (!block.item) {
+                block.item = new paper.PointText({
+                    point: [50, 50],
+                    content: block.text,
+                    fillColor: 'black',
+                    fontSize: 25
+                });
+            }
+        }
+    };
+    return TextWarpController;
+})();
+var PerspectiveTransform = (function () {
+    function PerspectiveTransform(source, dest) {
+        this.source = source;
+        this.dest = dest;
+        this.matrix = PerspectiveTransform.createMatrix(source, dest);
+    }
+    // Given a 4x4 perspective transformation matrix, and a 2D point (a 2x1 vector),
+    // applies the transformation matrix by converting the point to homogeneous
+    // coordinates at z=0, post-multiplying, and then applying a perspective divide.
+    PerspectiveTransform.prototype.transformPoint = function (point) {
+        var p3 = PerspectiveTransform.multiply(this.matrix, [point.x, point.y, 0, 1]);
+        var result = new paper.Point(p3[0] / p3[3], p3[1] / p3[3]);
+        return result;
+    };
+    PerspectiveTransform.createMatrix = function (source, target) {
+        var sourcePoints = [
+            [source.a.x, source.a.y],
+            [source.b.x, source.b.y],
+            [source.c.x, source.c.y],
+            [source.d.x, source.d.y]];
+        var targetPoints = [
+            [target.a.x, target.a.y],
+            [target.b.x, target.b.y],
+            [target.c.x, target.c.y],
+            [target.d.x, target.d.y]];
+        for (var a = [], b = [], i = 0, n = sourcePoints.length; i < n; ++i) {
+            var s = sourcePoints[i], t = targetPoints[i];
+            a.push([s[0], s[1], 1, 0, 0, 0, -s[0] * t[0], -s[1] * t[0]]), b.push(t[0]);
+            a.push([0, 0, 0, s[0], s[1], 1, -s[0] * t[1], -s[1] * t[1]]), b.push(t[1]);
+        }
+        var X = solve(a, b, true);
+        return [
+            X[0], X[3], 0, X[6],
+            X[1], X[4], 0, X[7],
+            0, 0, 1, 0,
+            X[2], X[5], 0, 1
+        ].map(function (x) {
+            return Math.round(x * 100000) / 100000;
+        });
+    };
+    // Post-multiply a 4x4 matrix in column-major order by a 4x1 column vector:
+    // [ m0 m4 m8  m12 ]   [ v0 ]   [ x ]
+    // [ m1 m5 m9  m13 ] * [ v1 ] = [ y ]
+    // [ m2 m6 m10 m14 ]   [ v2 ]   [ z ]
+    // [ m3 m7 m11 m15 ]   [ v3 ]   [ w ]
+    PerspectiveTransform.multiply = function (matrix, vector) {
+        return [
+            matrix[0] * vector[0] + matrix[4] * vector[1] + matrix[8] * vector[2] + matrix[12] * vector[3],
+            matrix[1] * vector[0] + matrix[5] * vector[1] + matrix[9] * vector[2] + matrix[13] * vector[3],
+            matrix[2] * vector[0] + matrix[6] * vector[1] + matrix[10] * vector[2] + matrix[14] * vector[3],
+            matrix[3] * vector[0] + matrix[7] * vector[1] + matrix[11] * vector[2] + matrix[15] * vector[3]
+        ];
+    };
+    return PerspectiveTransform;
+})();
+var Quad = (function () {
+    function Quad(a, b, c, d) {
+        this.a = a;
+        this.b = b;
+        this.c = c;
+        this.d = d;
+    }
+    Quad.fromRectangle = function (rect) {
+        return new Quad(rect.topLeft, rect.topRight, rect.bottomLeft, rect.bottomRight);
+    };
+    Quad.fromCoords = function (coords) {
+        return new Quad(new paper.Point(coords[0], coords[1]), new paper.Point(coords[2], coords[3]), new paper.Point(coords[4], coords[5]), new paper.Point(coords[6], coords[7]));
+    };
+    Quad.prototype.asCoords = function () {
+        return [
+            this.a.x, this.a.y,
+            this.b.x, this.b.y,
+            this.c.x, this.c.y,
+            this.d.x, this.d.y
+        ];
+    };
+    return Quad;
+})();
 var BottomTextLayout = (function () {
     function BottomTextLayout(bottom) {
         this.fontSize = 100;
@@ -118,22 +327,6 @@ var DragTool = (function () {
         }
     };
     return DragTool;
-})();
-var FontLoader = (function () {
-    function FontLoader(fontUrl, onLoaded) {
-        opentype.load(fontUrl, function (err, font) {
-            if (err) {
-                console.error(err);
-            }
-            else {
-                if (onLoaded) {
-                    this.isLoaded = true;
-                    onLoaded.call(this, font);
-                }
-            }
-        });
-    }
-    return FontLoader;
 })();
 // <reference path="typings/paper.d.ts" />
 var LineDrawTool = (function () {
@@ -475,84 +668,6 @@ var PathTransform = (function () {
     };
     return PathTransform;
 })();
-var PerspectiveTransform = (function () {
-    function PerspectiveTransform(source, dest) {
-        this.source = source;
-        this.dest = dest;
-        this.matrix = PerspectiveTransform.createMatrix(source, dest);
-    }
-    // Given a 4x4 perspective transformation matrix, and a 2D point (a 2x1 vector),
-    // applies the transformation matrix by converting the point to homogeneous
-    // coordinates at z=0, post-multiplying, and then applying a perspective divide.
-    PerspectiveTransform.prototype.transformPoint = function (point) {
-        var p3 = PerspectiveTransform.multiply(this.matrix, [point.x, point.y, 0, 1]);
-        var result = new paper.Point(p3[0] / p3[3], p3[1] / p3[3]);
-        return result;
-    };
-    PerspectiveTransform.createMatrix = function (source, target) {
-        var sourcePoints = [
-            [source.a.x, source.a.y],
-            [source.b.x, source.b.y],
-            [source.c.x, source.c.y],
-            [source.d.x, source.d.y]];
-        var targetPoints = [
-            [target.a.x, target.a.y],
-            [target.b.x, target.b.y],
-            [target.c.x, target.c.y],
-            [target.d.x, target.d.y]];
-        for (var a = [], b = [], i = 0, n = sourcePoints.length; i < n; ++i) {
-            var s = sourcePoints[i], t = targetPoints[i];
-            a.push([s[0], s[1], 1, 0, 0, 0, -s[0] * t[0], -s[1] * t[0]]), b.push(t[0]);
-            a.push([0, 0, 0, s[0], s[1], 1, -s[0] * t[1], -s[1] * t[1]]), b.push(t[1]);
-        }
-        var X = solve(a, b, true);
-        return [
-            X[0], X[3], 0, X[6],
-            X[1], X[4], 0, X[7],
-            0, 0, 1, 0,
-            X[2], X[5], 0, 1
-        ].map(function (x) {
-            return Math.round(x * 100000) / 100000;
-        });
-    };
-    // Post-multiply a 4x4 matrix in column-major order by a 4x1 column vector:
-    // [ m0 m4 m8  m12 ]   [ v0 ]   [ x ]
-    // [ m1 m5 m9  m13 ] * [ v1 ] = [ y ]
-    // [ m2 m6 m10 m14 ]   [ v2 ]   [ z ]
-    // [ m3 m7 m11 m15 ]   [ v3 ]   [ w ]
-    PerspectiveTransform.multiply = function (matrix, vector) {
-        return [
-            matrix[0] * vector[0] + matrix[4] * vector[1] + matrix[8] * vector[2] + matrix[12] * vector[3],
-            matrix[1] * vector[0] + matrix[5] * vector[1] + matrix[9] * vector[2] + matrix[13] * vector[3],
-            matrix[2] * vector[0] + matrix[6] * vector[1] + matrix[10] * vector[2] + matrix[14] * vector[3],
-            matrix[3] * vector[0] + matrix[7] * vector[1] + matrix[11] * vector[2] + matrix[15] * vector[3]
-        ];
-    };
-    return PerspectiveTransform;
-})();
-var Quad = (function () {
-    function Quad(a, b, c, d) {
-        this.a = a;
-        this.b = b;
-        this.c = c;
-        this.d = d;
-    }
-    Quad.fromRectangle = function (rect) {
-        return new Quad(rect.topLeft, rect.topRight, rect.bottomLeft, rect.bottomRight);
-    };
-    Quad.fromCoords = function (coords) {
-        return new Quad(new paper.Point(coords[0], coords[1]), new paper.Point(coords[2], coords[3]), new paper.Point(coords[4], coords[5]), new paper.Point(coords[6], coords[7]));
-    };
-    Quad.prototype.asCoords = function () {
-        return [
-            this.a.x, this.a.y,
-            this.b.x, this.b.y,
-            this.c.x, this.c.y,
-            this.d.x, this.d.y
-        ];
-    };
-    return Quad;
-})();
 var TextRuler = (function () {
     function TextRuler() {
     }
@@ -602,76 +717,6 @@ var TextRuler = (function () {
     };
     return TextRuler;
 })();
-// <reference path="typings/paper.d.ts" />
-// <reference path="LinkedPaths.ts" />
-window.textTrace = function () {
-    console.log('textTrace started');
-    var ps23 = "The Lord is my shepherd; I shall not want. He makes me lie down in green pastures. He leads me beside still waters. He restores my soul. He leads me in paths of righteousness for his name's sake. Even though I walk through the valley of the shadow of death, I will fear no evil, for you are with me; your rod and your staff, they comfort me. You prepare a table before me in the presence of my enemies; you anoint my head with oil; my cup overflows. Surely goodness and mercy shall follow me all the days of my life, and I shall dwell in the house of the Lord forever.";
-    var drawPaths = new LinkedPathGroup();
-    var textSize = 64;
-    var textPath = new PathText(drawPaths, ps23, { fontSize: textSize });
-    var startTime = new Date();
-    var currentPath;
-    function startPath(point) {
-        if (currentPath) {
-            finishPath();
-        }
-        currentPath = new paper.Path({ strokeColor: 'lightgray', strokeWidth: textSize });
-        drawPaths.addChild(currentPath);
-        currentPath.add(point);
-    }
-    function appendPath(point) {
-        if (currentPath) {
-            currentPath.add(point);
-        }
-    }
-    function finishPath() {
-        currentPath.simplify(textSize / 2);
-        textPath.update();
-        currentPath.visible = false;
-        currentPath = null;
-    }
-    var tool = new paper.Tool();
-    tool.onMouseDrag = function (event) {
-        var point = event.middlePoint;
-        if (!currentPath) {
-            startPath(point);
-            return;
-        }
-        // No: need to check if same segment!
-        // let nearest = drawPaths.getNearestPoint(point);
-        // if(nearest) {
-        //     let nearestDist = nearest.getDistance(point);
-        //     if(nearest && nearestDist <= textSize){
-        //         finishPath();
-        //         return;        
-        //     }
-        // }
-        appendPath(point);
-    };
-    tool.onMouseUp = function (event) {
-        finishPath();
-    };
-};
-// <reference path="typings/paper.d.ts" />
-var TextWarpController = (function () {
-    function TextWarpController() {
-        var _this = this;
-        this.sampleText = "Fiddlesticks";
-        var lineDraw = new LineDrawTool();
-        var prevPath;
-        lineDraw.onPathFinished = function (path) {
-            path.flatten(40);
-            path.smooth();
-            if (prevPath) {
-                var layout = new VerticalBoundsTextLayout(path, prevPath);
-                layout.layout(_this.sampleText);
-            }
-            prevPath = path;
-        };
-    }
-    return TextWarpController;
-})();
 var VerticalBoundsTextLayout = (function () {
     function VerticalBoundsTextLayout(top, bottom) {
         this.letterResolution = 400;
@@ -717,11 +762,4 @@ var VerticalBoundsTextLayout = (function () {
     };
     return VerticalBoundsTextLayout;
 })();
-// <reference path="typings/paper.d.ts" />
-var AmaticUrl = 'http://fonts.gstatic.com/s/amaticsc/v8/IDnkRTPGcrSVo50UyYNK7y3USBnSvpkopQaUR-2r7iU.ttf';
-var Roboto100 = 'http://fonts.gstatic.com/s/roboto/v15/7MygqTe2zs9YkP0adA9QQQ.ttf';
-var Roboto500 = 'fonts/Roboto-500.ttf';
-var warp = new TextWarpController();
-//warp.drawDemo();
-//warp.drawPathsDemo(); 
 //# sourceMappingURL=app.js.map

@@ -3745,6 +3745,8 @@ declare module paper {
          */
         responds(type: string): boolean;
 
+        draw(): void;
+
     }
     /**
      * The Tool object refers to a script that the user can interact with by using the mouse and keyboard and can be accessed through the global tool variable. All its properties are also available in the paper scope.
