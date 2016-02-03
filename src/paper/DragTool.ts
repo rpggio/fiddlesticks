@@ -1,15 +1,5 @@
-// <reference path="typings/paper.d.ts" />
 
-
-// WORK IN PROGRESS
 class DragTool {
-    values = {
-        paths: 50,
-        minPoints: 5,
-        maxPoints: 15,
-        minRadius: 30,
-        maxRadius: 90
-    };
 
     hitOptions = {
         segments: true,
@@ -19,9 +9,7 @@ class DragTool {
     };
 
     paperScope: paper.PaperScope;
-    segment;
-    path;
-    movePath = false;
+    dragItem: paper.Item;
 
     constructor(paperScope: paper.PaperScope) {
         this.paperScope = paperScope;
@@ -29,50 +17,43 @@ class DragTool {
         tool.onMouseDown = event => this.onMouseDown(event);
         tool.onMouseMove = event => this.onMouseMove(event);
         tool.onMouseDrag = event => this.onMouseDrag(event);
+        tool.onMouseUp = event => this.onMouseUp(event);
     }
 
     onMouseDown(event) {
-        this.segment = this.path = null;
+        this.dragItem = null;
 
-        var hitResult = this.paperScope.project.hitTest(event.point,
+        var hitResult = this.paperScope.project.hitTest(
+            event.point,
             this.hitOptions);
-        if (!hitResult)
-            return;
 
-        if (event.modifiers.shift) {
-            if (hitResult.type == 'segment') {
-                hitResult.segment.remove();
-            };
-            return;
-        }
+            console.log(hitResult);
 
-        if (hitResult) {
-            this.path = hitResult.item;
-            if (hitResult.type == 'segment') {
-                this.segment = hitResult.segment;
-            } else if (hitResult.type == 'stroke') {
-                var location = hitResult.location;
-                this.segment = this.path.insert(location.index + 1, event.point);
-                this.path.smooth();
-            }
+        if (hitResult
+            && hitResult.item
+            && hitResult.item.data
+            && hitResult.item.data.onDrag) {
+            this.dragItem = hitResult.item;
+            console.log('starting drag', this.dragItem);
+            this.paperScope.project.activeLayer.addChild(this.dragItem);
         }
-        this.movePath = hitResult.type == 'fill';
-        if (this.movePath)
-            this.paperScope.project.activeLayer.addChild(hitResult.item);
     }
 
     onMouseMove(event) {
-        this.paperScope.project.activeLayer.selected = false;
-        if (event.item)
-            event.item.selected = true;
     }
 
     onMouseDrag(event) {
-        if (this.segment) {
-            this.segment.point += event.delta;
-            this.path.smooth();
-        } else if (this.path) {
-            this.path.position += event.delta;
+        if(this.dragItem){
+            this.dragItem.data.onDrag(event);
+        }
+    }
+    
+    onMouseUp(event){
+        if(this.dragItem){
+            if(this.dragItem.data && this.dragItem.data.onDragEnd){
+                this.dragItem.data.onDragEnd(event);
+            }
+            this.dragItem = null;
         }
     }
 }

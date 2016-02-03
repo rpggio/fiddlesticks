@@ -548,6 +548,8 @@ declare module paper {
          */
         abs(): Point;
 
+        set(x: number, y:number): Point;
+
         add(point: Point): Point;
         subtract(point: Point): Point;
         multiply(point: Point): Point;

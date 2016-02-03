@@ -59,6 +59,6 @@ class StretchyPath extends paper.Group {
         }
         
         this.displayPath = newPath;
-        this.addChild(newPath);
+        this.insertChild(0, newPath);
     }
 }

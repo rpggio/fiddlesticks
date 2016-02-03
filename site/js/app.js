@@ -104,6 +104,7 @@ window.textTrace = function () {
 var TextWarpController = (function () {
     function TextWarpController(app) {
         this.app = app;
+        new DragTool(paper);
     }
     TextWarpController.prototype.update = function () {
         for (var _i = 0, _a = this.app.textBlocks; _i < _a.length; _i++) {
@@ -263,70 +264,48 @@ var PathOffsetScaling = (function () {
     };
     return PathOffsetScaling;
 })();
-// <reference path="typings/paper.d.ts" />
-// WORK IN PROGRESS
 var DragTool = (function () {
     function DragTool(paperScope) {
         var _this = this;
-        this.values = {
-            paths: 50,
-            minPoints: 5,
-            maxPoints: 15,
-            minRadius: 30,
-            maxRadius: 90
-        };
         this.hitOptions = {
             segments: true,
             stroke: true,
             fill: true,
             tolerance: 5
         };
-        this.movePath = false;
         this.paperScope = paperScope;
         var tool = new paper.Tool();
         tool.onMouseDown = function (event) { return _this.onMouseDown(event); };
         tool.onMouseMove = function (event) { return _this.onMouseMove(event); };
         tool.onMouseDrag = function (event) { return _this.onMouseDrag(event); };
+        tool.onMouseUp = function (event) { return _this.onMouseUp(event); };
     }
     DragTool.prototype.onMouseDown = function (event) {
-        this.segment = this.path = null;
+        this.dragItem = null;
         var hitResult = this.paperScope.project.hitTest(event.point, this.hitOptions);
-        if (!hitResult)
-            return;
-        if (event.modifiers.shift) {
-            if (hitResult.type == 'segment') {
-                hitResult.segment.remove();
-            }
-            ;
-            return;
+        console.log(hitResult);
+        if (hitResult
+            && hitResult.item
+            && hitResult.item.data
+            && hitResult.item.data.onDrag) {
+            this.dragItem = hitResult.item;
+            console.log('starting drag', this.dragItem);
+            this.paperScope.project.activeLayer.addChild(this.dragItem);
         }
-        if (hitResult) {
-            this.path = hitResult.item;
-            if (hitResult.type == 'segment') {
-                this.segment = hitResult.segment;
-            }
-            else if (hitResult.type == 'stroke') {
-                var location = hitResult.location;
-                this.segment = this.path.insert(location.index + 1, event.point);
-                this.path.smooth();
-            }
-        }
-        this.movePath = hitResult.type == 'fill';
-        if (this.movePath)
-            this.paperScope.project.activeLayer.addChild(hitResult.item);
     };
     DragTool.prototype.onMouseMove = function (event) {
-        this.paperScope.project.activeLayer.selected = false;
-        if (event.item)
-            event.item.selected = true;
     };
     DragTool.prototype.onMouseDrag = function (event) {
-        if (this.segment) {
-            this.segment.point += event.delta;
-            this.path.smooth();
+        if (this.dragItem) {
+            this.dragItem.data.onDrag(event);
         }
-        else if (this.path) {
-            this.path.position += event.delta;
+    };
+    DragTool.prototype.onMouseUp = function (event) {
+        if (this.dragItem) {
+            if (this.dragItem.data && this.dragItem.data.onDragEnd) {
+                this.dragItem.data.onDragEnd(event);
+            }
+            this.dragItem = null;
         }
     };
     return DragTool;
@@ -465,35 +444,27 @@ var MovableLine = (function (_super) {
         var aMarker = paper.Shape.Circle(a, 5);
         aMarker.fillColor = 'blue';
         this.addChild(aMarker);
-        var movedA = false;
-        aMarker.on('mousedrag', function (event) {
-            aMarker.translate(event.delta);
-            var seg = _this.path.segments[0];
-            seg.point = seg.point.add(event.delta);
-            movedA = true;
-        });
-        aMarker.on('mouseup', function (event) {
-            if (movedA && _this.onMoveComplete) {
-                _this.onMoveComplete(_this.path);
+        var aHandle = new PointHandle([this.path.segments[0], aMarker]);
+        aMarker.data = {
+            onDrag: function (event) {
+                return aHandle.set(aHandle.get().add(event.delta));
+            },
+            onDragEnd: function (event) {
+                _this.onMoveComplete && _this.onMoveComplete(_this.path.segments[0]);
             }
-            movedA = false;
-        });
+        };
         var bMarker = paper.Shape.Circle(b, 5);
         bMarker.fillColor = 'blue';
         this.addChild(bMarker);
-        var movedB = false;
-        bMarker.on('mousedrag', function (event) {
-            bMarker.translate(event.delta);
-            var seg = _this.path.segments[1];
-            seg.point = seg.point.add(event.delta);
-            movedB = true;
-        });
-        bMarker.on('mouseup', function (event) {
-            if (movedB && _this.onMoveComplete) {
-                _this.onMoveComplete(_this.path);
+        var bHandle = new PointHandle([this.path.segments[1], bMarker]);
+        bMarker.data = {
+            onDrag: function (event) {
+                return bHandle.set(bHandle.get().add(event.delta));
+            },
+            onDragEnd: function (event) {
+                _this.onMoveComplete && _this.onMoveComplete(_this.path.segments[1]);
             }
-            movedB = false;
-        });
+        };
         _super.call(this, [
             this.path, aMarker, bMarker
         ]);
@@ -714,6 +685,59 @@ var PathTransform = (function () {
     };
     return PathTransform;
 })();
+var PointHandle = (function () {
+    function PointHandle(entities) {
+        this.refs = [];
+        for (var _i = 0; _i < entities.length; _i++) {
+            var e = entities[_i];
+            if (e instanceof paper.Segment) {
+                this.addRef(PointRef.SegmentPoint(e));
+            }
+            else if (e instanceof paper.Item) {
+                this.addRef(PointRef.ItemPosition(e));
+            }
+            else {
+                throw 'cannot create handle for ' + e;
+            }
+        }
+        this._position = this.refs.length
+            ? this.refs[0].get()
+            : new paper.Point(0, 0);
+    }
+    PointHandle.prototype.get = function () {
+        return this._position;
+    };
+    PointHandle.prototype.addRef = function (ref) {
+        this.refs.push(ref);
+    };
+    PointHandle.prototype.set = function (point) {
+        this._position.set(point.x, point.y);
+        for (var _i = 0, _a = this.refs; _i < _a.length; _i++) {
+            var r = _a[_i];
+            r.set(point);
+        }
+    };
+    return PointHandle;
+})();
+var PointRef = (function () {
+    function PointRef(getter, setter) {
+        this.getter = getter;
+        this.setter = setter;
+    }
+    PointRef.prototype.set = function (point) {
+        this.setter(point);
+    };
+    PointRef.prototype.get = function () {
+        return this.getter();
+    };
+    PointRef.ItemPosition = function (item) {
+        return new PointRef(function () { return item.position; }, function (p) { return item.position = p; });
+    };
+    PointRef.SegmentPoint = function (segment) {
+        return new PointRef(function () { return segment.point; }, function (p) { return segment.point = p; });
+    };
+    return PointRef;
+})();
 var StretchyPath = (function (_super) {
     __extends(StretchyPath, _super);
     function StretchyPath(sourcePath) {
@@ -758,7 +782,7 @@ var StretchyPath = (function (_super) {
             this.displayPath.remove();
         }
         this.displayPath = newPath;
-        this.addChild(newPath);
+        this.insertChild(0, newPath);
     };
     return StretchyPath;
 })(paper.Group);

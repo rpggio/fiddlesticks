@@ -5,6 +5,8 @@ class TextWarpController {
 
     constructor(app: AppController) {
         this.app = app;
+        
+        new DragTool(paper);
     }
     
     update(){
