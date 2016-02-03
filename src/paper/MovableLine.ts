@@ -4,35 +4,38 @@ class MovableLine extends paper.Group {
     path: paper.Path;
     onMoveComplete: (segment: paper.Segment) => void;
 
+    startHandle: PointHandle;
+    endHandle: PointHandle;
+
     constructor(a: paper.Point, b: paper.Point) {
         this.path = paper.Path.Line(a, b);
 
-        let aMarker = paper.Shape.Circle(a, 5);
-        aMarker.fillColor = 'blue';
-        this.addChild(aMarker);
-        let aHandle = new PointHandle([this.path.segments[0], aMarker]);
-        aMarker.data = {
+        let startMarker = paper.Shape.Circle(a, 5);
+        startMarker.fillColor = 'blue';
+        this.addChild(startMarker);
+        this.startHandle = new PointHandle([this.path.segments[0], startMarker]);
+        startMarker.data = {
             onDrag: (event: paper.ToolEvent) =>
-                aHandle.set(aHandle.get().add(event.delta)),
+                this.startHandle.set(this.startHandle.get().add(event.delta)),
             onDragEnd: (event: paper.ToolEvent) => {
                 this.onMoveComplete && this.onMoveComplete(this.path.segments[0]);
             }
         };
         
-        let bMarker = paper.Shape.Circle(b, 5);
-        bMarker.fillColor = 'blue';
-        this.addChild(bMarker);
-        let bHandle = new PointHandle([this.path.segments[1], bMarker]);
-        bMarker.data = {
+        let endMarker = paper.Shape.Circle(b, 5);
+        endMarker.fillColor = 'blue';
+        this.addChild(endMarker);
+        this.endHandle = new PointHandle([this.path.segments[1], endMarker]);
+        endMarker.data = {
             onDrag: (event: paper.ToolEvent) =>
-                bHandle.set(bHandle.get().add(event.delta)),
+                this.endHandle.set(this.endHandle.get().add(event.delta)),
             onDragEnd: (event: paper.ToolEvent) => {
                 this.onMoveComplete && this.onMoveComplete(this.path.segments[1]);
             }
         };
         
         super([
-            this.path, aMarker, bMarker
+            this.path, startMarker, endMarker
         ]);
     }
 }

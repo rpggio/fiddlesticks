@@ -14,8 +14,6 @@ class PathText extends paper.Group {
         this._text = text;
         this.style = style;
         
-        console.log(style.fontSize);
-        
         this.update();
     }
  
