@@ -6,7 +6,7 @@ declare module paper {
 }
 
 interface DragBehavior {
-    draggable: boolean;
+    onDragStart?: (event: paper.ToolEvent, hitResult: paper.HitResult) => void; 
     onDrag?: (event: paper.ToolEvent) => void;
     onDragEnd?: (event: paper.ToolEvent) => void;
 }
@@ -39,11 +39,14 @@ class DragTool {
             event.point,
             this.hitOptions);
 
-        if (hitResult
-            && hitResult.item
-            && hitResult.item.dragBehavior
-            && hitResult.item.dragBehavior.draggable) {
-            this.dragItem = hitResult.item;
+        if (hitResult && hitResult.item) {
+            let draggable = this.findDraggableUpward(hitResult.item);
+            if(draggable){
+                this.dragItem = draggable;
+                if(draggable.dragBehavior.onDragStart){
+                    draggable.dragBehavior.onDragStart.call(draggable, event, hitResult); 
+                }
+            }
             //this.paperScope.project.activeLayer.addChild(this.dragItem);
         }
     }
@@ -64,5 +67,14 @@ class DragTool {
             }
             this.dragItem = null;
         }
+    }
+    
+    findDraggableUpward(item: paper.Item): paper.Item{
+        while(!item.dragBehavior && item.parent && item.parent.className != 'Layer'){
+            item = item.parent;
+        }
+        return item.dragBehavior
+            ? item
+            : null;
     }
 }

@@ -16,14 +16,11 @@ class StretchyPath extends paper.Group {
                 new paper.Segment(bounds.bottomRight),
                 new paper.Segment(bounds.bottomLeft)
             ]);
-        region.fillColor = 'white';
+
+        region.fillColor = new paper.Color(window.app.canvasColor);//.add(0.04);
         region.strokeColor = 'lightgray';
         region.dashArray = [5,5];
-        region.dragBehavior = {
-            draggable: true,
-            onDrag: event => this.position = this.position.add(event.delta)
-        };
-        
+       
         let dragMarkers: paper.Item[] = [
             Elements.dragMarker(bounds.topLeft),
             Elements.dragMarker(bounds.topRight),
@@ -44,7 +41,6 @@ class StretchyPath extends paper.Group {
         // add draggable behavior to markers.
         this.handles.forEach((h,i) => {
             dragMarkers[i].dragBehavior = {
-                draggable: true,
                 onDrag: event => {
                     h.set(h.get().add(event.delta));
                 },
@@ -59,7 +55,11 @@ class StretchyPath extends paper.Group {
         children = children.concat(dragMarkers);
         super(children);
         
-        this.arrangePath();        
+        this.dragBehavior = {
+            onDrag: event => this.position = this.position.add(event.delta)
+        };
+
+        this.arrangePath();
     }
 
     arrangePath() {

@@ -7,6 +7,9 @@ class TextWarpController {
         this.app = app;
         
         new DragTool(paper);
+        
+         console.log('fill d', paper.project.activeLayer.fillColor);    
+
     }
     
     update(){

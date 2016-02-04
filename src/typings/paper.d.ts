@@ -3545,6 +3545,16 @@ declare module paper {
          */
         transform(matrix: Matrix): void;
 
+        add(color: paper.Color): Color;
+        subtract(color: paper.Color): Color;
+        multiply(color: paper.Color): Color;
+        divide(color: paper.Color): Color;
+        
+        add(number: number): Color;
+        subtract(number: number): Color;
+        multiply(number: number): Color;
+        divide(number: number): Color;
+
     }
     /**
      * The Gradient object.

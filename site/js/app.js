@@ -8,6 +8,7 @@ var AppController = (function () {
     function AppController() {
         var _this = this;
         this.textBlocks = [];
+        this.canvasColor = '#F5F6CE';
         var canvas = document.getElementById('mainCanvas');
         paper.setup(canvas);
         this.paper = paper;
@@ -105,6 +106,7 @@ var TextWarpController = (function () {
     function TextWarpController(app) {
         this.app = app;
         new DragTool(paper);
+        console.log('fill d', paper.project.activeLayer.fillColor);
     }
     TextWarpController.prototype.update = function () {
         for (var _i = 0, _a = this.app.textBlocks; _i < _a.length; _i++) {
@@ -283,11 +285,14 @@ var DragTool = (function () {
     DragTool.prototype.onMouseDown = function (event) {
         this.dragItem = null;
         var hitResult = this.paperScope.project.hitTest(event.point, this.hitOptions);
-        if (hitResult
-            && hitResult.item
-            && hitResult.item.dragBehavior
-            && hitResult.item.dragBehavior.draggable) {
-            this.dragItem = hitResult.item;
+        if (hitResult && hitResult.item) {
+            var draggable = this.findDraggableUpward(hitResult.item);
+            if (draggable) {
+                this.dragItem = draggable;
+                if (draggable.dragBehavior.onDragStart) {
+                    draggable.dragBehavior.onDragStart.call(draggable, event, hitResult);
+                }
+            }
         }
     };
     DragTool.prototype.onMouseMove = function (event) {
@@ -304,6 +309,14 @@ var DragTool = (function () {
             }
             this.dragItem = null;
         }
+    };
+    DragTool.prototype.findDraggableUpward = function (item) {
+        while (!item.dragBehavior && item.parent && item.parent.className != 'Layer') {
+            item = item.parent;
+        }
+        return item.dragBehavior
+            ? item
+            : null;
     };
     return DragTool;
 })();
@@ -775,13 +788,9 @@ var StretchyPath = (function (_super) {
             new paper.Segment(bounds.bottomRight),
             new paper.Segment(bounds.bottomLeft)
         ]);
-        region.fillColor = 'white';
+        region.fillColor = new paper.Color(window.app.canvasColor); //.add(0.04);
         region.strokeColor = 'lightgray';
         region.dashArray = [5, 5];
-        region.dragBehavior = {
-            draggable: true,
-            onDrag: function (event) { return _this.position = _this.position.add(event.delta); }
-        };
         var dragMarkers = [
             Elements.dragMarker(bounds.topLeft),
             Elements.dragMarker(bounds.topRight),
@@ -800,7 +809,6 @@ var StretchyPath = (function (_super) {
         // add draggable behavior to markers.
         this.handles.forEach(function (h, i) {
             dragMarkers[i].dragBehavior = {
-                draggable: true,
                 onDrag: function (event) {
                     h.set(h.get().add(event.delta));
                 },
@@ -813,6 +821,9 @@ var StretchyPath = (function (_super) {
         children.push(region);
         children = children.concat(dragMarkers);
         _super.call(this, children);
+        this.dragBehavior = {
+            onDrag: function (event) { return _this.position = _this.position.add(event.delta); }
+        };
         this.arrangePath();
     }
     StretchyPath.prototype.arrangePath = function () {
