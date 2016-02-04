@@ -52,7 +52,7 @@ class PaperHelpers {
         return path;
     }
     
-    static pathProjection(topPath: paper.PathLike, bottomPath: paper.PathLike)
+    static pathProjection(topPath: paper.Curvelike, bottomPath: paper.Curvelike)
         : (unitPoint: paper.Point) => paper.Point
     {
         const topPathLength = topPath.length;

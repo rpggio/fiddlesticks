@@ -1,5 +1,5 @@
 
-class PathSection implements paper.PathLike {
+class PathSection implements paper.Curvelike {
     path: paper.Path;
     offset: number;
     length: number;
