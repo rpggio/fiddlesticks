@@ -5,10 +5,5 @@ declare module paper {
         length: number;
         getPointAt(offset: number): paper.Point;
     }
-    
-    interface Curve
-        extends Curvelike
-    {
-    } 
-    
+
 }

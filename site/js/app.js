@@ -265,45 +265,63 @@ var PathOffsetScaling = (function () {
     };
     return PathOffsetScaling;
 })();
-var Elements = (function () {
-    function Elements() {
-    }
-    Elements.dragMarker = function (center, dragItem, dragBehavior) {
-        var marker = paper.Shape.Circle({
-            center: center,
-            radius: 5,
-            strokeWidth: 2,
-            strokeColor: 'blue',
-            fillColor: 'white',
-            opacity: 0.3
-        });
-        var dragItems = [marker];
-        if (dragItem) {
-            dragItems.push(dragItem);
-        }
-        var handle = new PointHandle(dragItems);
-        marker.data = handle;
-        marker.dragBehavior = {
-            onDrag: function (event) {
-                handle.set(handle.get().add(event.delta));
-                if (dragBehavior && dragBehavior.onDrag) {
-                    dragBehavior.onDrag(event);
-                }
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+/**
+ * Handle that sits on midpoint of curve
+ * which will split the curve when dragged.
+ */
+var CurveSplitterHandle = (function (_super) {
+    __extends(CurveSplitterHandle, _super);
+    function CurveSplitterHandle(curve, radius) {
+        var _this = this;
+        _super.call(this, curve.getPointAt(0.5 * curve.length), radius);
+        this.curve = curve;
+        this.opacity = this.opacity * 0.3;
+        var newSegment;
+        this.dragBehavior = {
+            onDragStart: function (event) {
+                newSegment = new paper.Segment(_this.position);
+                curve.path.insert(curve.index + 1, newSegment);
+                newSegment.smooth();
             },
-            onDragStart: dragBehavior && dragBehavior.onDragStart || undefined,
-            onDragEnd: dragBehavior && dragBehavior.onDragEnd || undefined
+            onDrag: function (event) {
+                var newPos = _this.position.add(event.delta);
+                _this.position = newPos;
+                newSegment.point = newPos;
+            },
+            onDragEnd: function (event) {
+                if (_this.onDragEnd) {
+                    _this.onDragEnd(newSegment, event);
+                }
+            }
         };
-        return marker;
-    };
-    Elements.dragHandleStyle = {
-        radius: 5,
-        strokeWidth: 2,
-        strokeColor: 'blue',
-        fillColor: 'white',
-        opacity: 0.5
-    };
-    return Elements;
-})();
+    }
+    return CurveSplitterHandle;
+})(DragHandleShape);
+var DragHandleShape = (function (_super) {
+    __extends(DragHandleShape, _super);
+    function DragHandleShape(center, radius) {
+        _super.call(this);
+        this.defaultRadius = 5;
+        if (radius == null) {
+            radius = this.defaultRadius;
+        }
+        var self = this;
+        self._type = 'circle';
+        self._radius = radius;
+        self._size = new paper.Size(radius * 2);
+        this.translate(center);
+        this.strokeWidth = 2;
+        this.strokeColor = 'blue';
+        this.fillColor = 'white';
+        this.opacity = 0.5;
+    }
+    return DragHandleShape;
+})(paper.Shape);
 // <reference path="typings/paper.d.ts" />
 var LineDrawTool = (function () {
     function LineDrawTool() {
@@ -348,11 +366,6 @@ var LineDrawTool = (function () {
     return LineDrawTool;
 })();
 // <reference path="typings/paper.d.ts" />
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var LinkedPathGroup = (function (_super) {
     __extends(LinkedPathGroup, _super);
     function LinkedPathGroup() {
@@ -497,41 +510,6 @@ var MouseBehaviorTool = (function (_super) {
     };
     return MouseBehaviorTool;
 })(paper.Tool);
-var MovableLine = (function (_super) {
-    __extends(MovableLine, _super);
-    function MovableLine(a, b) {
-        var _this = this;
-        this.path = paper.Path.Line(a, b);
-        var startMarker = paper.Shape.Circle(a, 5);
-        startMarker.fillColor = 'blue';
-        this.addChild(startMarker);
-        this.startHandle = new PointHandle([this.path.segments[0], startMarker]);
-        startMarker.data = {
-            onDrag: function (event) {
-                return _this.startHandle.set(_this.startHandle.get().add(event.delta));
-            },
-            onDragEnd: function (event) {
-                _this.onMoveComplete && _this.onMoveComplete(_this.path.segments[0]);
-            }
-        };
-        var endMarker = paper.Shape.Circle(b, 5);
-        endMarker.fillColor = 'blue';
-        this.addChild(endMarker);
-        this.endHandle = new PointHandle([this.path.segments[1], endMarker]);
-        endMarker.data = {
-            onDrag: function (event) {
-                return _this.endHandle.set(_this.endHandle.get().add(event.delta));
-            },
-            onDragEnd: function (event) {
-                _this.onMoveComplete && _this.onMoveComplete(_this.path.segments[1]);
-            }
-        };
-        _super.call(this, [
-            this.path, startMarker, endMarker
-        ]);
-    }
-    return MovableLine;
-})(paper.Group);
 var PaperHelpers = (function () {
     function PaperHelpers() {
     }
@@ -745,74 +723,27 @@ var PathTransform = (function () {
     };
     return PathTransform;
 })();
-var PointHandle = (function () {
-    function PointHandle(entities) {
-        this.refs = [];
-        for (var _i = 0; _i < entities.length; _i++) {
-            var e = entities[_i];
-            if (e instanceof paper.Segment) {
-                this.addRef(PointRef.SegmentPoint(e));
-            }
-            else if (e instanceof paper.Item) {
-                this.addRef(PointRef.ItemPosition(e));
-            }
-            else {
-                throw 'cannot create handle for ' + e;
-            }
-        }
-        this._position = this.refs.length
-            ? this.refs[0].get()
-            : new paper.Point(0, 0);
-    }
-    PointHandle.prototype.get = function () {
-        return this._position;
-    };
-    PointHandle.prototype.addRef = function (ref) {
-        this.refs.push(ref);
-    };
-    PointHandle.prototype.set = function (point) {
-        this._position.set(point.x, point.y);
-        for (var _i = 0, _a = this.refs; _i < _a.length; _i++) {
-            var r = _a[_i];
-            r.set(point);
-        }
-    };
-    return PointHandle;
-})();
-var PointRef = (function () {
-    function PointRef(getter, setter) {
-        this.getter = getter;
-        this.setter = setter;
-    }
-    PointRef.prototype.set = function (point) {
-        this.setter(point);
-    };
-    PointRef.prototype.get = function () {
-        return this.getter();
-    };
-    PointRef.ItemPosition = function (item) {
-        return new PointRef(function () { return item.position; }, function (p) { return item.position = p; });
-    };
-    PointRef.SegmentPoint = function (segment) {
-        return new PointRef(function () { return segment.point; }, function (p) { return segment.point = p; });
-    };
-    return PointRef;
-})();
 var SegmentHandle = (function (_super) {
     __extends(SegmentHandle, _super);
-    function SegmentHandle() {
-        _super.call(this);
-        this.defaultRadius = 4;
-        this.type = 'circle';
-        this.radius = this.defaultRadius;
-        this.size = new paper.Size(this.defaultRadius * 2);
-        this.strokeWidth = 2;
-        this.strokeColor = 'blue';
-        this.fillColor = 'white';
-        this.opacity = 0.3;
+    function SegmentHandle(segment, radius) {
+        var _this = this;
+        _super.call(this, segment.point, radius);
+        this.segment = segment;
+        this.dragBehavior = {
+            onDrag: function (event) {
+                var newPos = _this.position.add(event.delta);
+                _this.position = newPos;
+                segment.point = newPos;
+            },
+            onDragEnd: function (event) {
+                if (_this.onDragEnd) {
+                    _this.onDragEnd(event);
+                }
+            }
+        };
     }
     return SegmentHandle;
-})(paper.Shape);
+})(DragHandleShape);
 var StretchyPath = (function (_super) {
     __extends(StretchyPath, _super);
     function StretchyPath(sourcePath) {
@@ -820,7 +751,7 @@ var StretchyPath = (function (_super) {
         _super.call(this);
         this.sourcePath = sourcePath;
         this.sourcePath.visible = false;
-        this.createRegion();
+        this.createOutline();
         this.createSegmentMarkers();
         this.updateMidpiontMarkers();
         this.dragBehavior = {
@@ -836,7 +767,7 @@ var StretchyPath = (function (_super) {
         var orthOrigin = this.sourcePath.bounds.topLeft;
         var orthWidth = this.sourcePath.bounds.width;
         var orthHeight = this.sourcePath.bounds.height;
-        var sides = this.getRegionSides();
+        var sides = this.getOutlineSides();
         var top = sides[0];
         var bottom = sides[2];
         bottom.reverse();
@@ -861,14 +792,14 @@ var StretchyPath = (function (_super) {
         this.displayPath = newPath;
         this.insertChild(1, newPath);
     };
-    StretchyPath.prototype.getRegionSides = function () {
+    StretchyPath.prototype.getOutlineSides = function () {
         var sides = [];
         var segmentGroup = [];
         var cornerPoints = this.corners.map(function (c) { return c.point; });
         var first = cornerPoints.shift();
         cornerPoints.push(first);
         var targetCorner = cornerPoints.shift();
-        var segmentList = this.region.segments.map(function (x) { return x; });
+        var segmentList = this.outline.segments.map(function (x) { return x; });
         var i = 0;
         segmentList.push(segmentList[0]);
         for (var _i = 0; _i < segmentList.length; _i++) {
@@ -888,28 +819,30 @@ var StretchyPath = (function (_super) {
         }
         return sides;
     };
-    StretchyPath.prototype.createRegion = function () {
+    StretchyPath.prototype.createOutline = function () {
         var bounds = this.sourcePath.bounds;
-        this.region = new paper.Path([
+        this.outline = new paper.Path([
             new paper.Segment(bounds.topLeft),
             new paper.Segment(bounds.topRight),
             new paper.Segment(bounds.bottomRight),
             new paper.Segment(bounds.bottomLeft)
         ]);
-        this.region.closed = true;
-        this.region.fillColor = new paper.Color(window.app.canvasColor); //.add(0.04);
-        this.region.strokeColor = 'lightgray';
-        this.region.dashArray = [5, 5];
-        this.corners = this.region.segments.map(function (s) { return s; });
-        this.addChild(this.region);
+        this.outline.closed = true;
+        this.outline.fillColor = new paper.Color(window.app.canvasColor); //.add(0.04);
+        this.outline.strokeColor = 'lightgray';
+        this.outline.dashArray = [5, 5];
+        // track corners so we know how to arrange the text
+        this.corners = this.outline.segments.map(function (s) { return s; });
+        this.addChild(this.outline);
     };
     StretchyPath.prototype.createSegmentMarkers = function () {
         var _this = this;
         var bounds = this.sourcePath.bounds;
-        for (var _i = 0, _a = this.region.segments; _i < _a.length; _i++) {
+        for (var _i = 0, _a = this.outline.segments; _i < _a.length; _i++) {
             var segment = _a[_i];
-            var marker = this.segmentDragHandle(segment, { onDragEnd: function () { return _this.arrangeContents(); } });
-            this.addChild(marker);
+            var handle = new SegmentHandle(segment);
+            handle.onDragEnd = function () { return _this.arrangeContents(); };
+            this.addChild(handle);
         }
     };
     StretchyPath.prototype.updateMidpiontMarkers = function () {
@@ -918,65 +851,17 @@ var StretchyPath = (function (_super) {
             this.midpointGroup.remove();
         }
         this.midpointGroup = new paper.Group();
-        for (var _i = 0, _a = this.region.curves; _i < _a.length; _i++) {
-            var curve = _a[_i];
-            var marker = this.curveMidpointDragHandle(curve, { onDragEnd: function () { return _this.arrangeContents(); } });
-            this.midpointGroup.addChild(marker);
-        }
+        this.outline.curves.forEach(function (curve) {
+            var handle = new CurveSplitterHandle(curve);
+            handle.onDragEnd = function (newSegment, event) {
+                var newHandle = new SegmentHandle(newSegment);
+                newHandle.onDragEnd = function () { return _this.arrangeContents(); };
+                _this.addChild(newHandle);
+                handle.remove();
+            };
+            _this.midpointGroup.addChild(handle);
+        });
         this.addChild(this.midpointGroup);
-    };
-    StretchyPath.prototype.segmentDragHandle = function (segment, dragBehavior) {
-        var marker = paper.Shape.Circle(Elements.dragHandleStyle);
-        marker.position = segment.point;
-        marker.dragBehavior = {
-            onDrag: function (event) {
-                var newPos = marker.position.add(event.delta);
-                marker.position = newPos;
-                segment.point = newPos;
-                if (dragBehavior && dragBehavior.onDrag) {
-                    dragBehavior.onDrag(event);
-                }
-            },
-            onDragStart: dragBehavior && dragBehavior.onDragStart || undefined,
-            onDragEnd: dragBehavior && dragBehavior.onDragEnd || undefined
-        };
-        return marker;
-    };
-    StretchyPath.prototype.curveMidpointDragHandle = function (curve, dragBehavior) {
-        var _this = this;
-        var marker = paper.Shape.Circle(Elements.dragHandleStyle);
-        marker.opacity = marker.opacity * 0.3;
-        marker.position = curve.getPointAt(0.5 * curve.length);
-        var newSegment;
-        marker.dragBehavior = {
-            onDragStart: function (event) {
-                newSegment = new paper.Segment(marker.position);
-                console.log(newSegment);
-                curve.path.insert(curve.index + 1, newSegment);
-                newSegment.smooth();
-                if (dragBehavior && dragBehavior.onDragStart) {
-                    dragBehavior.onDragStart(event);
-                }
-            },
-            onDrag: function (event) {
-                var newPos = marker.position.add(event.delta);
-                marker.position = newPos;
-                newSegment.point = newPos;
-                if (dragBehavior && dragBehavior.onDrag) {
-                    dragBehavior.onDrag(event);
-                }
-            },
-            onDragEnd: function (event) {
-                var newMarker = _this.segmentDragHandle(newSegment, dragBehavior);
-                // This like breaks the isolation
-                _this.addChild(newMarker);
-                marker.remove();
-                if (dragBehavior && dragBehavior.onDragEnd) {
-                    dragBehavior.onDragEnd(event);
-                }
-            },
-        };
-        return marker;
     };
     return StretchyPath;
 })(paper.Group);

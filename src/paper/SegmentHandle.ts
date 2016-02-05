@@ -1,19 +1,25 @@
 
-class SegmentHandle extends paper.Shape {
+class SegmentHandle extends DragHandleShape {
  
-    defaultRadius = 4;
+    segment: paper.Segment;
+    onDragEnd: (event: paper.ToolEvent) => void;
  
-    constructor(){
-        super();
+    constructor(segment: paper.Segment, radius?: number){
+        super(segment.point, radius);
         
-        this.type = 'circle';
-        this.radius = this.defaultRadius;
-        this.size = new paper.Size(this.defaultRadius * 2);
-        this.strokeWidth = 2;
-        this.strokeColor = 'blue';
-        this.fillColor = 'white';
-        this.opacity = 0.3;
-        
-        
+        this.segment = segment;
+
+        this.dragBehavior = <MouseBehavior>{
+            onDrag: event => {
+                let newPos = this.position.add(event.delta);
+                this.position = newPos;
+                segment.point = newPos;
+            },
+            onDragEnd: event => {
+                if(this.onDragEnd){
+                    this.onDragEnd(event);
+                }
+            }
+        }
     }
 }

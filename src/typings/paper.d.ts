@@ -3278,7 +3278,7 @@ declare module paper {
          * The color of the stroke.
          */
         strokeColor: Color | string;
-
+        
         /**
          * The width of the stroke.
          */

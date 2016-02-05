@@ -3,7 +3,12 @@ class StretchyPath extends paper.Group {
     sourcePath: paper.CompoundPath;
     displayPath: paper.CompoundPath;
     corners: paper.Segment[];
-    region: paper.Path;
+    outline: paper.Path;
+    
+    /**
+     * For rebuilding the midpoint handles
+     * as outline changes.
+     */
     midpointGroup: paper.Group;
 
     constructor(sourcePath: paper.CompoundPath) {
@@ -12,7 +17,7 @@ class StretchyPath extends paper.Group {
         this.sourcePath = sourcePath;
         this.sourcePath.visible = false;
 
-        this.createRegion();
+        this.createOutline();
         this.createSegmentMarkers();
         this.updateMidpiontMarkers();
 
@@ -32,7 +37,7 @@ class StretchyPath extends paper.Group {
         let orthOrigin = this.sourcePath.bounds.topLeft;
         let orthWidth = this.sourcePath.bounds.width;
         let orthHeight = this.sourcePath.bounds.height;
-        let sides = this.getRegionSides();
+        let sides = this.getOutlineSides();
         let top = sides[0];
         let bottom = sides[2];
         bottom.reverse();
@@ -64,7 +69,7 @@ class StretchyPath extends paper.Group {
         this.insertChild(1, newPath);
     }
 
-    private getRegionSides(): paper.Path[] {
+    private getOutlineSides(): paper.Path[] {
         let sides: paper.Path[] = [];
         let segmentGroup: paper.Segment[] = [];
         
@@ -73,7 +78,7 @@ class StretchyPath extends paper.Group {
         cornerPoints.push(first);
 
         let targetCorner = cornerPoints.shift();
-        let segmentList = this.region.segments.map(x => x);
+        let segmentList = this.outline.segments.map(x => x);
         let i = 0;
         segmentList.push(segmentList[0]);
         for(let segment of segmentList){
@@ -98,33 +103,32 @@ class StretchyPath extends paper.Group {
         return sides;
     }
 
-    private createRegion() {
+    private createOutline() {
         let bounds = this.sourcePath.bounds;
-        this.region = new paper.Path([
+        this.outline = new paper.Path([
             new paper.Segment(bounds.topLeft),
             new paper.Segment(bounds.topRight),
             new paper.Segment(bounds.bottomRight),
             new paper.Segment(bounds.bottomLeft)
         ]);
 
-        this.region.closed = true;
-        this.region.fillColor = new paper.Color(window.app.canvasColor);//.add(0.04);
-        this.region.strokeColor = 'lightgray';
-        this.region.dashArray = [5, 5];
+        this.outline.closed = true;
+        this.outline.fillColor = new paper.Color(window.app.canvasColor);//.add(0.04);
+        this.outline.strokeColor = 'lightgray';
+        this.outline.dashArray = [5, 5];
 
-        this.corners = this.region.segments.map(s => s);
+        // track corners so we know how to arrange the text
+        this.corners = this.outline.segments.map(s => s);
 
-        this.addChild(this.region);
+        this.addChild(this.outline);
     }
 
     private createSegmentMarkers() {
         let bounds = this.sourcePath.bounds;
-        for (let segment of this.region.segments) {
-            let marker = this.segmentDragHandle(
-                segment,
-                { onDragEnd: () => this.arrangeContents() }
-            );
-            this.addChild(marker);
+        for (let segment of this.outline.segments) {
+            let handle = new SegmentHandle(segment);
+            handle.onDragEnd = () => this.arrangeContents();
+            this.addChild(handle);
         }
     }
 
@@ -133,79 +137,16 @@ class StretchyPath extends paper.Group {
             this.midpointGroup.remove();
         }
         this.midpointGroup = new paper.Group();
-        for (let curve of this.region.curves) {
-            let marker = this.curveMidpointDragHandle(
-                curve,
-                { onDragEnd: () => this.arrangeContents() }
-            );
-            this.midpointGroup.addChild(marker);
-        }
+        this.outline.curves.forEach(curve => {
+            let handle = new CurveSplitterHandle(curve);
+            handle.onDragEnd = (newSegment, event) => {
+                let newHandle = new SegmentHandle(newSegment);
+                newHandle.onDragEnd = () => this.arrangeContents();
+                this.addChild(newHandle);
+                handle.remove();
+            };
+            this.midpointGroup.addChild(handle);
+        });
         this.addChild(this.midpointGroup);
-    }
-    
-    private segmentDragHandle(
-        segment: paper.Segment,
-        dragBehavior?: MouseBehavior
-    ): paper.Shape {
-        let marker = paper.Shape.Circle(Elements.dragHandleStyle);
-        marker.position = segment.point;
-
-        marker.dragBehavior = <MouseBehavior>{
-            onDrag: event => {
-                let newPos = marker.position.add(event.delta);
-                marker.position = newPos;
-                segment.point = newPos;
-                if(dragBehavior && dragBehavior.onDrag){
-                    dragBehavior.onDrag(event);
-                }
-            },
-            onDragStart: dragBehavior && dragBehavior.onDragStart || undefined,
-            onDragEnd: dragBehavior && dragBehavior.onDragEnd || undefined
-        }
-
-        return marker;
-    }
-    
-    private curveMidpointDragHandle(
-        curve: paper.Curve,
-        dragBehavior?: MouseBehavior
-    ): paper.Shape {
-        let marker = paper.Shape.Circle(Elements.dragHandleStyle);
-        marker.opacity = marker.opacity * 0.3; 
-        marker.position = curve.getPointAt(0.5 * curve.length);
-
-        let newSegment: paper.Segment;
-        marker.dragBehavior = <MouseBehavior>{
-            onDragStart: (event) => {
-                newSegment = new paper.Segment(marker.position);
-                curve.path.insert(
-                    curve.index + 1, 
-                    newSegment
-                );
-                newSegment.smooth();
-                if(dragBehavior && dragBehavior.onDragStart){
-                    dragBehavior.onDragStart(event);
-                }
-            },
-            onDrag: event => {
-                let newPos = marker.position.add(event.delta);
-                marker.position = newPos;
-                newSegment.point = newPos;
-                if(dragBehavior && dragBehavior.onDrag){
-                    dragBehavior.onDrag(event);
-                }
-            },
-            onDragEnd: event => {
-                let newMarker = this.segmentDragHandle(newSegment, dragBehavior);
-                // This like breaks the isolation
-                this.addChild(newMarker);
-                marker.remove();
-                if(dragBehavior && dragBehavior.onDragEnd){
-                    dragBehavior.onDragEnd(event);
-                }
-            },
-        }
-
-        return marker;
     }
 }
