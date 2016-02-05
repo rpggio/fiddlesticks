@@ -21,7 +21,7 @@ class StretchyPath extends paper.Group {
         this.createSegmentMarkers();
         this.updateMidpiontMarkers();
 
-        this.dragBehavior = {
+        this.mouseBehavior = {
             onDrag: event => this.position = this.position.add(event.delta)
         };
 
@@ -127,7 +127,7 @@ class StretchyPath extends paper.Group {
         let bounds = this.sourcePath.bounds;
         for (let segment of this.outline.segments) {
             let handle = new SegmentHandle(segment);
-            handle.onDragEnd = () => this.arrangeContents();
+            handle.onChangeComplete = () => this.arrangeContents();
             this.addChild(handle);
         }
     }
@@ -141,7 +141,7 @@ class StretchyPath extends paper.Group {
             let handle = new CurveSplitterHandle(curve);
             handle.onDragEnd = (newSegment, event) => {
                 let newHandle = new SegmentHandle(newSegment);
-                newHandle.onDragEnd = () => this.arrangeContents();
+                newHandle.onChangeComplete = () => this.arrangeContents();
                 this.addChild(newHandle);
                 handle.remove();
                 this.arrangeContents();

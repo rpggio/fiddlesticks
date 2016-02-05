@@ -25,14 +25,13 @@ class CurveSplitterHandle extends paper.Shape {
         this.opacity = 0.5 * 0.3; 
  
         let newSegment: paper.Segment;
-        this.dragBehavior = <MouseBehavior>{
+        this.mouseBehavior = <MouseBehavior>{
             onDragStart: (event) => {
                 newSegment = new paper.Segment(this.position);
                 curve.path.insert(
                     curve.index + 1, 
                     newSegment
                 );
-                newSegment.smooth();
             },
             onDrag: event => {
                 let newPos = this.position.add(event.delta);

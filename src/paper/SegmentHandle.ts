@@ -2,7 +2,9 @@
 class SegmentHandle extends paper.Shape {
  
     segment: paper.Segment;
-    onDragEnd: (event: paper.ToolEvent) => void;
+    onChangeComplete: (event: paper.ToolEvent) => void;
+    
+    private _smoothed: boolean;
  
     constructor(segment: paper.Segment, radius?: number){
         super();
@@ -20,17 +22,42 @@ class SegmentHandle extends paper.Shape {
         this.fillColor = 'white';
         this.opacity = 0.5; 
 
-        this.dragBehavior = <MouseBehavior>{
+        this.mouseBehavior = <MouseBehavior>{
             onDrag: event => {
                 let newPos = this.position.add(event.delta);
                 this.position = newPos;
                 segment.point = newPos;
             },
             onDragEnd: event => {
-                if(this.onDragEnd){
-                    this.onDragEnd(event);
+                if(this._smoothed){
+                    this.segment.smooth();
+                }
+                if(this.onChangeComplete){
+                    this.onChangeComplete(event);
+                }
+            },
+            onClick: event => {
+                this.smoothed = !this.smoothed;
+                if(this.onChangeComplete){
+                    this.onChangeComplete(event);
                 }
             }
+        }
+    }
+    
+    get smoothed(): boolean {
+        return this._smoothed;
+    }
+    
+    set smoothed(value: boolean){
+        this._smoothed = value;
+        
+        if(value) {
+            console.log('smoothing');
+            this.segment.smooth();
+        } else {
+            this.segment.handleIn = null;
+            this.segment.handleOut = null;
         }
     }
 }

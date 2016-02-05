@@ -1,7 +1,7 @@
 
 declare module paper {
     interface Item {
-        dragBehavior: MouseBehavior;
+        mouseBehavior: MouseBehavior;
     } 
 }
 
@@ -59,13 +59,13 @@ class MouseBehaviorTool extends paper.Tool {
         if(this.action){
             if(!this.action.dragged){
                 this.action.dragged = true;
-                if(this.action.item.dragBehavior.onDragStart){
-                    this.action.item.dragBehavior.onDragStart.call(
+                if(this.action.item.mouseBehavior.onDragStart){
+                    this.action.item.mouseBehavior.onDragStart.call(
                         this.action.item, this.action.startEvent); 
                 }
             }
-            if(this.action.item.dragBehavior.onDrag){
-                this.action.item.dragBehavior.onDrag.call(this.action.item, event);
+            if(this.action.item.mouseBehavior.onDrag){
+                this.action.item.mouseBehavior.onDrag.call(this.action.item, event);
             }
         }
     }
@@ -77,23 +77,23 @@ class MouseBehaviorTool extends paper.Tool {
             
             if(action.dragged){
                 // drag
-                if(action.item.dragBehavior.onDragEnd){
-                    action.item.dragBehavior.onDragEnd.call(action.item, event);
+                if(action.item.mouseBehavior.onDragEnd){
+                    action.item.mouseBehavior.onDragEnd.call(action.item, event);
                 }   
             } else {
                 // click
-                if(action.item.dragBehavior.onClick){
-                    action.item.dragBehavior.onClick.call(action.item, event);
+                if(action.item.mouseBehavior.onClick){
+                    action.item.mouseBehavior.onClick.call(action.item, event);
                 }
             }
         }
     }
     
     findDraggableUpward(item: paper.Item): paper.Item{
-        while(!item.dragBehavior && item.parent && item.parent.className != 'Layer'){
+        while(!item.mouseBehavior && item.parent && item.parent.className != 'Layer'){
             item = item.parent;
         }
-        return item.dragBehavior
+        return item.mouseBehavior
             ? item
             : null;
     }
