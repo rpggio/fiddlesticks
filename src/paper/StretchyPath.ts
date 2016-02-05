@@ -171,6 +171,7 @@ class StretchyPath extends paper.Group {
         dragBehavior?: MouseBehavior
     ): paper.Shape {
         let marker = paper.Shape.Circle(Elements.dragHandleStyle);
+        marker.opacity = marker.opacity * 0.3; 
         marker.position = curve.getPointAt(0.5 * curve.length);
 
         let newSegment: paper.Segment;
@@ -195,7 +196,8 @@ class StretchyPath extends paper.Group {
             },
             onDragEnd: event => {
                 let newMarker = this.segmentDragHandle(newSegment, dragBehavior);
-                marker.replaceWith(newMarker);
+                // This like breaks the isolation
+                this.addChild(newMarker);
                 marker.remove();
                 if(dragBehavior && dragBehavior.onDragEnd){
                     dragBehavior.onDragEnd(event);

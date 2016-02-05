@@ -300,7 +300,7 @@ var Elements = (function () {
         strokeWidth: 2,
         strokeColor: 'blue',
         fillColor: 'white',
-        opacity: 0.3
+        opacity: 0.5
     };
     return Elements;
 })();
@@ -945,6 +945,7 @@ var StretchyPath = (function (_super) {
     StretchyPath.prototype.curveMidpointDragHandle = function (curve, dragBehavior) {
         var _this = this;
         var marker = paper.Shape.Circle(Elements.dragHandleStyle);
+        marker.opacity = marker.opacity * 0.3;
         marker.position = curve.getPointAt(0.5 * curve.length);
         var newSegment;
         marker.dragBehavior = {
@@ -965,7 +966,8 @@ var StretchyPath = (function (_super) {
             },
             onDragEnd: function (event) {
                 var newMarker = _this.segmentDragHandle(newSegment, dragBehavior);
-                marker.replaceWith(newMarker);
+                // This like breaks the isolation
+                _this.addChild(newMarker);
                 marker.remove();
                 if (dragBehavior && dragBehavior.onDragEnd) {
                     dragBehavior.onDragEnd(event);

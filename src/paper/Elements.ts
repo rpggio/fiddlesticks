@@ -6,7 +6,7 @@ class Elements {
         strokeWidth: 2,
         strokeColor: 'blue',
         fillColor: 'white',
-        opacity: 0.3
+        opacity: 0.5
     };
     
     static dragMarker(center: paper.Point,
