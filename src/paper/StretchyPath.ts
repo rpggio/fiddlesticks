@@ -144,6 +144,7 @@ class StretchyPath extends paper.Group {
                 newHandle.onDragEnd = () => this.arrangeContents();
                 this.addChild(newHandle);
                 handle.remove();
+                this.arrangeContents();
             };
             this.midpointGroup.addChild(handle);
         });
