@@ -182,6 +182,7 @@ class StretchyPath extends paper.Group {
                     curve.index + 1, 
                     newSegment
                 );
+                newSegment.smooth();
                 if(dragBehavior && dragBehavior.onDragStart){
                     dragBehavior.onDragStart(event);
                 }

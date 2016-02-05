@@ -951,7 +951,9 @@ var StretchyPath = (function (_super) {
         marker.dragBehavior = {
             onDragStart: function (event) {
                 newSegment = new paper.Segment(marker.position);
+                console.log(newSegment);
                 curve.path.insert(curve.index + 1, newSegment);
+                newSegment.smooth();
                 if (dragBehavior && dragBehavior.onDragStart) {
                     dragBehavior.onDragStart(event);
                 }
