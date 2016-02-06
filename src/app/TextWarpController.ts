@@ -16,6 +16,6 @@ class TextWarpController {
                 //stretchy.translate(new paper.Point(30, 30));
                 block.item = stretchy;
             }
-        }        
+        }
     }    
 }

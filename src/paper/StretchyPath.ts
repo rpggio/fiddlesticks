@@ -23,6 +23,8 @@ class StretchyPath extends paper.Group {
         this.updateMidpiontMarkers();
 
         this.mouseBehavior = {
+            onClick: () => this.bringToFront(),
+            onDragStart: () => this.bringToFront(),
             onDragMove: event => this.position = this.position.add(event.delta),
             onOverStart: () => this.setEditElementsVisibility(true),
             onOverEnd: () => this.setEditElementsVisibility(false)
@@ -125,6 +127,7 @@ class StretchyPath extends paper.Group {
         outline.fillColor = new paper.Color(window.app.canvasColor);
         outline.closed = true;
         outline.dashArray = [5, 5];
+        outline.opacity = 0;
         this.outline = outline;
 
         // track corners so we know how to arrange the text
