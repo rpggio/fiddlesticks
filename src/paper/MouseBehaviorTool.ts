@@ -2,14 +2,18 @@
 declare module paper {
     interface Item {
         mouseBehavior: MouseBehavior;
-    } 
+    }
 }
 
 interface MouseBehavior {
     onClick?: (event: paper.ToolEvent) => void;
-    
-    onDragStart?: (event: paper.ToolEvent) => void; 
-    onDrag?: (event: paper.ToolEvent) => void;
+
+    onOverStart?: (event: paper.ToolEvent) => void;
+    onOverMove?: (event: paper.ToolEvent) => void;
+    onOverEnd?: (event: paper.ToolEvent) => void;
+
+    onDragStart?: (event: paper.ToolEvent) => void;
+    onDragMove?: (event: paper.ToolEvent) => void;
     onDragEnd?: (event: paper.ToolEvent) => void;
 }
 
@@ -28,79 +32,136 @@ class MouseBehaviorTool extends paper.Tool {
         tolerance: 5
     };
 
-    action: MouseAction;
-    
+    pressAction: MouseAction;
+    hoverAction: MouseAction;
+
     constructor(paperScope: paper.PaperScope) {
         super();
     }
 
     onMouseDown = (event) => {
-        this.action = null;
+        this.pressAction = null;
 
         var hitResult = paper.project.hitTest(
             event.point,
             this.hitOptions);
 
         if (hitResult && hitResult.item) {
-            let draggable = this.findDraggableUpward(hitResult.item);
-            if(draggable){
-                this.action = <MouseAction>{
-                        item: draggable
-                    };
+            let draggable = this.findDragHandler(hitResult.item);
+            if (draggable) {
+                this.pressAction = <MouseAction>{
+                    item: draggable
+                };
             }
             //this.paperScope.project.activeLayer.addChild(this.dragItem);
         }
     }
 
     onMouseMove = (event) => {
-    }
+        var hitResult = paper.project.hitTest(
+            event.point,
+            this.hitOptions);
+        let handlerItem = hitResult
+            && this.findOverHandler(hitResult.item);
 
-    onMouseDrag = (event) => {
-        if(this.action){
-            if(!this.action.dragged){
-                this.action.dragged = true;
-                if(this.action.item.mouseBehavior.onDragStart){
-                    this.action.item.mouseBehavior.onDragStart.call(
-                        this.action.item, this.action.startEvent); 
+        if (
+            // were previously hovering
+            this.hoverAction
+            && (
+                // not hovering over anything now
+                handlerItem == null
+                // not hovering over current handler or descendent thereof
+                || !MouseBehaviorTool.isSameOrAncestor(
+                    hitResult.item,
+                    this.hoverAction.item))
+        ) {
+            // just leaving
+            if (this.hoverAction.item.mouseBehavior.onOverEnd) {
+                this.hoverAction.item.mouseBehavior.onOverEnd(event);
+            }
+            this.hoverAction = null;
+        }
+
+        if (handlerItem && handlerItem.mouseBehavior) {
+            let behavior = handlerItem.mouseBehavior;
+            if (!this.hoverAction) {
+                this.hoverAction = <MouseAction>{
+                    item: handlerItem
+                };
+                if (behavior.onOverStart) {
+                    behavior.onOverStart(event);
                 }
             }
-            if(this.action.item.mouseBehavior.onDrag){
-                this.action.item.mouseBehavior.onDrag.call(this.action.item, event);
+            if (behavior && behavior.onOverMove) {
+                behavior.onOverMove(event);
             }
         }
     }
-    
+
+    onMouseDrag = (event) => {
+        if (this.pressAction) {
+            if (!this.pressAction.dragged) {
+                this.pressAction.dragged = true;
+                if (this.pressAction.item.mouseBehavior.onDragStart) {
+                    this.pressAction.item.mouseBehavior.onDragStart.call(
+                        this.pressAction.item, this.pressAction.startEvent);
+                }
+            }
+            if (this.pressAction.item.mouseBehavior.onDragMove) {
+                this.pressAction.item.mouseBehavior.onDragMove.call(this.pressAction.item, event);
+            }
+        }
+    }
+
     onMouseUp = (event) => {
-        if(this.action){
-            let action = this.action;
-            this.action = null;
-            
-            if(action.dragged){
+        if (this.pressAction) {
+            let action = this.pressAction;
+            this.pressAction = null;
+
+            if (action.dragged) {
                 // drag
-                if(action.item.mouseBehavior.onDragEnd){
+                if (action.item.mouseBehavior.onDragEnd) {
                     action.item.mouseBehavior.onDragEnd.call(action.item, event);
-                }   
+                }
             } else {
                 // click
-                if(action.item.mouseBehavior.onClick){
+                if (action.item.mouseBehavior.onClick) {
                     action.item.mouseBehavior.onClick.call(action.item, event);
                 }
             }
         }
     }
-    
+
     onKeyDown = (event) => {
-       if (event.key == 'space') {
-		  paper.project.activeLayer.selected = !paper.project.activeLayer.selected;
-	   }
+        if (event.key == 'space') {
+            paper.project.activeLayer.selected = !paper.project.activeLayer.selected;
+        }
     }
     
-    findDraggableUpward(item: paper.Item): paper.Item{
-        while(!item.mouseBehavior && item.parent && item.parent.className != 'Layer'){
-            item = item.parent;
-        }
-        return item.mouseBehavior
-            ? item
-            : null;
+    /**
+     * Determine if possibleAncestor is an ancestor of item. 
+     */
+    static isSameOrAncestor(item: paper.Item, possibleAncestor: paper.Item): boolean {
+        return !!PaperHelpers.findSelfOrAncestor(item, pa => pa === possibleAncestor);
+    }
+
+    findDragHandler(item: paper.Item): paper.Item {
+        return PaperHelpers.findSelfOrAncestor(
+            item, 
+            pa => {
+                let mb = pa.mouseBehavior;
+                return !!(mb &&
+                    (mb.onDragStart || mb.onDragMove || mb.onDragEnd));
+            });
+    }
+    
+    findOverHandler(item: paper.Item): paper.Item {
+        return PaperHelpers.findSelfOrAncestor(
+            item, 
+            pa => {
+                let mb = pa.mouseBehavior;
+                return !!(mb &&
+                    (mb.onOverStart || mb.onOverMove || mb.onOverEnd ));
+            });
     }
 }

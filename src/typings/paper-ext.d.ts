@@ -6,4 +6,5 @@ declare module paper {
         getPointAt(offset: number): paper.Point;
     }
 
+
 }

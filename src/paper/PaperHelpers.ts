@@ -100,4 +100,40 @@ class PaperHelpers {
             (<paper.Path>path).simplify(tolerance);
         }
     }
+
+    /**
+     * Find self or nearest ancestor satisfying the predicate.
+     */    
+    static findSelfOrAncestor(item: paper.Item, predicate: (i: paper.Item) => boolean){
+        if(predicate(item)){
+            return item;
+        }
+        return PaperHelpers.findAncestor(item, predicate);
+    }
+    
+    /**
+     * Find nearest ancestor satisfying the predicate.
+     */
+    static findAncestor(item: paper.Item, predicate: (i: paper.Item) => boolean){
+        if(!item){
+            return null;
+        }
+        let prior: paper.Item;
+        let checking = item.parent;
+        while(checking && checking !== prior){
+            if(predicate(checking)){
+                return checking;
+            }
+            prior = checking;
+            checking = checking.parent;
+        }
+        return null;
+    }
+    
+    /**
+     * The corners of the rect, clockwise starting from topLeft
+     */
+    static corners(rect: paper.Rectangle): paper.Point[]{
+        return [rect.topLeft, rect.topRight, rect.bottomRight, rect.bottomLeft];
+    }
 }

@@ -10,6 +10,7 @@ class StretchyPath extends paper.Group {
      * as outline changes.
      */
     midpointGroup: paper.Group;
+    segmentGroup: paper.Group;
 
     constructor(sourcePath: paper.CompoundPath) {
         super();
@@ -22,10 +23,20 @@ class StretchyPath extends paper.Group {
         this.updateMidpiontMarkers();
 
         this.mouseBehavior = {
-            onDrag: event => this.position = this.position.add(event.delta)
+            onDragMove: event => this.position = this.position.add(event.delta),
+            onOverStart: () => this.setEditElementsVisibility(true),
+            onOverEnd: () => this.setEditElementsVisibility(false)
         };
 
         this.arrangeContents();
+        
+        this.setEditElementsVisibility(false);
+    }
+
+    setEditElementsVisibility(value: boolean){
+        this.segmentGroup.visible = value;
+        this.midpointGroup.visible = value;
+        this.outline.strokeColor = value ? 'lightgray' : null; 
     }
 
     arrangeContents() {
@@ -89,7 +100,7 @@ class StretchyPath extends paper.Group {
             
             segmentGroup.push(segment);
     
-            if(targetCorner.getDistance(segment.point) < 0.0001) {
+            if(targetCorner.isClose(segment.point, paper.Numerical.EPSILON)) {
                 // finish path
                 sides.push(new paper.Path(segmentGroup));
                 segmentGroup = [segment];
@@ -106,34 +117,31 @@ class StretchyPath extends paper.Group {
         
         return sides;
     }
-
+    
     private createOutline() {
         let bounds = this.sourcePath.bounds;
-        this.outline = new paper.Path([
-            new paper.Segment(bounds.topLeft),
-            new paper.Segment(bounds.topRight),
-            new paper.Segment(bounds.bottomRight),
-            new paper.Segment(bounds.bottomLeft)
-        ]);
-
-        this.outline.closed = true;
-        this.outline.fillColor = new paper.Color(window.app.canvasColor);//.add(0.04);
-        this.outline.strokeColor = 'lightgray';
-        this.outline.dashArray = [5, 5];
+        let outline = new paper.Path(
+            PaperHelpers.corners(this.sourcePath.bounds));
+        outline.fillColor = new paper.Color(window.app.canvasColor);
+        outline.closed = true;
+        outline.dashArray = [5, 5];
+        this.outline = outline;
 
         // track corners so we know how to arrange the text
-        this.corners = this.outline.segments.map(s => s);
+        this.corners = outline.segments.map(s => s);
 
-        this.addChild(this.outline);
+        this.addChild(outline);
     }
 
     private createSegmentMarkers() {
         let bounds = this.sourcePath.bounds;
+        this.segmentGroup = new paper.Group();
         for (let segment of this.outline.segments) {
             let handle = new SegmentHandle(segment);
             handle.onChangeComplete = () => this.arrangeContents();
-            this.addChild(handle);
+            this.segmentGroup.addChild(handle);
         }
+        this.addChild(this.segmentGroup);
     }
 
     private updateMidpiontMarkers() {
@@ -142,6 +150,15 @@ class StretchyPath extends paper.Group {
         }
         this.midpointGroup = new paper.Group();
         this.outline.curves.forEach(curve => {
+            // skip left and right sides
+            if(
+                curve.segment1 === this.corners[1]
+                || curve.segment1 === this.corners[3]
+                // curve.segment1.point.isClose(this.corners[1].point, Numerical.EPSILON)
+                // || curve.segment1.point.isClose(this.corners[3].point, Numerical.EPSILON)
+                ){
+                    return;   
+                }
             let handle = new CurveSplitterHandle(curve);
             handle.onDragEnd = (newSegment, event) => {
                 let newHandle = new SegmentHandle(newSegment);

@@ -13,7 +13,7 @@ class SegmentHandle extends paper.Shape {
 
         let self = <any>this;
         self._type = 'circle';
-        self._radius = 5;
+        self._radius = 7;
         self._size = new paper.Size(self._radius * 2);
         this.translate(segment.point);
         
@@ -23,7 +23,7 @@ class SegmentHandle extends paper.Shape {
         this.opacity = 0.5; 
 
         this.mouseBehavior = <MouseBehavior>{
-            onDrag: event => {
+            onDragMove: event => {
                 let newPos = this.position.add(event.delta);
                 this.position = newPos;
                 segment.point = newPos;

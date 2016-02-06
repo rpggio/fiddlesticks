@@ -4119,4 +4119,8 @@ declare module paper {
             x: number, y: number, 
             asVector: boolean): number;
     }
+    
+    export class Numerical {
+        static EPSILON: number;
+    }
 }

@@ -3,10 +3,8 @@
         "module": "commonjs",
         "target": "es5",
         "declaration": false,
-        "sourceMap": true,
         "inlineSourceMap": true,
         "inlineSources": true,
-        "sourceRoot": "src",
         "experimentalDecorators": true,
         "outFile": "site/js/app.js"
     },
