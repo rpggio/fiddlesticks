@@ -27,10 +27,13 @@ class AppController {
     
     addText(){
         let text = $('#newText').val();
+
         if(text.trim().length){
             let block = <TextBlock> {
                 _id: newid(),
-                text: text
+                text: text,
+                textColor: $('#textColor').val(),
+                backgroundColor: $('#backgroundColor').val()
             };
             this.textBlocks.push(block);
 
@@ -45,4 +48,6 @@ interface TextBlock {
     _id: string;
     text: string;
     item: paper.Item;
+    textColor: string;
+    backgroundColor: string;
 }

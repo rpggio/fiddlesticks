@@ -12,10 +12,15 @@ class TextWarpController {
     update(){
         for(let block of this.app.textBlocks){
             if(!block.item){
-                let stretchy = new StretchyText(block.text, this.app.font, 128);
-                //stretchy.translate(new paper.Point(30, 30));
+                let stretchy = new StretchyText(block.text, 
+                        this.app.font,
+                        <StretchyTextOptions>{
+                            fontSize: 128,
+                            pathFillColor: block.textColor,
+                            backgroundColor: block.backgroundColor
+                        });
                 block.item = stretchy;
             }
         }
-    }    
+    }
 }

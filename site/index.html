@@ -3,38 +3,30 @@
 <head>
     
     <script type="text/javascript" src="js/jquery-2.2.0.min.js"></script>
+    <script type="text/javascript" src="js/spectrum.js"></script>
     <script type="text/javascript" src="js/paper-full.js"></script>
-    <!--<script type="text/javascript" src="js/perspective-transform.js"></script>-->
-    <script type="text/javascript" src="js/numeric-solve.js"></script>
     <script type="text/javascript" src="http://nodebox.github.io/opentype.js/dist/opentype.js"></script>
 
     <script type="text/javascript" src="js/app.js"></script>
     
+    <link rel='stylesheet' href='js/spectrum.css' />
+    <link rel='stylesheet' href='css/app.css' />
+    
 </head>
-    <style type="text/css">
-    html,
-    body {
-        margin: 0;
-        overflow: hidden;
-        height: 100%;
-        background-color: #E9E0C3;
-    }
-
-    canvas {
-                
-    }
-
-    /* Scale canvas with resize attribute to full size */
-    canvas[resize] {
-        width: 100%;
-        height: 100%;
-    }
-</style>
 <body>
     <!--<button onclick="window.textTrace()">Text trace</button>-->
     
     <div>
         <textarea id="newText" placeholder="Add text" rows="2" >SKETCHWORD</textarea>
+        
+        
+        
+        Text:
+        <input type='color' id='textColor'' name='textColor' value='#3355cc' />
+        
+        Background: 
+        <input type='color' id='backgroundColor'' name='backgroundColor' value='#E9E0C3' />
+        
         <button onclick="window.app.addText()">Add</button>
     </div>
     

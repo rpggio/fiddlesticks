@@ -1,5 +1,8 @@
 
 class StretchyPath extends paper.Group {
+
+    options: StretchyPathOptions;
+        
     sourcePath: paper.CompoundPath;
     displayPath: paper.CompoundPath;
     corners: paper.Segment[];
@@ -14,8 +17,12 @@ class StretchyPath extends paper.Group {
     midpointGroup: paper.Group;
     segmentGroup: paper.Group;
 
-    constructor(sourcePath: paper.CompoundPath) {
+    constructor(sourcePath: paper.CompoundPath, options?: StretchyPathOptions) {
         super();
+
+        this.options = options || <StretchyPathOptions>{
+            pathFillColor: 'gray'
+        };
 
         this.sourcePath = sourcePath;
         this.sourcePath.visible = false;
@@ -74,7 +81,7 @@ class StretchyPath extends paper.Group {
         let newPath = PaperHelpers.traceCompoundPath(this.sourcePath, 
             StretchyPath.OUTLINE_POINTS);
         newPath.visible = true;
-        newPath.fillColor = '#7D5965';
+        newPath.fillColor = this.options.pathFillColor;
 
         transform.transformPathItem(newPath);
 
@@ -124,10 +131,15 @@ class StretchyPath extends paper.Group {
         let bounds = this.sourcePath.bounds;
         let outline = new paper.Path(
             PaperHelpers.corners(this.sourcePath.bounds));
-        outline.fillColor = new paper.Color(window.app.canvasColor);
+            
+        if(this.options.backgroundColor){
+            outline.fillColor = this.options.backgroundColor;    
+        } else {
+            outline.fillColor = window.app.canvasColor;
+            outline.opacity = 0;
+        }
         outline.closed = true;
         outline.dashArray = [5, 5];
-        outline.opacity = 0;
         this.outline = outline;
 
         // track corners so we know how to arrange the text
@@ -170,4 +182,9 @@ class StretchyPath extends paper.Group {
         });
         this.addChild(this.midpointGroup);
     }
+}
+
+interface StretchyPathOptions {
+    pathFillColor: string;
+    backgroundColor: string;
 }
