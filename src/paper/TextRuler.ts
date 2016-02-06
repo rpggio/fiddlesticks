@@ -1,4 +1,7 @@
 
+/**
+ * Measures offsets of text glyphs.
+ */
 class TextRuler {
     
     fontFamily: string;

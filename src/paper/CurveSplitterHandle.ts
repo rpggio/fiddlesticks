@@ -1,7 +1,7 @@
 
 /**
  * Handle that sits on midpoint of curve
- * which will split the curve when dragged.
+ *   which will split the curve when dragged.
  */
 class CurveSplitterHandle extends paper.Shape {
  
@@ -44,6 +44,5 @@ class CurveSplitterHandle extends paper.Shape {
                 }
             }
         };
-        
     }
 }

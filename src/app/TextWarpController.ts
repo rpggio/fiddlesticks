@@ -17,24 +17,5 @@ class TextWarpController {
                 block.item = stretchy;
             }
         }        
-    }
-    
-    fiddlesticks(){
-        const sampleText = "Fiddlesticks";
-        var lineDraw = new LineDrawTool();
-        let prevPath: paper.Path;
-        lineDraw.onPathFinished = (path) => {
-            path.flatten(40);
-            path.smooth();
-            
-            if(prevPath){
-                let layout = new VerticalBoundsTextLayout(path, prevPath);
-                layout.layout(sampleText,
-                    this.app.font, 
-                    (item) => this.app.paper.view.draw());
-            }
-            
-            prevPath = path;
-        };
-    }
+    }    
 }
