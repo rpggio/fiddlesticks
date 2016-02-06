@@ -25,7 +25,7 @@ class VerticalBoundsTextLayout {
         let orthWidth = letterGroup.bounds.width;
         let orthHeight = letterGroup.bounds.height;
 
-        let projection = PaperHelpers.pathProjection(this.top, this.bottom);
+        let projection = PaperHelpers.sandwichPathProjection(this.top, this.bottom);
         let transform = new PathTransform(point => {
             let relative = point.subtract(orthOrigin);
             let unit = new paper.Point(

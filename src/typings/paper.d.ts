@@ -2997,6 +2997,13 @@ declare module paper {
          */
         getCurvatureAt(offset: number, isParameter?: boolean): Point;
 
+        /**
+         * Returns all intersections between two Curve objects as an array of CurveLocation objects.
+         * @param curve - the other curve to find the intersections with
+         * @returns array of intersecting curve locations
+         */
+        getIntersections(curve: Curve): CurveLocation[];
+
     }
     /**
      * CurveLocation objects describe a location on Curve objects, as defined by the curve parameter, a value between 0 (beginning of the curve) and 1 (end of the curve). If the curve is part of a Path item, its index inside the path.curves array is also provided.
@@ -4047,5 +4054,69 @@ declare module paper {
         point: Point;
 
     }
+    
+    /**
+     * A line object for vector calculations
+     */
+    export class Line {
 
+        /**
+         * Create line from either endpoints, or base point plus vector.
+         * @param asVector - true if the second point is expressed relative to the first 
+         */
+        constructor(p1: paper.Point, p2: paper.Point, asVector?: boolean);
+        
+        /**
+         * Create line from numeric values.
+         * @param asVector - true if the second point is expressed relative to the first 
+         */
+        constructor(x1: number, y1: number, x2: number, y2: number, asVector?: boolean);
+    
+        /**
+         * The starting point of the line
+         */
+        point: Point;
+        
+        /**
+         * The direction/length of the line as a vector
+         */
+        vector: Point;
+
+        /**
+         * the length of the line  
+         */        
+        length: number;
+        
+        /**
+         * the intersection point of the lines
+         */
+        intersect(line: Line, isInfinite: boolean);
+
+        getSide(point: Point, isInfinite: boolean): number;        
+        distance(point: Point): number;        
+        isCollinear(line: Line): boolean;
+        isOrthogonal(line: Line): boolean;
+        
+        static intersect(
+                p1x: number, p1y: number, 
+                v1x: number, v1y: number, 
+                p2x: number, p2y: number, 
+                v2x: number, v2y: number, 
+                asVector: boolean,
+                isInfinite: boolean): Point;
+                
+        static getSide(
+            px: number, py: number, 
+            vx: number, vy: number, 
+            x: number, y: number, 
+            asVector: boolean, 
+            isInfinite: boolean
+        ): number;     
+                
+        static getSignedDistance(
+            px: number, py: number, 
+            vx: number, vy: number, 
+            x: number, y: number, 
+            asVector: boolean): number;
+    }
 }

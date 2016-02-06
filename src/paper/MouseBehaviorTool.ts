@@ -89,6 +89,12 @@ class MouseBehaviorTool extends paper.Tool {
         }
     }
     
+    onKeyDown = (event) => {
+       if (event.key == 'space') {
+		  paper.project.activeLayer.selected = !paper.project.activeLayer.selected;
+	   }
+    }
+    
     findDraggableUpward(item: paper.Item): paper.Item{
         while(!item.mouseBehavior && item.parent && item.parent.className != 'Layer'){
             item = item.parent;

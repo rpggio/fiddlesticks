@@ -38,10 +38,14 @@ class StretchyPath extends paper.Group {
         let orthWidth = this.sourcePath.bounds.width;
         let orthHeight = this.sourcePath.bounds.height;
         let sides = this.getOutlineSides();
+        
         let top = sides[0];
         let bottom = sides[2];
         bottom.reverse();
-        let projection = PaperHelpers.pathProjection(top, bottom);
+        let projection = PaperHelpers.sandwichPathProjection(top, bottom);
+        
+        //let projection = PaperHelpers.boundsPathProjection(sides);
+        
         let transform = new PathTransform(point => {
             let relative = point.subtract(orthOrigin);
             let unit = new paper.Point(
@@ -57,7 +61,7 @@ class StretchyPath extends paper.Group {
         
         let newPath = <paper.CompoundPath>this.sourcePath.clone();
         newPath.visible = true;
-        newPath.fillColor = 'lightblue';
+        newPath.fillColor = '#7D5965';
 
         transform.transformPathItem(newPath);
 

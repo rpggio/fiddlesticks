@@ -9,7 +9,7 @@ class AppController {
     warp: TextWarpController;
     textBlocks: TextBlock[] = [];
     paper: paper.PaperScope;
-    canvasColor = '#F5F6CE';
+    canvasColor = '#E9E0C3';
 
     constructor(){
         var canvas = document.getElementById('mainCanvas');
@@ -19,6 +19,8 @@ class AppController {
         new FontLoader(Roboto500, font => {
             this.font = font;
             this.warp = new TextWarpController(this);
+            
+            this.addText();
         });
 
     }
