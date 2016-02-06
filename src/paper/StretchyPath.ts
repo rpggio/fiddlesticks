@@ -5,6 +5,8 @@ class StretchyPath extends paper.Group {
     corners: paper.Segment[];
     outline: paper.Path;
     
+    static OUTLINE_POINTS = 200;
+    
     /**
      * For rebuilding the midpoint handles
      * as outline changes.
@@ -56,9 +58,6 @@ class StretchyPath extends paper.Group {
         let bottom = sides[2];
         bottom.reverse();
         let projection = PaperHelpers.sandwichPathProjection(top, bottom);
-        
-        //let projection = PaperHelpers.boundsPathProjection(sides);
-        
         let transform = new PathTransform(point => {
             let relative = point.subtract(orthOrigin);
             let unit = new paper.Point(
@@ -72,7 +71,8 @@ class StretchyPath extends paper.Group {
             side.remove();
         }
         
-        let newPath = <paper.CompoundPath>this.sourcePath.clone();
+        let newPath = PaperHelpers.traceCompoundPath(this.sourcePath, 
+            StretchyPath.OUTLINE_POINTS);
         newPath.visible = true;
         newPath.fillColor = '#7D5965';
 
@@ -154,19 +154,15 @@ class StretchyPath extends paper.Group {
         this.midpointGroup = new paper.Group();
         this.outline.curves.forEach(curve => {
             // skip left and right sides
-            if(
-                curve.segment1 === this.corners[1]
-                || curve.segment1 === this.corners[3]
-                // curve.segment1.point.isClose(this.corners[1].point, Numerical.EPSILON)
-                // || curve.segment1.point.isClose(this.corners[3].point, Numerical.EPSILON)
-                ){
+            if(curve.segment1 === this.corners[1]
+                || curve.segment1 === this.corners[3]){
                     return;   
                 }
             let handle = new CurveSplitterHandle(curve);
             handle.onDragEnd = (newSegment, event) => {
                 let newHandle = new SegmentHandle(newSegment);
                 newHandle.onChangeComplete = () => this.arrangeContents();
-                this.addChild(newHandle);
+                this.segmentGroup.addChild(newHandle);
                 handle.remove();
                 this.arrangeContents();
             };

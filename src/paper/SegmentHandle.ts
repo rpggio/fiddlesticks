@@ -53,7 +53,6 @@ class SegmentHandle extends paper.Shape {
         this._smoothed = value;
         
         if(value) {
-            console.log('smoothing');
             this.segment.smooth();
         } else {
             this.segment.handleIn = null;

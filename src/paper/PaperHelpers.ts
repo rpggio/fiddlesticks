@@ -24,8 +24,7 @@ class PaperHelpers {
             this.tracePath(<paper.Path>p, pointsPerPath));
         return new paper.CompoundPath({
             children: paths,
-            clockwise: path.clockwise,
-            fillColor: 'lightgray'
+            clockwise: path.clockwise
         })
     }
 
@@ -36,7 +35,6 @@ class PaperHelpers {
         let pathLength = path.length;
         let offsetIncr = pathLength / numPoints;
         let points = [];
-        //points.length = numPoints;
         let i = 0;
         let offset = 0;
 
@@ -46,9 +44,11 @@ class PaperHelpers {
             offset += offsetIncr;
         }
 
-        var path = new paper.Path(points);
-        path.fillColor = 'lightgray';
-        return path;
+        return new paper.Path({
+            segments: points,
+            closed: true,
+            clockwise: path.clockwise
+        });
     }
 
     static sandwichPathProjection(topPath: paper.Curvelike, bottomPath: paper.Curvelike)
