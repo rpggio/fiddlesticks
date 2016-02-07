@@ -22,6 +22,10 @@ class ViewZoom {
         return this.paperScope.view.zoom;
     }
 
+    get zoomRange(): number[] {
+        return [this._minZoom, this._maxZoom];
+    }
+
     /**
      * Set zoom level.
      * @returns zoom level that was set, or null if it was not changed
@@ -41,7 +45,7 @@ class ViewZoom {
         return null;
     }
 
-    setZoomRange(range: paper.Size[]) {
+    setZoomRange(range: paper.Size[]): number[] {
         let view = this.paperScope.view;
         let aSize = range.shift();
         let bSize = range.shift();
@@ -59,7 +63,7 @@ class ViewZoom {
         if(max){
             this._maxZoom = max;
         }
-        console.log('min', this._minZoom, 'max', this._maxZoom);
+        return [this._minZoom, this._maxZoom];
     }
 
     changeZoomCentered(deltaY: number, mousePos: paper.Point) {

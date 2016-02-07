@@ -16,6 +16,9 @@ class Workspace extends paper.Group {
         this.addChild(sheet);
         
         this.mouseBehavior = <MouseBehavior> {
+            onClick: e => {
+                paper.project.deselectAll();
+            },
             onDragMove: e => this.position = this.position.add(e.delta)
         }
     }

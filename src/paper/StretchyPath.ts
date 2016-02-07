@@ -32,9 +32,15 @@ class StretchyPath extends paper.Group {
         this.updateMidpiontMarkers();
 
         this.mouseBehavior = {
-            onClick: () => this.bringToFront(),
+            onClick: () => {
+                this.bringToFront();
+                this.selected = true;
+            },
             onDragStart: () => this.bringToFront(),
-            onDragMove: event => this.position = this.position.add(event.delta),
+            onDragMove: event => {
+                this.selected = true;
+                this.position = this.position.add(event.delta);
+            },
             onOverStart: () => this.setEditElementsVisibility(true),
             onOverEnd: () => this.setEditElementsVisibility(false)
         };

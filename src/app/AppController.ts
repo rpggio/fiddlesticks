@@ -45,6 +45,9 @@ class AppController {
         mouseZoom.setZoomRange(
             [sheetBounds.scale(0.02).size, sheetBounds.scale(3).size]);
         mouseZoom.zoomTo(sheetBounds.scale(0.5));
+
+        this.paper.settings.handleSize = 1;
+        //this.paper.project.activeLayer.selectedColor = 'white';
         
         new FontLoader(Roboto500, font => {
             this.font = font;

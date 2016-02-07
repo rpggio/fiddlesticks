@@ -53,7 +53,6 @@ class MouseBehaviorTool extends paper.Tool {
                     item: draggable
                 };
             }
-            //this.paperScope.project.activeLayer.addChild(this.dragItem);
         }
     }
 
@@ -133,16 +132,13 @@ class MouseBehaviorTool extends paper.Tool {
     }
 
     onKeyDown = (event) => {
-        if (event.key == 'space') {
-            paper.project.activeLayer.selected = !paper.project.activeLayer.selected;
-        }
     }
     
     /**
-     * Determine if possibleAncestor is an ancestor of item. 
+     * Determine if container is an ancestor of item. 
      */
-    static isSameOrAncestor(item: paper.Item, possibleAncestor: paper.Item): boolean {
-        return !!PaperHelpers.findSelfOrAncestor(item, pa => pa === possibleAncestor);
+    static isSameOrAncestor(item: paper.Item, container: paper.Item): boolean {
+        return !!PaperHelpers.findSelfOrAncestor(item, pa => pa === container);
     }
 
     findDragHandler(item: paper.Item): paper.Item {
