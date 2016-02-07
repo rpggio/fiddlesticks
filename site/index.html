@@ -6,6 +6,7 @@
     <script type="text/javascript" src="js/spectrum.js"></script>
     <script type="text/javascript" src="js/paper-full.js"></script>
     <script type="text/javascript" src="http://nodebox.github.io/opentype.js/dist/opentype.js"></script>
+    <script type="text/javascript" src="js/jquery.mousewheel.js"></script>
 
     <script type="text/javascript" src="js/app.js"></script>
     
@@ -19,13 +20,11 @@
     <div>
         <textarea id="newText" placeholder="Add text" rows="2" >SKETCHWORD</textarea>
         
-        
-        
         Text:
-        <input type='color' id='textColor'' name='textColor' value='#3355cc' />
+        <input type="text" id="textColor"" name="textColor" class="color-picker" value="#802b00" />
         
         Background: 
-        <input type='color' id='backgroundColor'' name='backgroundColor' value='#E9E0C3' />
+        <input type="text" id="backgroundColor" class="color-picker" name="backgroundColor" />
         
         <button onclick="window.app.addText()">Add</button>
     </div>

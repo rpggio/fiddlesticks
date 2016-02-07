@@ -8,7 +8,7 @@ class StretchyPath extends paper.Group {
     corners: paper.Segment[];
     outline: paper.Path;
     
-    static OUTLINE_POINTS = 200;
+    static OUTLINE_POINTS = 230;
     
     /**
      * For rebuilding the midpoint handles
@@ -106,16 +106,13 @@ class StretchyPath extends paper.Group {
         let i = 0;
         segmentList.push(segmentList[0]);
         for(let segment of segmentList){
-            
             segmentGroup.push(segment);
-    
             if(targetCorner.isClose(segment.point, paper.Numerical.EPSILON)) {
                 // finish path
                 sides.push(new paper.Path(segmentGroup));
                 segmentGroup = [segment];
                 targetCorner = cornerPoints.shift();
             }
-                
             i++;
         }
         
