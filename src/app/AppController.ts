@@ -18,6 +18,7 @@ class AppController {
             showInput: true,
             allowEmpty:true,
             preferredFormat: "hex",
+            showButtons: false,
             showAlpha: true,
             showPalette: true,
             showSelectionPalette: true,
@@ -38,9 +39,12 @@ class AppController {
         paper.setup(<HTMLCanvasElement>canvas);
         this.paper = paper;
 
-        let mouseZoom = new MouseZoom(paper);
-        this.workspace = new Workspace(new paper.Size(4000, 2500));
-        mouseZoom.zoomTo(this.workspace.sheet.bounds.scale(0.5));
+        let mouseZoom = new ViewZoom(paper);
+        this.workspace = new Workspace(new paper.Size(4000, 3000));
+        let sheetBounds = this.workspace.sheet.bounds;
+        mouseZoom.setZoomRange(
+            [sheetBounds.scale(0.02).size, sheetBounds.scale(3).size]);
+        mouseZoom.zoomTo(sheetBounds.scale(0.5));
         
         new FontLoader(Roboto500, font => {
             this.font = font;
