@@ -7,6 +7,7 @@
     <script type="text/javascript" src="js/paper-full.js"></script>
     <script type="text/javascript" src="http://nodebox.github.io/opentype.js/dist/opentype.js"></script>
     <script type="text/javascript" src="js/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="js/rivets.bundled.min.js"></script>
 
     <script type="text/javascript" src="js/app.js"></script>
     
@@ -17,16 +18,27 @@
 <body>
     <!--<button onclick="window.textTrace()">Text trace</button>-->
     
+    <h1 rv-text="canvasColor"></h1>
+    
     <div>
-        <textarea id="newText" placeholder="Add text" rows="2" >SKETCHWORD</textarea>
         
-        Text:
-        <input type="text" id="textColor"" name="textColor" class="color-picker" value="#802b00" />
-        
-        Background: 
-        <input type="text" id="backgroundColor" class="color-picker" name="backgroundColor" />
-        
-        <button onclick="window.app.addText()">Add</button>
+        <div class="textblock" rv-each-block="textBlocks" rv-on-click=">
+            <span rv-text="block.text"></span>
+        </div>
+
+        <div class="textblock-edit">
+
+            <textarea id="newText" placeholder="Add text" rows="2" >SKETCHWORD</textarea>
+            
+            Text:
+            <input type="text" id="textColor" name="textColor" class="color-picker" value="#802b00" />
+            
+            Background: 
+            <input type="text" id="backgroundColor" class="color-picker" name="backgroundColor" />
+            
+            <button rv-on-click="addText">Add</button>
+            
+        </div>
     </div>
     
 	<canvas id="mainCanvas" resize></canvas>

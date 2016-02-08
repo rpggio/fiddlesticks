@@ -6,6 +6,9 @@ interface Window {
 
 $(document).ready(function() {  
    
+   
+
+   
     window.app = new AppController();
     
 });

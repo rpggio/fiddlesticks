@@ -1,16 +1,16 @@
 
 class ViewZoom {
 
-    paperScope: paper.PaperScope;
+    project: paper.Project;
     factor = 1.25;
     
     private _minZoom: number;
     private _maxZoom: number;
 
-    constructor(paperScope: paper.PaperScope) {
-        this.paperScope = paperScope;
+    constructor(project: paper.Project) {
+        this.project = project;
         
-        let view = this.paperScope.view;
+        let view = this.project.view;
 
         (<any>$(view.element)).mousewheel((event) => {
             let mousePosition = new paper.Point(event.offsetX, event.offsetY);
@@ -19,7 +19,7 @@ class ViewZoom {
     }
 
     get zoom(): number{
-        return this.paperScope.view.zoom;
+        return this.project.view.zoom;
     }
 
     get zoomRange(): number[] {
@@ -37,7 +37,7 @@ class ViewZoom {
         if(this._maxZoom){
             zoom = Math.min(zoom, this._maxZoom);
         }
-        let view = this.paperScope.view;
+        let view = this.project.view;
         if(zoom != view.zoom){
             view.zoom = zoom;
             return zoom;
@@ -46,7 +46,7 @@ class ViewZoom {
     }
 
     setZoomRange(range: paper.Size[]): number[] {
-        let view = this.paperScope.view;
+        let view = this.project.view;
         let aSize = range.shift();
         let bSize = range.shift();
         let a = aSize && Math.min( 
@@ -70,7 +70,7 @@ class ViewZoom {
         if (!deltaY) {
             return;
         }
-        let view = this.paperScope.view;
+        let view = this.project.view;
         let oldZoom = view.zoom;
         let oldCenter = view.center;
         let viewPos = view.viewToProject(mousePos);
@@ -93,7 +93,7 @@ class ViewZoom {
     };
     
     zoomTo(rect: paper.Rectangle){
-        let view = this.paperScope.view;
+        let view = this.project.view;
         view.center = rect.center;
         view.zoom = Math.min( 
             view.bounds.height / rect.height,         

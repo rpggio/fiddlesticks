@@ -138,7 +138,7 @@ class StretchyPath extends paper.Group {
         if(this.options.backgroundColor){
             outline.fillColor = this.options.backgroundColor;    
         } else {
-            outline.fillColor = window.app.canvasColor;
+            outline.fillColor = 'white';
             outline.opacity = 0;
         }
         outline.closed = true;

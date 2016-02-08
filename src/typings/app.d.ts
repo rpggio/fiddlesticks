@@ -1,6 +1,7 @@
 interface Window {
     paper: paper.PaperScope;
     DOMParser: any;
+    rivets: any;
 }
 
 interface TextLayout {

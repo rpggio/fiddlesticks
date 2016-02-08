@@ -34,15 +34,18 @@ class MouseBehaviorTool extends paper.Tool {
 
     pressAction: MouseAction;
     hoverAction: MouseAction;
+    project: paper.Project;
 
-    constructor(paperScope: paper.PaperScope) {
+    constructor(project: paper.Project) {
         super();
+        
+        this.project = project;
     }
 
     onMouseDown = (event) => {
         this.pressAction = null;
 
-        var hitResult = paper.project.hitTest(
+        var hitResult = this.project.hitTest(
             event.point,
             this.hitOptions);
 
@@ -57,7 +60,7 @@ class MouseBehaviorTool extends paper.Tool {
     }
 
     onMouseMove = (event) => {
-        var hitResult = paper.project.hitTest(
+        var hitResult = this.project.hitTest(
             event.point,
             this.hitOptions);
         let handlerItem = hitResult
