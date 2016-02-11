@@ -15,7 +15,7 @@ class CurveSplitterHandle extends paper.Shape {
         
         let self = <any>this;
         self._type = 'circle';
-        self._radius = 7;
+        self._radius = 15;
         self._size = new paper.Size(self._radius * 2);
         this.translate(curve.getPointAt(0.5 * curve.length));
         

@@ -13,14 +13,14 @@ class SegmentHandle extends paper.Shape {
 
         let self = <any>this;
         self._type = 'circle';
-        self._radius = 7;
+        self._radius = 15;
         self._size = new paper.Size(self._radius * 2);
         this.translate(segment.point);
         
         this.strokeWidth = 2;
         this.strokeColor = 'blue';
         this.fillColor = 'white';
-        this.opacity = 0.5; 
+        this.opacity = 0.7; 
 
         this.mouseBehavior = <MouseBehavior>{
             onDragMove: event => {

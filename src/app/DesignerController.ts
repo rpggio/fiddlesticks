@@ -2,6 +2,7 @@
 const AmaticUrl = 'http://fonts.gstatic.com/s/amaticsc/v8/IDnkRTPGcrSVo50UyYNK7y3USBnSvpkopQaUR-2r7iU.ttf';
 const Roboto100 = 'http://fonts.gstatic.com/s/roboto/v15/7MygqTe2zs9YkP0adA9QQQ.ttf';
 const Roboto500 = 'fonts/Roboto-500.ttf';
+const AquafinaScript = 'fonts/AguafinaScript-Regular/AguafinaScript-Regular.ttf'
 
 class DesignerController {
 
