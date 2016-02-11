@@ -1,0 +1,23 @@
+{
+  "name": "word-art",
+  "version": "1.0.0",
+  "description": "word-art",
+  "main": "dist/main.js",
+  "dependencies": {
+    "rx": "^4.0.7"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryascl/word-art.git"
+  },
+  "author": "Ryan Smith",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/ryascl/word-art/issues"
+  },
+  "homepage": "https://github.com/ryascl/word-art#readme"
+}

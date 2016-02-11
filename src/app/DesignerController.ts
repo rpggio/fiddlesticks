@@ -38,15 +38,6 @@ class DesignerController {
             localStorageKey: "sketchtext",
         });
 
-        window.rivets.configure({
-            handler: function(target, event, binding) {
-                return this.call(binding.model, event, binding.view.models);
-            }
-        });
-
-        // set up rivets.js
-        window.rivets.bind($('body'), this);       
-
         // add new text block
         this.loadFont(Roboto500, font => {
             this.newSketch();

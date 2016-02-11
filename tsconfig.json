@@ -6,9 +6,12 @@
         "inlineSourceMap": true,
         "inlineSources": true,
         "experimentalDecorators": true,
-        "outFile": "site/js/app.js"
+        "outFile": "dist/main.js"
     },
     "exclude": [
-        "bower_components"
+        "bower_components",
+        "node_modules",
+        "lib",
+        "dist"
     ]
 }
