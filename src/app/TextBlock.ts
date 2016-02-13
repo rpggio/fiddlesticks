@@ -1,8 +1,7 @@
 
 interface TextBlock {
-    _id: string;
+    textBlockId: string;
     text: string;
-    item: paper.Item;
     textColor: string;
     backgroundColor: string;
     font: opentype.Font;

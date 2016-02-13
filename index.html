@@ -8,10 +8,9 @@
     <script type="text/javascript" src="lib/opentype.js"></script>
     <script type="text/javascript" src="lib/jquery.mousewheel.js"></script>
 
-    <script type="text/javascript" src="node_modules/rx/dist/rx.all.js"></script>
-    <script type="text/javascript" src="node_modules/@cycle/core/dist/cycle.js"></script>
-    <script type="text/javascript" src="node_modules/@cycle/dom/dist/cycle-dom.js"></script>
-    <script type="text/javascript" src="node_modules/@cycle/isolate/dist/cycle-isolate.js"></script>
+    <script type="text/javascript" src="node_modules/requirejs/require.js"></script>
+    <script type="text/javascript" src="dist/deps-bundle.js"></script>
+
    
     <link rel='stylesheet' href='lib/spectrum.css' />
     <link rel='stylesheet' href='css/app.css' />
@@ -19,29 +18,7 @@
 </head>
 <body>
 
-    <div id="cycle-app"></div>    
-
-    
-    <div>
-        
-        <div class="textblock" rv-each-block="textBlocks" rv-on-click=">
-            <span rv-text="block.text"></span>
-        </div>
-
-        <div class="textblock-edit">
-
-            <textarea id="newText" placeholder="Add text" rows="2" >SKETCHWORD</textarea>
-            
-            Text:
-            <input type="text" id="textColor" name="textColor" class="color-picker" value="#802b00" />
-            
-            Background: 
-            <input type="text" id="backgroundColor" class="color-picker" name="backgroundColor" />
-            
-            <button rv-on-click="addText">Add</button>
-            
-        </div>
-    </div>
+    <div id="textblock-editor"></div>    
     
 	<canvas id="mainCanvas" resize></canvas>
     

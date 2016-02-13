@@ -24,13 +24,15 @@ class StretchyPath extends paper.Group {
             pathFillColor: 'gray'
         };
 
-        this.sourcePath = sourcePath;
-        this.sourcePath.visible = false;
-
+        this.setPath(sourcePath);
+       
         this.createOutline();
         this.createSegmentMarkers();
         this.updateMidpiontMarkers();
+        this.setEditElementsVisibility(false);
 
+        this.arrangeContents();
+       
         this.mouseBehavior = {
             onClick: () => {
                 this.bringToFront();
@@ -44,10 +46,22 @@ class StretchyPath extends paper.Group {
             onOverStart: () => this.setEditElementsVisibility(true),
             onOverEnd: () => this.setEditElementsVisibility(false)
         };
+    }
 
+    updatePath(path: paper.CompoundPath, options?: StretchyPathOptions){
+        this.setPath(path);
+        if(options){
+            this.options = options;
+        }
         this.arrangeContents();
-        
-        this.setEditElementsVisibility(false);
+    }
+
+    private setPath(path: paper.CompoundPath){
+        if(this.sourcePath){
+            this.sourcePath.remove();
+        }
+        this.sourcePath = path;
+        path.visible = false;
     }
 
     setEditElementsVisibility(value: boolean){
@@ -88,6 +102,8 @@ class StretchyPath extends paper.Group {
             StretchyPath.OUTLINE_POINTS);
         newPath.visible = true;
         newPath.fillColor = this.options.pathFillColor;
+        
+        this.setBackgroundColor();
 
         transform.transformPathItem(newPath);
 
@@ -134,13 +150,7 @@ class StretchyPath extends paper.Group {
         let bounds = this.sourcePath.bounds;
         let outline = new paper.Path(
             PaperHelpers.corners(this.sourcePath.bounds));
-            
-        if(this.options.backgroundColor){
-            outline.fillColor = this.options.backgroundColor;    
-        } else {
-            outline.fillColor = 'white';
-            outline.opacity = 0;
-        }
+
         outline.closed = true;
         outline.dashArray = [5, 5];
         this.outline = outline;
@@ -149,6 +159,17 @@ class StretchyPath extends paper.Group {
         this.corners = outline.segments.map(s => s);
 
         this.addChild(outline);
+        this.setBackgroundColor();
+    }
+
+    private setBackgroundColor(){
+        if(this.options.backgroundColor){
+            this.outline.fillColor = this.options.backgroundColor;
+            this.outline.opacity = .9;    
+        } else {
+            this.outline.fillColor = 'white';
+            this.outline.opacity = 0;
+        }
     }
 
     private createSegmentMarkers() {

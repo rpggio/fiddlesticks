@@ -1,19 +1,29 @@
 
 class StretchyText extends StretchyPath {
 
-    options: StretchyTextOptions;
+    ffont: opentype.Font;
 
-    constructor(text: string, font: opentype.Font, options?: StretchyTextOptions) {
-        this.options = options || <StretchyTextOptions>{
-            fontSize: 32
-        };
-        let openTypePath = font.getPath(text, 0, 0, this.options.fontSize);
-        let textPath = PaperHelpers.importOpenTypePath(openTypePath);
-
-        super(textPath, options);
+    constructor(font: opentype.Font, options: StretchyTextOptions) {
+        this.ffont = font;
+        
+        super(this.getTextPath(options), options);
+    }
+    
+    updateText(options: StretchyTextOptions){
+        super.updatePath(this.getTextPath(options), options);
+    }
+    
+    getTextPath(options: StretchyTextOptions){
+        let openTypePath = this.ffont.getPath(
+                options.text, 
+                0, 
+                0, 
+                options.fontSize || 32);
+        return PaperHelpers.importOpenTypePath(openTypePath);
     }
 }
 
 interface StretchyTextOptions extends StretchyPathOptions {
+    text: string;
     fontSize: number;
 }

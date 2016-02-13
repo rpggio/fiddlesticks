@@ -4,7 +4,10 @@
   "description": "word-art",
   "main": "dist/main.js",
   "dependencies": {
-    "rx": "^4.0.7"
+    "lodash": "^4.3.0",
+    "requirejs": "^2.1.22",
+    "rx": "^4.0.7",
+    "snabbdom": "^0.3.2"
   },
   "devDependencies": {},
   "scripts": {
