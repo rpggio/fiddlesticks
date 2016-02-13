@@ -6,6 +6,7 @@
 class CurveSplitterHandle extends paper.Shape {
  
     curve: paper.Curve;
+    onDragStart: (event: paper.ToolEvent) => void;
     onDragEnd: (newSegment: paper.Segment, event: paper.ToolEvent) => void;
  
     constructor(curve: paper.Curve){
@@ -32,11 +33,15 @@ class CurveSplitterHandle extends paper.Shape {
                     curve.index + 1, 
                     newSegment
                 );
+                if(this.onDragStart){
+                    this.onDragStart(event);
+                }
             },
             onDragMove: event => {
                 let newPos = this.position.add(event.delta);
                 this.position = newPos;
                 newSegment.point = newPos;
+
             },
             onDragEnd: event => {
                 if(this.onDragEnd){

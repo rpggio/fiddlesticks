@@ -7,6 +7,7 @@ class StretchyPath extends paper.Group {
     displayPath: paper.CompoundPath;
     corners: paper.Segment[];
     outline: paper.Path;
+    shapeChanged: boolean;
     
     static OUTLINE_POINTS = 230;
     
@@ -15,7 +16,7 @@ class StretchyPath extends paper.Group {
      * as outline changes.
      */
     midpointGroup: paper.Group;
-    segmentGroup: paper.Group;
+    segmentMarkersGroup: paper.Group;
 
     constructor(sourcePath: paper.CompoundPath, options?: StretchyPathOptions) {
         super();
@@ -53,6 +54,11 @@ class StretchyPath extends paper.Group {
         if(options){
             this.options = options;
         }
+        if(!this.shapeChanged){
+            this.outline.bounds.size = this.sourcePath.bounds.size;
+            this.updateMidpiontMarkers();
+            this.createSegmentMarkers();              
+        }
         this.arrangeContents();
     }
 
@@ -65,7 +71,7 @@ class StretchyPath extends paper.Group {
     }
 
     setEditElementsVisibility(value: boolean){
-        this.segmentGroup.visible = value;
+        this.segmentMarkersGroup.visible = value;
         this.midpointGroup.visible = value;
         this.outline.strokeColor = value ? 'lightgray' : null; 
     }
@@ -173,16 +179,20 @@ class StretchyPath extends paper.Group {
     }
 
     private createSegmentMarkers() {
+        if(this.segmentMarkersGroup){
+            this.segmentMarkersGroup.remove();
+        }
         let bounds = this.sourcePath.bounds;
-        this.segmentGroup = new paper.Group();
+        this.segmentMarkersGroup = new paper.Group();
         for (let segment of this.outline.segments) {
             let handle = new SegmentHandle(segment);
+            handle.onDragStart = () => this.shapeChanged = true;
             handle.onChangeComplete = () => this.arrangeContents();
-            this.segmentGroup.addChild(handle);
+            this.segmentMarkersGroup.addChild(handle);
         }
-        this.addChild(this.segmentGroup);
+        this.addChild(this.segmentMarkersGroup);
     }
-
+    
     private updateMidpiontMarkers() {
         if(this.midpointGroup){
             this.midpointGroup.remove();
@@ -195,10 +205,11 @@ class StretchyPath extends paper.Group {
                     return;   
                 }
             let handle = new CurveSplitterHandle(curve);
+            handle.onDragStart = () => this.shapeChanged = true; 
             handle.onDragEnd = (newSegment, event) => {
                 let newHandle = new SegmentHandle(newSegment);
                 newHandle.onChangeComplete = () => this.arrangeContents();
-                this.segmentGroup.addChild(newHandle);
+                this.segmentMarkersGroup.addChild(newHandle);
                 handle.remove();
                 this.arrangeContents();
             };

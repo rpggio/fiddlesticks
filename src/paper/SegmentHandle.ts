@@ -2,6 +2,7 @@
 class SegmentHandle extends paper.Shape {
  
     segment: paper.Segment;
+    onDragStart: (event: paper.ToolEvent) => void;
     onChangeComplete: (event: paper.ToolEvent) => void;
     
     private _smoothed: boolean;
@@ -23,6 +24,11 @@ class SegmentHandle extends paper.Shape {
         this.opacity = 0.7; 
 
         this.mouseBehavior = <MouseBehavior>{
+            onDragStart: event => {
+              if(this.onDragStart){
+                  this.onDragStart(event);
+              }  
+            },
             onDragMove: event => {
                 let newPos = this.position.add(event.delta);
                 this.position = newPos;
