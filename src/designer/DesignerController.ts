@@ -19,7 +19,7 @@ class DesignerController {
             
             let tbSource = Rx.Observable.just(
                 <TextBlock>{
-                    textBlockId: newid(),
+                    _id: newid(),
                     text: 'FIDDLESTICKS',
                     textColor: 'gray',
                     });
@@ -29,15 +29,14 @@ class DesignerController {
             
             let textBlock$ = editor.change$.map(tba =>
                 <TextBlock>{
-                    textBlockId: tba.textBlockId || newid(),
+                    _id: tba._id || newid(),
                     text: tba.text,
                     textColor: tba.textColor,
-                    backgroundColor: tba.backgroundColor,
-                    font: font
+                    backgroundColor: tba.backgroundColor
                 }
             ); 
             
-            this.workspaceController = new WorkspaceController(textBlock$);
+            this.workspaceController = new WorkspaceController(textBlock$, font);
             
         });
     }

@@ -1,7 +1,7 @@
 
-require ('rx');
+window.Rx = require ('rx');
 
-snabbdom = require('snabbdom');
+window.snabbdom = require('snabbdom');
 window.patch = snabbdom.init([ // Init patch function with choosen modules
   require('snabbdom/modules/class'), // makes it easy to toggle classes
   require('snabbdom/modules/props'), // for setting properties on DOM elements
@@ -10,10 +10,6 @@ window.patch = snabbdom.init([ // Init patch function with choosen modules
 ]);
 window.h = require('snabbdom/h'); // helper function for creating VNodes
 
+window._ = require('lodash');
 
-require('lodash');
-//console.log('lo deps', _);
-//console.log('lo keys', _.keys({x:1}));
-
-// import _ from 'lodash';
-// window._ = _;
+window.postal = require('postal');

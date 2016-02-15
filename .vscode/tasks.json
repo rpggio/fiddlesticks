@@ -30,7 +30,7 @@
 
 
 //TODO: figure out how to make a task out of this:
-//browserify src\deps-init.js -o dist\deps-bundle.js
+//browserify src\deps-init.js -o dist\deps-bundle.js --ig
 
 
 

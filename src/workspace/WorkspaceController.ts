@@ -6,11 +6,13 @@ class WorkspaceController {
     canvas: HTMLCanvasElement;
     workspace: Workspace;
     project: paper.Project;
+    font: opentype.Font;
     
     private _sketch: Sketch;
     private _textBlockItems: { [textBlockId: string] : StretchyText; } = {};
 
-    constructor(textBlock$: Rx.Observable<TextBlock>) {      
+    constructor(textBlock$: Rx.Observable<TextBlock>, font: opentype.Font) {
+        this.font = font;      
         paper.settings.handleSize = 1;
 
         this.canvas = <HTMLCanvasElement>document.getElementById('mainCanvas');
@@ -34,8 +36,8 @@ class WorkspaceController {
         if(!textBlock.text.length){
             return;
         }
-        if(!textBlock.textBlockId){
-            textBlock.textBlockId = newid();
+        if(!textBlock._id){
+            textBlock._id = newid();
         }
         let options = <StretchyTextOptions>{
                     text: textBlock.text,
@@ -43,15 +45,15 @@ class WorkspaceController {
                     pathFillColor: textBlock.textColor || 'black',
                     backgroundColor: textBlock.backgroundColor
                 };
-        let item = this._textBlockItems[textBlock.textBlockId];
+        let item = this._textBlockItems[textBlock._id];
         if(!item) {
-            item = new StretchyText(textBlock.font, options);
-            item.data = textBlock.textBlockId;
+            item = new StretchyText(this.font, options);
+            item.data = textBlock._id;
             this.workspace.addChild(item);
             item.position = this.project.view.bounds.point.add(
                 new paper.Point(item.bounds.width / 2, item.bounds.height / 2)
                     .add(50));
-            this._textBlockItems[textBlock.textBlockId] = item;
+            this._textBlockItems[textBlock._id] = item;
         } else {
             item.updateText(options);
         }

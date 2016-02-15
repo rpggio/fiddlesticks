@@ -5,8 +5,9 @@
   "main": "dist/main.js",
   "dependencies": {
     "lodash": "^4.3.0",
-    "requirejs": "^2.1.22",
+    "postal": "^1.0.8",
     "rx": "^4.0.7",
+    "rxmq": "^0.9.1",
     "snabbdom": "^0.3.2"
   },
   "devDependencies": {},

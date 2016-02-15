@@ -3049,7 +3049,7 @@ declare module Rx {
         * @param {Function} [selector] A selector which takes the arguments from the event handler to produce a single item to yield on next.
         * @returns {Observable} An observable sequence which wraps an event from an event emitter
         */
-        fromEventPattern<T>(addHandler: (handler: Function) => void, removeHandler: (handler: Function) => void, selector?: (arguments: any[]) => T): Observable<T>;
+        fromEventPattern<T>(addHandler: (handler: Function) => void, removeHandler: (handler: Function, sub?: any) => void, selector?: (arguments: any[]) => T): Observable<T>;
     }
 
     export interface ObservableStatic {

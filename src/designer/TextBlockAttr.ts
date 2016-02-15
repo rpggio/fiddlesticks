@@ -1,6 +1,6 @@
 
 interface TextBlockAttr {
-    textBlockId: string;
+    _id: string;
     text?: string;
     textColor?: string;
     backgroundColor?: string;

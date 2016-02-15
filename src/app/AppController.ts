@@ -3,9 +3,9 @@ class AppController {
 
     designerController: DesignerController;
 
-    constructor(){
-        
+    constructor() {
+
         this.designerController = new DesignerController(this);
-        
+
     }
 }

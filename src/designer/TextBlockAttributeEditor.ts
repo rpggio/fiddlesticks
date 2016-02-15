@@ -11,7 +11,7 @@ class TextBlockAttributeEditor {
 
         this.vdom$ = VDomHelpers.liveRender(container, source, textBlock => {
             let attr = <TextBlockAttr>{
-                textBlockId: textBlock.textBlockId,
+                _id: textBlock._id,
                 text: textBlock.text,
                 textColor: textBlock.textColor,
                 backgroundColor: textBlock.backgroundColor,
