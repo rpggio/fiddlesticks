@@ -9,8 +9,9 @@ class StretchyText extends StretchyPath {
         super(this.getTextPath(options), options);
     }
     
-    updateText(options: StretchyTextOptions){
-        super.updatePath(this.getTextPath(options), options);
+    update(options: StretchyTextOptions){
+        this.options = options;
+        super.updatePath(this.getTextPath(options));
     }
     
     getTextPath(options: StretchyTextOptions){

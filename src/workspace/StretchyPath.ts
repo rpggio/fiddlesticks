@@ -1,13 +1,14 @@
 
 class StretchyPath extends paper.Group {
-
-    options: StretchyPathOptions;
-        
+            
     sourcePath: paper.CompoundPath;
     displayPath: paper.CompoundPath;
+    arrangedPath: paper.CompoundPath;
     corners: paper.Segment[];
     outline: paper.Path;
     shapeChanged: boolean;
+    
+    private _options: StretchyPathOptions;    
     
     static OUTLINE_POINTS = 230;
     
@@ -21,7 +22,7 @@ class StretchyPath extends paper.Group {
     constructor(sourcePath: paper.CompoundPath, options?: StretchyPathOptions) {
         super();
 
-        this.options = options || <StretchyPathOptions>{
+        this._options = options || <StretchyPathOptions>{
             pathFillColor: 'gray'
         };
 
@@ -49,11 +50,23 @@ class StretchyPath extends paper.Group {
         };
     }
 
-    updatePath(path: paper.CompoundPath, options?: StretchyPathOptions){
-        this.setPath(path);
-        if(options){
-            this.options = options;
+    get options() : StretchyPathOptions {
+        return this._options;
+    }
+
+    set options(value: StretchyPathOptions){
+        if(!value){
+            return;
         }
+        this._options = value;
+        this.updateBackgroundColor();
+        if(this.arrangedPath){
+            this.arrangedPath.fillColor = value.pathFillColor;
+        }
+    }
+
+    updatePath(path: paper.CompoundPath){
+        this.setPath(path);
         if(!this.shapeChanged){
             this.outline.bounds.size = this.sourcePath.bounds.size;
             this.updateMidpiontMarkers();
@@ -108,8 +121,9 @@ class StretchyPath extends paper.Group {
             StretchyPath.OUTLINE_POINTS);
         newPath.visible = true;
         newPath.fillColor = this.options.pathFillColor;
+        this.arrangedPath = newPath;
         
-        this.setBackgroundColor();
+        this.updateBackgroundColor();
 
         transform.transformPathItem(newPath);
 
@@ -165,11 +179,11 @@ class StretchyPath extends paper.Group {
         this.corners = outline.segments.map(s => s);
 
         this.addChild(outline);
-        this.setBackgroundColor();
+        this.updateBackgroundColor();
     }
 
-    private setBackgroundColor(){
-        if(this.options.backgroundColor){
+    private updateBackgroundColor(){
+        if(this.options && this.options.backgroundColor){
             this.outline.fillColor = this.options.backgroundColor;
             this.outline.opacity = .9;    
         } else {

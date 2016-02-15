@@ -19,15 +19,8 @@ class DesignerController {
         this.loadFont(Roboto500, font => {
             this.newSketch();
             
-            let tbSource = Rx.Observable.just(
-                <TextBlock>{
-                    _id: newid(),
-                    text: 'FIDDLESTICKS',
-                    textColor: 'gray',
-                    });
-            let editor = new TextBlockEditor(
-                document.getElementById('textblock-editor'),
-                sketchChannel);
+            let editor = new SketchEditor(sketchChannel);
+            ReactiveDom.render(editor, document.getElementById('designer'));
             
             this.workspaceController = new WorkspaceController(sketchChannel, font);
             

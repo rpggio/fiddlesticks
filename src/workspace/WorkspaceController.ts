@@ -30,7 +30,7 @@ class WorkspaceController {
             [sheetBounds.scale(0.02).size, sheetBounds.scale(1.1).size]);
         mouseZoom.zoomTo(sheetBounds.scale(0.5));
         
-        this.channel.textblock.update
+        this.channel.textblock.update.observe()
             .subscribe(tb => this.tbNext(tb));
     }
     
@@ -57,7 +57,7 @@ class WorkspaceController {
                     .add(50));
             this._textBlockItems[textBlock._id] = item;
         } else {
-            item.updateText(options);
+            item.update(options);
         }
     }
 }

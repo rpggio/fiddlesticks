@@ -3,42 +3,13 @@ class SketchChannel {
 
     private _channel: IChannelDefinition<Object>;
 
+    attr: Topic<SketchAttr>;
     textblock: TextBlockTopic;
 
     constructor() {
         this._channel = postal.channel('sketch');
+        this.attr = new Topic<SketchAttr>(this._channel, 'attr');
         this.textblock = new TextBlockTopic(this._channel, "textblock");
-    }
-}
-
-class Topic<T> {
-
-    private _channel: IChannelDefinition<Object>;
-    private _name: string;
-
-    constructor(channel: IChannelDefinition<Object>, topic: string) {
-        this._channel = channel;
-        this._name = topic;
-    }
-
-    observe(): Rx.Observable<T> {
-        return <Rx.Observable<T>>this._channel.observe(this._name);
-    }
-
-    publish(data: T) {
-        this._channel.publish(this._name, data);
-    }
-    
-    subscribe(callback: ICallback<T>) : ISubscriptionDefinition<T> {
-        return this._channel.subscribe(this._name, callback);
-    }
-
-    protected subtopic(name): Topic<T> {
-        return new Topic<T>(this._channel, this._name + '.' + name);
-    }
-
-    protected subtopicOf<U>(name): Topic<U> {
-        return new Topic<U>(this._channel, this._name + '.' + name);
     }
 }
 
@@ -57,5 +28,4 @@ class TextBlockTopic extends Topic<TextBlock> {
         this.remove = this.subtopic("remove");
         this.select = this.subtopic("select");
     }
-
 }
