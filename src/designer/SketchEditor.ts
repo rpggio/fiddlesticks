@@ -8,7 +8,7 @@ interface SketchAttr {
     backgroundColor: string;
 }
 
-class SketchAttributeEditor {
+class SketchEditor {
 
     sketchAttr$: Rx.Observable<SketchAttr>;
     dom$: Rx.Observable<VNode>;   

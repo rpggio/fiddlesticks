@@ -1,17 +1,61 @@
 
 class SketchChannel {
-    
+
     private _channel: IChannelDefinition<Object>;
-    
+
+    textblock: TextBlockTopic;
+
     constructor() {
         this._channel = postal.channel('sketch');
+        this.textblock = new TextBlockTopic(this._channel, "textblock");
+    }
+}
+
+class Topic<T> {
+
+    private _channel: IChannelDefinition<Object>;
+    private _name: string;
+
+    constructor(channel: IChannelDefinition<Object>, topic: string) {
+        this._channel = channel;
+        this._name = topic;
+    }
+
+    observe(): Rx.Observable<T> {
+        return <Rx.Observable<T>>this._channel.observe(this._name);
+    }
+
+    publish(data: T) {
+        this._channel.publish(this._name, data);
     }
     
-    textBlockAdd(block: TextBlock) {
-        this._channel.publish("textblock.add", block);
+    subscribe(callback: ICallback<T>) : ISubscriptionDefinition<T> {
+        return this._channel.subscribe(this._name, callback);
     }
-    
-    onTextBlockAdd() : Rx.Observable<TextBlock> {
-        return <Rx.Observable<TextBlock>>this._channel.observe("textblock.add");
+
+    protected subtopic(name): Topic<T> {
+        return new Topic<T>(this._channel, this._name + '.' + name);
     }
+
+    protected subtopicOf<U>(name): Topic<U> {
+        return new Topic<U>(this._channel, this._name + '.' + name);
+    }
+}
+
+class TextBlockTopic extends Topic<TextBlock> {
+
+    add: Topic<TextBlock>;
+    update: Topic<TextBlock>;
+    remove: Topic<TextBlock>;
+    select: Topic<TextBlock>;
+
+    constructor(channel: IChannelDefinition<Object>, topic: string) {
+        super(channel, topic);
+        
+        this.add = this.subtopic("add");
+        this.update = this.subtopic("update");
+        this.remove = this.subtopic("remove");
+        this.select = this.subtopic("select");
+    }
+
 }

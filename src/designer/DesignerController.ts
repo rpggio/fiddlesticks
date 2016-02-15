@@ -14,6 +14,8 @@ class DesignerController {
     constructor(app: AppController) {
         this.app = app;
 
+        let sketchChannel = new SketchChannel();
+
         this.loadFont(Roboto500, font => {
             this.newSketch();
             
@@ -23,21 +25,13 @@ class DesignerController {
                     text: 'FIDDLESTICKS',
                     textColor: 'gray',
                     });
-            let editor = new TextBlockAttributeEditor(
+            let editor = new TextBlockEditor(
                 document.getElementById('textblock-editor'),
-                tbSource);
+                sketchChannel);
             
-            let textBlock$ = editor.change$.map(tba =>
-                <TextBlock>{
-                    _id: tba._id || newid(),
-                    text: tba.text,
-                    textColor: tba.textColor,
-                    backgroundColor: tba.backgroundColor
-                }
-            ); 
+            this.workspaceController = new WorkspaceController(sketchChannel, font);
             
-            this.workspaceController = new WorkspaceController(textBlock$, font);
-            
+            sketchChannel.textblock.add.publish({_id: newid(), text: ""});
         });
     }
 

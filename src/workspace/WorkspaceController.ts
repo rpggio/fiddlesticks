@@ -7,11 +7,13 @@ class WorkspaceController {
     workspace: Workspace;
     project: paper.Project;
     font: opentype.Font;
+    channel: SketchChannel;
     
     private _sketch: Sketch;
     private _textBlockItems: { [textBlockId: string] : StretchyText; } = {};
 
-    constructor(textBlock$: Rx.Observable<TextBlock>, font: opentype.Font) {
+    constructor(channel: SketchChannel, font: opentype.Font) {
+        this.channel = channel;
         this.font = font;      
         paper.settings.handleSize = 1;
 
@@ -28,7 +30,7 @@ class WorkspaceController {
             [sheetBounds.scale(0.02).size, sheetBounds.scale(1.1).size]);
         mouseZoom.zoomTo(sheetBounds.scale(0.5));
         
-        textBlock$
+        this.channel.textblock.update
             .subscribe(tb => this.tbNext(tb));
     }
     

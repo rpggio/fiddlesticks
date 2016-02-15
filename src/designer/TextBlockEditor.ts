@@ -1,24 +1,21 @@
 
-class TextBlockAttributeEditor {
+class TextBlockEditor {
 
-    change$: Rx.Observable<TextBlockAttr>;
-    vdom$: Rx.Observable<VNode>;
+    dom$: Rx.Observable<VNode>;
 
     constructor(container: any,
-        source: Rx.Observable<TextBlockAttr>) {
-        let sink = new Rx.Subject<TextBlockAttr>();
-        this.change$ = sink;
-
-        this.vdom$ = VDomHelpers.liveRender(container, source, textBlock => {
-            let attr = <TextBlockAttr>{
-                _id: textBlock._id,
-                text: textBlock.text,
-                textColor: textBlock.textColor,
-                backgroundColor: textBlock.backgroundColor,
-            };
-            let tbChange = (alter: (tb: TextBlockAttr) => void) => {
-                alter(attr);
-                sink.onNext(attr);
+        channel: SketchChannel) {
+            
+        let textBlock$ = Rx.Observable.merge( 
+            channel.textblock.add.observe(),
+            channel.textblock.select.observe()
+        );
+            
+        this.dom$ = VDomHelpers.liveRender(container, textBlock$, textBlock => {
+            let tbChange = (alter: (tb: TextBlock) => void) => {
+                let newTb = _.clone(textBlock);
+                alter(newTb);
+                channel.textblock.update.publish(newTb);
             }
             return h('div', { style: { color: '#000' } }, [
                 h('textarea',
