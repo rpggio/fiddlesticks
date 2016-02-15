@@ -30,8 +30,17 @@ class WorkspaceController {
             [sheetBounds.scale(0.02).size, sheetBounds.scale(1.1).size]);
         mouseZoom.zoomTo(sheetBounds.scale(0.5));
         
-        this.channel.textblock.update.observe()
+        this.channel.attr.subscribe(a => {
+           this.workspace.backgroundColor = a.backgroundColor; 
+        });
+        
+        this.channel.attr.publish({
+            backgroundColor: '#F2F1E1'
+        });
+        
+        this.channel.textblock.update
             .subscribe(tb => this.tbNext(tb));
+            
     }
     
     tbNext(textBlock: TextBlock){

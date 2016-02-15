@@ -17,8 +17,22 @@ class SketchEditor implements ReactiveDomComponent {
         this.dom$ = Rx.Observable.combineLatest(attr$, blockEditor.dom$,
             (attr, dom) =>
                 h('div', [
-                    dom,
-                    //h('input', {type: 'text', value: 'bunzo'})
+                h('input.background-color',
+                    {
+                        type: 'text',
+                        hook: {
+                            insert: (vnode) =>
+                                ColorPicker.setup(
+                                    vnode.elm,
+                                    color => {
+                                        let newAttr = _.clone(attr);
+                                        newAttr.backgroundColor = color && color.toHexString();
+                                        channel.attr.publish(newAttr);
+                                    }
+                                )
+                        }
+                    }),
+                    dom
                 ])
         );
     }
