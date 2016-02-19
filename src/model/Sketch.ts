@@ -1,10 +1,8 @@
 
 class Sketch {
 
-    attr: SketchAttr;
-   
-}
-
-interface SketchAttr {
     backgroundColor: string;
+
+    textBlocks: TextBlock[] = [];
+    
 }

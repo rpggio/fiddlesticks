@@ -8,7 +8,23 @@ class ReactiveDom {
     /**
      * Render a reactive component within container.
      */
-    static render(
+    static renderStream(
+        dom$: Rx.Observable<VNode>,
+        container: HTMLElement | VNode
+    ): Rx.Observable<VNode> {
+        let current = container;
+        let sink = new Rx.Subject<VNode>();
+        dom$.subscribe(dom => {
+            current = patch(current, dom);
+            sink.onNext(<VNode>current);
+        });
+        return sink;
+    }
+
+    /**
+     * Render a reactive component within container.
+     */
+    static renderComponent(
         component: ReactiveDomComponent,
         container: HTMLElement | VNode
     ): Rx.Observable<VNode> {

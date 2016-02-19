@@ -6,25 +6,16 @@ const AquafinaScript = 'fonts/AguafinaScript-Regular/AguafinaScript-Regular.ttf'
 
 class DesignerController {
 
-    app: AppController;
     fonts: opentype.Font[] = [];
-    sketch: Sketch;
     workspaceController: WorkspaceController;
 
-    constructor(app: AppController) {
-        this.app = app;
-
-        let sketchChannel = new SketchChannel();
+    constructor(event$: IEventStream, onFontLoaded:() => void) {
 
         this.loadFont(Roboto500, font => {
-            this.newSketch();
+
+            this.workspaceController = new WorkspaceController(event$, font);
             
-            let editor = new SketchEditor(sketchChannel);
-            ReactiveDom.render(editor, document.getElementById('designer'));
-            
-            this.workspaceController = new WorkspaceController(sketchChannel, font);
-            
-            sketchChannel.textblock.add.publish({_id: newid(), text: ""});
+            onFontLoaded();
         });
     }
 
@@ -33,9 +24,5 @@ class DesignerController {
             this.fonts.push(font);
             onComplete(font);
         });
-    }
-
-    newSketch() {
-        this.sketch = new Sketch();
     }
 }

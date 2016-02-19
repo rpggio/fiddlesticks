@@ -7,13 +7,11 @@ class WorkspaceController {
     workspace: Workspace;
     project: paper.Project;
     font: opentype.Font;
-    channel: SketchChannel;
     
     private _sketch: Sketch;
     private _textBlockItems: { [textBlockId: string] : StretchyText; } = {};
 
-    constructor(channel: SketchChannel, font: opentype.Font) {
-        this.channel = channel;
+    constructor(event$: IEventStream, font: opentype.Font) {
         this.font = font;      
         paper.settings.handleSize = 1;
 
@@ -30,20 +28,30 @@ class WorkspaceController {
             [sheetBounds.scale(0.02).size, sheetBounds.scale(1.1).size]);
         mouseZoom.zoomTo(sheetBounds.scale(0.5));
         
-        this.channel.attr.subscribe(a => {
-           this.workspace.backgroundColor = a.backgroundColor; 
-        });
+        event$.ofType("sketch.loaded").subscribe(
+            ev => this._sketch = <Sketch>ev.eventData 
+        );
         
-        this.channel.attr.publish({
-            backgroundColor: '#F2F1E1'
-        });
+        event$.ofType("sketch.changed").subscribe(
+            ev => this.workspace.backgroundColor = (<Sketch>ev.eventData).backgroundColor
+        );
         
-        this.channel.textblock.update
-            .subscribe(tb => this.tbNext(tb));
-            
+        event$.subscribe(x => console.log('booger', x));
+        
+        event$.ofType("textblock.added", "textblock.changed").subscribe(
+            ev => this.textBlockReceived(<TextBlock>ev.eventData));
+        
+        // events.textBlockChanged$
+        //     .subscribe(tb => this.tbNext(tb));
+        
+        // RootState.actions.sketchAttrUpdate({
+        //     backgroundColor: '#F2F1E1'
+        // })
     }
     
-    tbNext(textBlock: TextBlock){
+    textBlockReceived(textBlock: TextBlock){
+console.log('textBlockReceived', textBlock);
+        
         if(!textBlock.text.length){
             return;
         }

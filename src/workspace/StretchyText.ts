@@ -4,18 +4,17 @@ class StretchyText extends StretchyPath {
     ffont: opentype.Font;
 
     constructor(font: opentype.Font, options: StretchyTextOptions) {
+        super(StretchyText.getTextPath(font, options), options);
         this.ffont = font;
-        
-        super(this.getTextPath(options), options);
     }
     
     update(options: StretchyTextOptions){
         this.options = options;
-        super.updatePath(this.getTextPath(options));
+        super.updatePath(StretchyText.getTextPath(this.ffont, options));
     }
     
-    getTextPath(options: StretchyTextOptions){
-        let openTypePath = this.ffont.getPath(
+    static getTextPath(font: opentype.Font, options: StretchyTextOptions){
+        let openTypePath = font.getPath(
                 options.text, 
                 0, 
                 0, 

@@ -13,3 +13,5 @@ window.h = require('snabbdom/h'); // helper function for creating VNodes
 window._ = require('lodash');
 
 window.postal = require('postal');
+
+window.inversify = require('inversify');
