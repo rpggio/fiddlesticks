@@ -12,6 +12,6 @@ window.h = require('snabbdom/h'); // helper function for creating VNodes
 
 window._ = require('lodash');
 
-window.postal = require('postal');
+window.postal = require('postal'); // message bus
 
-window.inversify = require('inversify');
+window.inversify = require('inversify'); // IoC

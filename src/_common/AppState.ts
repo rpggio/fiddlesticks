@@ -1,0 +1,4 @@
+
+class AppState {
+    sketch: Sketch;
+}

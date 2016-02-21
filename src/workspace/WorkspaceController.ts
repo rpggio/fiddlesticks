@@ -11,7 +11,7 @@ class WorkspaceController {
     private _sketch: Sketch;
     private _textBlockItems: { [textBlockId: string] : StretchyText; } = {};
 
-    constructor(event$: IEventStream, font: opentype.Font) {
+    constructor(events: Events, font: opentype.Font) {
         this.font = font;      
         paper.settings.handleSize = 1;
 
@@ -28,31 +28,27 @@ class WorkspaceController {
             [sheetBounds.scale(0.02).size, sheetBounds.scale(1.1).size]);
         mouseZoom.zoomTo(sheetBounds.scale(0.5));
         
-        event$.ofType("sketch.loaded").subscribe(
-            ev => this._sketch = <Sketch>ev.eventData 
+        events.sketch.loaded.subscribe(
+            ev => {
+                this._sketch = ev.data;
+                this.workspace.backgroundColor = ev.data.attr.backgroundColor
+            } 
         );
         
-        event$.ofType("sketch.changed").subscribe(
-            ev => this.workspace.backgroundColor = (<Sketch>ev.eventData).backgroundColor
+        events.sketch.attrchanged.subscribe(
+            ev => this.workspace.backgroundColor = ev.data.backgroundColor
         );
-        
-        event$.subscribe(x => console.log('booger', x));
-        
-        event$.ofType("textblock.added", "textblock.changed").subscribe(
-            ev => this.textBlockReceived(<TextBlock>ev.eventData));
-        
-        // events.textBlockChanged$
-        //     .subscribe(tb => this.tbNext(tb));
-        
-        // RootState.actions.sketchAttrUpdate({
-        //     backgroundColor: '#F2F1E1'
-        // })
+
+        events.mergeTyped(
+            events.textblock.added,
+            events.textblock.changed
+        ).subscribe(
+            ev => this.textBlockReceived(ev.data));
     }
     
     textBlockReceived(textBlock: TextBlock){
-console.log('textBlockReceived', textBlock);
-        
-        if(!textBlock.text.length){
+            
+        if(!textBlock || !textBlock.text || !textBlock.text.length){
             return;
         }
         if(!textBlock._id){
