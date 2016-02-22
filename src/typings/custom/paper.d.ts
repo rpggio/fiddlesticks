@@ -1265,7 +1265,7 @@ declare module paper {
         /**
          * The function to be called when the mouse double clicks on the item. The function receives a MouseEvent object which contains information about the mouse event.
          */
-        onDoubleClick: (event: MouseEvent) => void;
+        onDoubleClick: (event: MouseToolEvent) => void;
 
         /**
          * The function to be called repeatedly when the mouse moves on top of the item. The function receives a MouseEvent object which contains information about the mouse event.
@@ -3906,6 +3906,18 @@ declare module paper {
         modifiers: any;
 
     }
+    
+    /** rs */
+    export class MouseToolEvent extends Event {
+        
+        type: string;
+        event: MouseEvent;
+        point: Point;
+        target: Item;
+        delta: Point;
+        
+    }
+    
     /**
      * ToolEvent The ToolEvent object is received by the Tool's mouse event handlers tool.onMouseDown, tool.onMouseDrag, tool.onMouseMove and tool.onMouseUp. The ToolEvent object is the only parameter passed to these functions and contains information about the mouse event.
      */

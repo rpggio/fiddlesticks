@@ -8,12 +8,40 @@ body {
     /*background-color: #E9E0C3;*/
 }
 
-canvas {
-            
-}
-
 /* Scale canvas with resize attribute to full size */
 canvas[resize] {
     width: 100%;
     height: 100%;
+}
+
+#canvasContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+#editorOverlay  {
+  position: absolute;
+  opacity: 0.9;
+  background-color: lightgray;
+  padding: 1px;
+  border: 1px solid gray;
+}
+
+#editorOverlay textarea {
+    resize: none;
+    width: 200px;
+    height: 90%;
+}
+
+.text-block-editor {
+    height: 50px;
+}
+
+.text-block-editor > * {
+    vertical-align: top;
+}
+
+.text-block-editor > .sp-replacer {
+    margin-top: 7px;
 }

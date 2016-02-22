@@ -9,11 +9,11 @@ class DesignerController {
     fonts: opentype.Font[] = [];
     workspaceController: WorkspaceController;
 
-    constructor(events: Events, onFontLoaded:() => void) {
+    constructor(channels: Channels, onFontLoaded:() => void) {
 
         this.loadFont(Roboto500, font => {
 
-            this.workspaceController = new WorkspaceController(events, font);
+            this.workspaceController = new WorkspaceController(channels, font);
             
             onFontLoaded();
         });

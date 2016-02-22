@@ -15,6 +15,8 @@ class ReactiveDom {
         let current = container;
         let sink = new Rx.Subject<VNode>();
         dom$.subscribe(dom => {
+            if(!dom) return;
+console.log('rendering dom', dom); /////////////////////
             current = patch(current, dom);
             sink.onNext(<VNode>current);
         });
@@ -31,6 +33,7 @@ class ReactiveDom {
         let current = container;
         let sink = new Rx.Subject<VNode>();
         component.dom$.subscribe(dom => {
+            if(!dom) return;
             current = patch(current, dom);
             sink.onNext(<VNode>current);
         });
@@ -49,6 +52,7 @@ class ReactiveDom {
         let sink = new Rx.Subject<VNode>();
         source.subscribe(data => {
             let node = render(data);
+            if(!node) return;
             current = patch(current, node);
             sink.onNext(<VNode>current);
         });

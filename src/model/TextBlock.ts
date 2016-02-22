@@ -6,4 +6,6 @@ interface TextBlock {
     backgroundColor?: string;
     font?: string;
     fontSize?: number;
+    
+    editing?: boolean;
 }

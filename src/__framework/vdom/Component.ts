@@ -1,4 +1,4 @@
 
-interface Component<T> {
-    render(data: T): VNode;
+abstract class Component<T> {
+    abstract render(data: T): VNode;
 }

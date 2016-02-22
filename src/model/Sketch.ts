@@ -7,7 +7,13 @@ class Sketch {
 
     textBlocks: TextBlock[] = [];
 
+    editingItem: PositionedItem;
+
     constructor() {
+    }
+
+    getBlock(id){
+        return _.find(this.textBlocks, t => t._id === id);
     }
 
 }

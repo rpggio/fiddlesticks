@@ -1,25 +1,28 @@
 
 
 function bootstrap() {
-    const actions = new Actions();
-    const events = new Events();
+    const channels = new Channels();
+    const actions = channels.actions, events = channels.events;
 
 actions.subscribe(x => console.log('action', x));
 events.subscribe(x => console.log('event', x));
 
     const rootStore = new Store(actions, events);
 
-    const sketchState$ = events.merge(
-        events.sketch.loaded, events.sketch.attrchanged,
-        events.textblock.added, events.textblock.changed);
-    let component = new SketchEditor(actions); 
-    const dom$ = sketchState$.map(m => component.render(m.rootData.sketch));
+    const sketchEditor = new SketchEditor(actions); 
+    const sketchDom$ = events.merge(
+        events.sketch.loaded, events.sketch.attrchanged)
+        .map(m => sketchEditor.render(m.rootData.sketch));
+    ReactiveDom.renderStream(sketchDom$, document.getElementById('designer'));
 
-dom$.subscribe(a => console.log('dom', a));
+    // const blockEditor = new TextBlockEditor(actions);
+    // const blockEditorDom$ = events.sketch.editingItemChanged
+    //     .observe().map(tb => blockEditor.render(tb));
+    // ReactiveDom.renderStream(blockEditorDom$, document.getElementById('textBlockEditor'));
 
-    ReactiveDom.renderStream(dom$, document.getElementById('designer'));
+    const selectedItemEditor = new SelectedItemEditor(document.getElementById("editorOverlay"), channels);
 
-    const designerController = new DesignerController(events, () => {
+    const designerController = new DesignerController(channels, () => {
         actions.sketch.create.dispatch(null);
         actions.textBlock.add.dispatch({ text: "boogedy" });
     });

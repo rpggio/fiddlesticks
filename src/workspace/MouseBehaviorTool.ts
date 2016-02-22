@@ -32,9 +32,12 @@ class MouseBehaviorTool extends paper.Tool {
         tolerance: 5
     };
 
-    pressAction: MouseAction;
-    hoverAction: MouseAction;
     project: paper.Project;
+
+    onToolMouseDown: (event: paper.ToolEvent) => void;
+
+    private pressAction: MouseAction;
+    private hoverAction: MouseAction;
 
     constructor(project: paper.Project) {
         super();
@@ -42,7 +45,11 @@ class MouseBehaviorTool extends paper.Tool {
         this.project = project;
     }
 
-    onMouseDown = (event) => {
+    onMouseDown = (event: paper.ToolEvent) => {
+        if(this.onToolMouseDown){
+            this.onToolMouseDown(event);
+        }
+       
         this.pressAction = null;
 
         var hitResult = this.project.hitTest(
@@ -59,7 +66,7 @@ class MouseBehaviorTool extends paper.Tool {
         }
     }
 
-    onMouseMove = (event) => {
+    onMouseMove = (event: paper.ToolEvent) => {
         var hitResult = this.project.hitTest(
             event.point,
             this.hitOptions);
@@ -100,7 +107,7 @@ class MouseBehaviorTool extends paper.Tool {
         }
     }
 
-    onMouseDrag = (event) => {
+    onMouseDrag = (event: paper.ToolEvent) => {
         if (this.pressAction) {
             if (!this.pressAction.dragged) {
                 this.pressAction.dragged = true;
@@ -115,7 +122,7 @@ class MouseBehaviorTool extends paper.Tool {
         }
     }
 
-    onMouseUp = (event) => {
+    onMouseUp = (event: paper.ToolEvent) => {
         if (this.pressAction) {
             let action = this.pressAction;
             this.pressAction = null;
@@ -133,8 +140,14 @@ class MouseBehaviorTool extends paper.Tool {
             }
         }
     }
+    
+    onDoubleClick = (event: paper.ToolEvent) => {
+    }
 
-    onKeyDown = (event) => {
+    onKeyDown = (event: paper.KeyEvent) => {
+    }
+    
+    onKeyUp = (event: paper.KeyEvent) => {
     }
     
     /**

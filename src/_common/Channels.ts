@@ -3,12 +3,13 @@ class Actions extends TypedChannel.Channel<void> {
     
     sketch = {
         create: this.topic<any>("sketch.create"),
-        attrupdate: this.topic<SketchAttr>("sketch.attrupdate"),
+        attrUpdate: this.topic<SketchAttr>("sketch.attrupdate"),
+        setEditingItem: this.topic<PositionedItem>("sketch.seteditingitem")
     }
     
     textBlock = {
         add: this.topic<TextBlock>("textblock.add"),
-        update: this.topic<TextBlock>("textblock.update"),
+        update: this.topic<TextBlock>("textblock.update")
     }
     
 }
@@ -18,6 +19,7 @@ class Events extends TypedChannel.Channel<AppState> {
     sketch = {
         loaded: this.topic<Sketch>("sketch.loaded"),
         attrchanged: this.topic<SketchAttr>("sketch.attrchanged"),
+        editingItemChanged: this.topic<PositionedItem>("sketch.editingitemchanged")
     }
     
     textblock = {

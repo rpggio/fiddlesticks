@@ -7,22 +7,10 @@ class Workspace extends paper.Group {
     
     get backgroundColor(): string {
         return this.sheet.fillColor.toString();
-        // return this.sheet.opacity == 0
-        //     ? null
-        //     : this.sheet.fillColor.toString();
     }
     
     set backgroundColor(value: string) {
         this.sheet.fillColor = value || this.defaultBackgroundColor;
-        // if(value){
-        //     this.sheet.fillColor = value;
-        //     this.sheet.opacity = 1;
-        // }
-        // else {
-        //     // preserve hit testing
-        //     this.sheet.fillColor = this.defaultBackgroundColor;
-        //     this.sheet.opacity = 0;
-        // }
     }
     
     constructor(size: paper.Size){

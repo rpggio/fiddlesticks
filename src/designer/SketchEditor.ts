@@ -1,8 +1,9 @@
 
-class SketchEditor implements Component<Sketch> {
+class SketchEditor extends Component<Sketch> {
     actions: Actions;
 
     constructor(actions: Actions) {
+        super();
         this.actions = actions;
     }
 
@@ -20,57 +21,14 @@ class SketchEditor implements Component<Sketch> {
                             ColorPicker.setup(
                                 vnode.elm,
                                 color => {
-                                    this.actions.sketch.attrupdate.dispatch(
+                                    this.actions.sketch.attrUpdate.dispatch(
                                         { backgroundColor: color && color.toHexString() });
                                 }
-                            )
+                            ),
+                        destroy: (vnode) => ColorPicker.destroy(vnode.elm)
                     }
                 }),
             ]
-            .concat(sketch.textBlocks.map(tb => this.renderTextBlockEditor(tb)))
         );
     }
-
-    renderTextBlockEditor(textBlock: TextBlock): VNode {       
-        let update = tb => {
-            tb._id = textBlock._id;
-            this.actions.textBlock.update.dispatch(tb);
-        };
-        return h('div', { style: { color: '#000' } }, [
-            h('input',
-                {
-                    props: {
-                        type: "text",
-                        value: textBlock.text
-                    },
-                    on: {
-                        keyup: e => update({ text: e.target.value }),
-                        change: e => update({ text: e.target.value })
-                    }
-                }),
-            h('input.text-color',
-                {
-                    type: 'text',
-                    hook: {
-                        insert: (vnode) =>
-                            ColorPicker.setup(
-                                vnode.elm,
-                                color => update({ textColor: color && color.toHexString() })
-                            )
-                    }
-                }),
-            h('input.background-color',
-                {
-                    type: 'text',
-                    hook: {
-                        insert: (vnode) =>
-                            ColorPicker.setup(
-                                vnode.elm,
-                                color => update({ backgroundColor: color && color.toHexString() })
-                            )
-                    }
-                }),
-        ]);
-    }
-
 }

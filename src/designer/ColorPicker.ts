@@ -24,4 +24,8 @@ class ColorPicker {
             change: onChange
         });
     };
+    
+    static destroy(elem){
+       (<any>$(elem)).spectrum("destroy");
+    }
 }
