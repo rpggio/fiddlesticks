@@ -70,7 +70,8 @@ class WorkspaceController {
             item = new StretchyText(this.font, options);
 
             item.onDoubleClick = ev => {
-                const editorAt = this.project.view.projectToView(item.bounds.center);
+                const editorAt = this.project.view.projectToView(
+                    PaperHelpers.midpoint(item.bounds.topLeft, item.bounds.center));
                 this.channels.actions.sketch.setEditingItem.dispatch(
                     {
                         itemId: textBlock._id,

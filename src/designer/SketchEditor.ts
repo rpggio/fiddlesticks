@@ -8,12 +8,34 @@ class SketchEditor extends Component<Sketch> {
     }
 
     render(sketch: Sketch) {
-        return h('div', [
-            'Background color:',
-            h('input.background-color',
+        return h("div", [
+            "Add text: ",
+            h("input.add-text", {
+                on: {
+                    keypress: (ev) => {
+                        if(ev.which === 13 || ev.keyCode === 13){
+                            const text = ev.target && ev.target.value;
+                            if(text.length){
+                                this.actions.textBlock.add.dispatch({ text: text });
+                                ev.target.value = '';
+                            }
+                        }
+                    }  
+                },
+                attrs: {
+                    type: "text",
+                },
+                props: {
+                    placeholder: "Press [Enter] to add"
+                },
+                style: {
+                }
+            }),
+            "Background: ",
+            h("input.background-color",
                 {
                     props: {
-                        type: 'text',
+                        type: "text",
                         value: sketch.attr.backgroundColor                        
                     },
                     hook: {

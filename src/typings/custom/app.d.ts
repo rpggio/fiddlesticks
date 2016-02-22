@@ -4,7 +4,7 @@ interface Window {
 }
 
 declare var snabbdom: any;
-declare var patch: any;
+declare var patch: (container: HTMLElement | VNode, dom: VNode) => VNode;
 declare var h: any;
 
 declare type LiveNode = VNode | Rx.Observable<VNode>;

@@ -136,4 +136,11 @@ class PaperHelpers {
     static corners(rect: paper.Rectangle): paper.Point[]{
         return [rect.topLeft, rect.topRight, rect.bottomRight, rect.bottomLeft];
     }
+    
+    /**
+     * the midpoint between two points
+     */
+    static midpoint(a: paper.Point, b: paper.Point){
+        return b.subtract(a).divide(2).add(a);
+    }
 }

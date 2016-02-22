@@ -10,14 +10,22 @@ class ReactiveDom {
      */
     static renderStream(
         dom$: Rx.Observable<VNode>,
-        container: HTMLElement | VNode
+        container: HTMLElement
     ): Rx.Observable<VNode> {
-        let current = container;
-        let sink = new Rx.Subject<VNode>();
+        const id = container.id;
+        let current: HTMLElement | VNode = container;
+        const sink = new Rx.Subject<VNode>();
         dom$.subscribe(dom => {
             if(!dom) return;
 console.log('rendering dom', dom); /////////////////////
-            current = patch(current, dom);
+            
+            // retain ID
+            const patched = patch(current, dom);
+            if(id && !patched.elm.id){
+                patched.elm.id = id;
+            }
+            
+            current = patched;
             sink.onNext(<VNode>current);
         });
         return sink;

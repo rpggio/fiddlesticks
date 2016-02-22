@@ -1,11 +1,28 @@
+/*@import url(../fonts/AguafinaScript-Regular/AguafinaScript-Regular.ttf);*/
 
+@font-face {
+    font-family: 'Open Sans';
+    src: local('OpenSans-Regular'), url('../fonts/OpenSans/OpenSans-Regular.ttf');
+}
 
 html,
 body {
     margin: 0;
     overflow: hidden;
     height: 100%;
-    /*background-color: #E9E0C3;*/
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px;
+}
+
+#designer {
+    background-color: #333333;
+    color: ghostwhite;
+    padding: 5px;
+}
+
+#designer > input {
+    margin-left: 3px;
+    margin-right: 10px;
 }
 
 /* Scale canvas with resize attribute to full size */

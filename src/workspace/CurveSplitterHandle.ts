@@ -23,7 +23,7 @@ class CurveSplitterHandle extends paper.Shape {
         this.strokeWidth = 2;
         this.strokeColor = 'blue';
         this.fillColor = 'white';
-        this.opacity = 0.5 * 0.3; 
+        this.opacity = 0.3; 
  
         let newSegment: paper.Segment;
         this.mouseBehavior = <MouseBehavior>{
