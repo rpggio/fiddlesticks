@@ -14,10 +14,36 @@ body {
     font-size: 14px;
 }
 
+
+.font-color-icon {
+    font-weight: bold;
+}
+
+.font-color-icon {
+    font-weight: bold;
+    padding: 4px;
+    border: 1px gray solid;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.fore {
+    background-color: white;
+    color: steelblue;
+}
+
+.back {
+    background-color: steelblue;
+    color: white;
+}
+
 #designer {
     background-color: #333333;
-    color: ghostwhite;
     padding: 5px;
+}
+
+#designer > label {
+    color: ghostwhite;
 }
 
 #designer > input {
@@ -40,7 +66,7 @@ canvas[resize] {
 #editorOverlay  {
   position: absolute;
   opacity: 0.9;
-  background-color: lightgray;
+  background-color: #eeeeee;
   padding: 1px;
   border: 1px solid gray;
 }
@@ -48,7 +74,7 @@ canvas[resize] {
 #editorOverlay textarea {
     resize: none;
     width: 200px;
-    height: 90%;
+    height: 100%;
 }
 
 .text-block-editor {
@@ -59,6 +85,14 @@ canvas[resize] {
     vertical-align: top;
 }
 
-.text-block-editor > .sp-replacer {
-    margin-top: 7px;
+.text-block-editor > input, 
+.text-block-editor > button,
+.text-block-editor > div 
+{
+    display: inline-block;
+    margin: 3px;
+}
+
+.delete-textblock  {
+    padding: 4px 6px;
 }

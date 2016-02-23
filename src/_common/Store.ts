@@ -43,8 +43,26 @@ class Store {
                 }
             });
 
+        actions.textBlock.remove
+            .subscribe(ev => {
+                let didDelete = false;
+                _.remove(this.state.sketch.textBlocks, tb => {
+                    if (tb._id === ev.data._id) {
+                        didDelete = true;
+                        return true;
+                    }
+                });
+                if (didDelete) {
+                    this.events.textblock.removed.dispatchContext(this.state, {_id: ev.data._id});
+                    if(this.state.sketch.editingItem.itemId == ev.data._id){
+                        this.state.sketch.editingItem = {};
+                        events.sketch.editingItemChanged.dispatch(this.state.sketch.editingItem);
+                    }
+                }
+            });
+
         actions.sketch.setEditingItem.subscribe(m => {
-            if(m.data.itemType !== "TextBlock"){
+            if (m.data.itemType !== "TextBlock") {
                 throw `Unhandled type ${m.type}`;
             }
             const item = this.state.sketch.getBlock(m.data.itemId);

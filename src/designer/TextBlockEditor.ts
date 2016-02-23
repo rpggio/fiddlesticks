@@ -11,10 +11,10 @@ class TextBlockEditor extends Component<TextBlock> {
             tb._id = textBlock._id;
             this.actions.textBlock.update.dispatch(tb);
         };
-        return h('div.text-block-editor',
+        return h("div.text-block-editor",
             {},
             [
-                h('textarea',
+                h("textarea",
                     {
                         attrs: {
                         },
@@ -26,40 +26,69 @@ class TextBlockEditor extends Component<TextBlock> {
                             change: e => update({ text: e.target.value })
                         }
                     }),
-                h('input.text-color',
+
+                h("div",
+                    {},
+                    [
+                        h("div.font-color-icon.fore", {}, "A"),
+                        h("input.text-color",
+                            {
+                                attrs: {
+                                    type: "text"
+                                },
+                                props: {
+                                    title: "Text color",
+                                    value: textBlock.textColor
+                                },
+                                hook: {
+                                    insert: (vnode) =>
+                                        ColorPicker.setup(
+                                            vnode.elm,
+                                            color => update({ textColor: color && color.toHexString() })
+                                        ),
+                                    destroy: (vnode) => ColorPicker.destroy(vnode.elm)
+                                }
+                            })
+                    ]),
+
+                h("div",
+                    {},
+                    [
+                        h("div.font-color-icon.back", {}, "A"),
+                        h("input.background-color",
+                            {
+                                attrs: {
+                                    type: "text"
+                                },
+                                props: {
+                                    title: "Background color",
+                                    value: textBlock.backgroundColor
+                                },
+                                hook: {
+                                    insert: (vnode) =>
+                                        ColorPicker.setup(
+                                            vnode.elm,
+                                            color => update({ backgroundColor: color && color.toHexString() })
+                                        ),
+                                    destroy: (vnode) => ColorPicker.destroy(vnode.elm)
+                                }
+                            })
+                    ]),
+
+                h("button.delete-textblock.btn.btn-danger",
                     {
-                        attrs: {
-                            type: "text"
-                        },
+                        type: "button",
                         props: {
-                            value: textBlock.textColor
+                            title: "Delete"
                         },
-                        hook: {
-                            insert: (vnode) =>
-                                ColorPicker.setup(
-                                    vnode.elm,
-                                    color => update({ textColor: color && color.toHexString() })
-                                ),
-                            destroy: (vnode) => ColorPicker.destroy(vnode.elm)
+                        on: {
+                            click: e => this.actions.textBlock.remove.dispatch(textBlock)
                         }
-                    }),
-                h('input.background-color',
-                    {
-                        attrs: {
-                            type: "text"
-                        },
-                        props: {
-                            value: textBlock.backgroundColor
-                        },
-                        hook: {
-                            insert: (vnode) =>
-                                ColorPicker.setup(
-                                    vnode.elm,
-                                    color => update({ backgroundColor: color && color.toHexString() })
-                                ),
-                            destroy: (vnode) => ColorPicker.destroy(vnode.elm)
-                        }
-                    }),
+                    },
+                    [
+                        h("span.glyphicon.glyphicon-trash")
+                    ]
+                )
             ]);
     }
 

@@ -9,7 +9,8 @@ class Actions extends TypedChannel.Channel<void> {
     
     textBlock = {
         add: this.topic<TextBlock>("textblock.add"),
-        update: this.topic<TextBlock>("textblock.update")
+        update: this.topic<TextBlock>("textblock.update"),
+        remove: this.topic<TextBlock>("textblock.remove")
     }
     
 }
@@ -25,6 +26,7 @@ class Events extends TypedChannel.Channel<AppState> {
     textblock = {
         added: this.topic<TextBlock>("textblock.added"),
         changed: this.topic<TextBlock>("textblock.changed"),
+        removed: this.topic<TextBlock>("textblock.removed"),
     }
     
 }

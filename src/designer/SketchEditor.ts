@@ -9,7 +9,7 @@ class SketchEditor extends Component<Sketch> {
 
     render(sketch: Sketch) {
         return h("div", [
-            "Add text: ",
+            h("label", "Add text: "),
             h("input.add-text", {
                 on: {
                     keypress: (ev) => {
@@ -31,7 +31,7 @@ class SketchEditor extends Component<Sketch> {
                 style: {
                 }
             }),
-            "Background: ",
+            h("label", "Background: "),
             h("input.background-color",
                 {
                     props: {
