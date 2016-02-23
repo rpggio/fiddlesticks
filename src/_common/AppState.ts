@@ -1,4 +1,4 @@
 
 class AppState {
-    sketch: Sketch;
+    sketch: Sketch = new Sketch();
 }

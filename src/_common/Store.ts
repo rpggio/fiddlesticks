@@ -13,8 +13,9 @@ class Store {
         this.events = events;
 
         actions.sketch.create
-            .subscribe(() => {
+            .subscribe((m) => {
                 this.state.sketch = new Sketch();
+                this.state.sketch.attr = m.data || {};
                 this.events.sketch.loaded.dispatchContext(this.state, this.state.sketch);
             });
 

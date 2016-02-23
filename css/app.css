@@ -57,6 +57,10 @@ canvas[resize] {
     height: 100%;
 }
 
+#canvasContainer > canvas {
+    background-color: white;
+}
+
 #canvasContainer {
   position: relative;
   width: 100%;

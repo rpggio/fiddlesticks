@@ -2,7 +2,7 @@
 class Actions extends TypedChannel.Channel<void> {
     
     sketch = {
-        create: this.topic<any>("sketch.create"),
+        create: this.topic<SketchAttr>("sketch.create"),
         attrUpdate: this.topic<SketchAttr>("sketch.attrupdate"),
         setEditingItem: this.topic<PositionedItem>("sketch.seteditingitem")
     }
