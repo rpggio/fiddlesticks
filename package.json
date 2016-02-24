@@ -4,6 +4,7 @@
   "description": "word-art",
   "main": "dist/main.js",
   "dependencies": {
+    "hyperscript-helpers": "^2.1.0",
     "inversify": "^1.3.1",
     "lodash": "^4.3.0",
     "opentype": "^0.1.2",

@@ -1,9 +1,9 @@
-/*@import url(../fonts/AguafinaScript-Regular/AguafinaScript-Regular.ttf);*/
-
 @font-face {
     font-family: 'Open Sans';
     src: local('OpenSans-Regular'), url('../fonts/OpenSans/OpenSans-Regular.ttf');
 }
+
+/* Global */
 
 html,
 body {
@@ -14,6 +14,14 @@ body {
     font-size: 14px;
 }
 
+
+/* Bootstrap customizations */
+
+ul.dropdown-menu > li {
+    cursor: pointer;
+}
+
+/* Editor */
 
 .font-color-icon {
     font-weight: bold;
@@ -40,6 +48,11 @@ body {
 #designer {
     background-color: #333333;
     padding: 5px;
+}
+
+#designer > * {
+    display: inline-block;
+    margin: 3px 5px;
 }
 
 #designer > label {

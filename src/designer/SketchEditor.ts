@@ -13,14 +13,14 @@ class SketchEditor extends Component<Sketch> {
             h("input.add-text", {
                 on: {
                     keypress: (ev) => {
-                        if(ev.which === 13 || ev.keyCode === 13){
+                        if (ev.which === 13 || ev.keyCode === 13) {
                             const text = ev.target && ev.target.value;
-                            if(text.length){
+                            if (text.length) {
                                 this.actions.textBlock.add.dispatch({ text: text });
                                 ev.target.value = '';
                             }
                         }
-                    }  
+                    }
                 },
                 attrs: {
                     type: "text",
@@ -36,7 +36,7 @@ class SketchEditor extends Component<Sketch> {
                 {
                     props: {
                         type: "text",
-                        value: sketch.attr.backgroundColor                        
+                        value: sketch.attr.backgroundColor
                     },
                     hook: {
                         insert: (vnode) =>
@@ -50,7 +50,22 @@ class SketchEditor extends Component<Sketch> {
                         destroy: (vnode) => ColorPicker.destroy(vnode.elm)
                     }
                 }),
-            ]
+
+            BootScript.dropdown({ 
+                id: "sketchMenu",
+                content: "Fiddle",
+                items: [
+                    { 
+                        content: "New",
+                        attrs: {
+                            title: "Create new sketch"
+                        },
+                        onClick: () => this.actions.sketch.create.dispatch()
+                    }
+                ]
+            })
+
+        ]
         );
     }
 }

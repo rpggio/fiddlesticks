@@ -15,7 +15,9 @@ class Store {
         actions.sketch.create
             .subscribe((m) => {
                 this.state.sketch = new Sketch();
-                this.state.sketch.attr = m.data || {};
+                const attr = m.data || {};
+                attr.backgroundColor = attr.backgroundColor || '#f6f3eb';
+                this.state.sketch.attr = attr;
                 this.events.sketch.loaded.dispatchContext(this.state, this.state.sketch);
             });
 

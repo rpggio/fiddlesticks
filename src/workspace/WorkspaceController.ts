@@ -36,7 +36,11 @@ class WorkspaceController {
         channels.events.sketch.loaded.subscribe(
             ev => {
                 this._sketch = ev.data;
-                this.workspace.backgroundColor = ev.data.attr.backgroundColor
+                this.workspace.backgroundColor = ev.data.attr.backgroundColor;
+                _.forOwn(this._textBlockItems, (block, id) => {
+                    block.remove();
+                });
+                this._textBlockItems = {};
             }
         );
 
@@ -49,12 +53,12 @@ class WorkspaceController {
             channels.events.textblock.changed
         ).subscribe(
             ev => this.textBlockReceived(ev.data));
-            
+
         channels.events.textblock.removed.subscribe(m => {
             let item = this._textBlockItems[m.data._id];
-            if(item){
+            if (item) {
                 item.remove();
-                delete this._textBlockItems[m.data._id];        
+                delete this._textBlockItems[m.data._id];
             }
         });
     }

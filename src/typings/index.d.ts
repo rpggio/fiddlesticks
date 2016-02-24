@@ -7,4 +7,8 @@
 /// <reference path="react/react-dom.d.ts" />
 /// <reference path="custom/paper.d.ts" />
 
-/// <reference path="custom/paper.d.ts" />
+
+// NPM
+
+/// <reference path="..\../node_modules/inversify/type_definitions/inversify-global.d.ts" />
+//-------- /// <reference path="..\../node_modules/hyperscript-helpers/dist/index.d.ts" />

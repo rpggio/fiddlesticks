@@ -18,7 +18,7 @@ events.subscribe(x => console.log('event', x));
     const selectedItemEditor = new SelectedItemEditor(document.getElementById("editorOverlay"), channels);
 
     const designerController = new DesignerController(channels, () => {
-        actions.sketch.create.dispatch({backgroundColor: '#f6f3eb'});
+        actions.sketch.create.dispatch();
         actions.textBlock.add.dispatch({ text: "FIDDLESTICKS" });
     });
 }
