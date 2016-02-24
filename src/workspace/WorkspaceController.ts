@@ -1,7 +1,7 @@
 
 class WorkspaceController {
 
-    defaultSize = new paper.Size(4000, 3000);
+    defaultSize = new paper.Size(50000, 40000);
 
     canvas: HTMLCanvasElement;
     workspace: Workspace;
@@ -30,8 +30,13 @@ class WorkspaceController {
         this.workspace = new Workspace(this.defaultSize);
         let sheetBounds = this.workspace.sheet.bounds;
         mouseZoom.setZoomRange(
-            [sheetBounds.scale(0.02).size, sheetBounds.scale(1.1).size]);
-        mouseZoom.zoomTo(sheetBounds.scale(0.5));
+            [sheetBounds.scale(0.005).size, sheetBounds.scale(0.25).size]);
+        mouseZoom.zoomTo(sheetBounds.scale(0.05));
+
+        this.workspace.mouseBehavior.onClick = ev => 
+        {
+            this.channels.actions.sketch.setSelection.dispatch({});
+        }
 
         channels.events.sketch.loaded.subscribe(
             ev => {
@@ -61,6 +66,20 @@ class WorkspaceController {
                 delete this._textBlockItems[m.data._id];
             }
         });
+        
+        channels.events.sketch.selectionChanged.subscribe(m => {
+            if(m.data && m.data.priorSelectionItemId){
+                let prior = this._textBlockItems[m.data.priorSelectionItemId];
+                if(prior){
+                    prior.selected = false;
+                }
+            }
+            
+            let item = m.data.itemId && this._textBlockItems[m.data.itemId];
+            if (item) {
+                item.selected = true;
+            }
+        });
     }
 
     textBlockReceived(textBlock: TextBlock) {
@@ -81,9 +100,20 @@ class WorkspaceController {
         if (!item) {
             item = new StretchyText(this.font, options);
 
-            item.onDoubleClick = ev => {
+            // warning: MouseBehavior events are also set within StretchyPath. 
+            //          Collision will happen eventuall.
+            // todo: Fix drag handler in paper.js so it doesn't fire click.
+            //       Then we can use the item.click event.
+            item.mouseBehavior.onClick = ev => {
+                item.bringToFront();
                 const editorAt = this.project.view.projectToView(
                     PaperHelpers.midpoint(item.bounds.topLeft, item.bounds.center));
+                // select
+                if(!textBlock.selected) {
+                    this.channels.actions.sketch.setSelection.dispatch(
+                        {itemId: textBlock._id, itemType: "TextBlock"});
+                }
+                // edit
                 this.channels.actions.sketch.setEditingItem.dispatch(
                     {
                         itemId: textBlock._id,
@@ -91,7 +121,19 @@ class WorkspaceController {
                         clientX: editorAt.x,
                         clientY: editorAt.y
                     });
-            }
+            };
+            
+            item.mouseBehavior.onDragStart = ev => {
+                item.bringToFront();
+                if(!textBlock.selected) {
+                    this.channels.actions.sketch.setSelection.dispatch(
+                        {itemId: textBlock._id, itemType: "TextBlock"});
+                }
+            };
+            
+            item.mouseBehavior.onDragMove = ev => {
+                item.position = item.position.add(ev.delta);
+            };
 
             item.data = textBlock._id;
             this.workspace.addChild(item);

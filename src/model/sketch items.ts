@@ -6,3 +6,9 @@ interface PositionedItem {
     clientX?: number;
     clientY?: number;
 }
+
+interface ItemSelection {
+    itemId?: string;
+    itemType?: string;
+    priorSelectionItemId?: string;
+}

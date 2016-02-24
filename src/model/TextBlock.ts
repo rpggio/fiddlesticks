@@ -7,5 +7,6 @@ interface TextBlock {
     font?: string;
     fontSize?: number;
     
+    selected?: boolean;
     editing?: boolean;
 }

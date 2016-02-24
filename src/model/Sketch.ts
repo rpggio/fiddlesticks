@@ -6,6 +6,8 @@ class Sketch {
 
     textBlocks: TextBlock[] = [];
 
+    selection: ItemSelection;
+
     editingItem: PositionedItem;
 
     constructor() {

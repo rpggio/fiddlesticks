@@ -12,6 +12,8 @@ class Store {
         this.actions = actions;
         this.events = events;
 
+        // ----- Sketch -----
+
         actions.sketch.create
             .subscribe((m) => {
                 this.state.sketch = new Sketch();
@@ -26,6 +28,37 @@ class Store {
                 this.assign(this.state.sketch.attr, ev.data);
                 this.events.sketch.attrchanged.dispatchContext(this.state, this.state.sketch.attr);
             });
+
+        actions.sketch.setEditingItem.subscribe(m => {
+            if (m.data.itemType !== "TextBlock") {
+                throw `Unhandled type ${m.type}`;
+            }
+            const item = this.state.sketch.getBlock(m.data.itemId);
+            this.state.sketch.editingItem = {
+                itemId: m.data.itemId,
+                itemType: "TextBlock",
+                item: item,
+                clientX: m.data.clientX,
+                clientY: m.data.clientY
+            };
+            events.sketch.editingItemChanged.dispatch(this.state.sketch.editingItem);
+        });
+
+        actions.sketch.setSelection.subscribe(m => {
+            if (m.data.itemType && m.data.itemType !== "TextBlock") {
+                throw `Unhandled type ${m.type}`;
+            }
+            this.state.sketch.selection = <ItemSelection>{
+                itemId: m.data.itemId,
+                itemType: m.data.itemType,
+                priorSelectionItemId: this.state.sketch.selection 
+                    && this.state.sketch.selection.itemId
+            };
+            events.sketch.selectionChanged.dispatch(this.state.sketch.selection);
+        });
+
+
+        // ----- TextBlock -----
 
         actions.textBlock.add
             .subscribe(ev => {
@@ -64,20 +97,15 @@ class Store {
                 }
             });
 
-        actions.sketch.setEditingItem.subscribe(m => {
-            if (m.data.itemType !== "TextBlock") {
-                throw `Unhandled type ${m.type}`;
-            }
-            const item = this.state.sketch.getBlock(m.data.itemId);
-            this.state.sketch.editingItem = {
-                itemId: m.data.itemId,
-                itemType: "TextBlock",
-                item: item,
-                clientX: m.data.clientX,
-                clientY: m.data.clientY
-            };
-            events.sketch.editingItemChanged.dispatch(this.state.sketch.editingItem);
-        })
+        // actions.textBlock.setSelected
+        //     .subscribe(ev => {
+        //         let block = this.state.sketch.getBlock(ev.data._id);
+        //         if (block) {
+        //             block.selected = ev.data.selected;
+        //             this.events.textblock.selectedChanged.dispatchContext(this.state, block);
+        //         }
+        //     });
+
     }
 
     assign<T>(dest: T, source: T) {

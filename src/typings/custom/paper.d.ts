@@ -1252,6 +1252,11 @@ declare module paper {
         onMouseDown: (event: MouseEvent) => void;
 
         /**
+         * The function to be called when the mouse is dragged. The function receives a MouseEvent object which contains information about the mouse event.
+         */
+        onMouseDrag: (event: MouseEvent) => void;
+
+        /**
          * The function to be called when the mouse button is released over the item.
          * The function receives a MouseEvent object which contains information about the mouse event.
          */

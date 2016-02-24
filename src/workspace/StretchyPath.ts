@@ -36,15 +36,8 @@ class StretchyPath extends paper.Group {
         this.arrangeContents();
        
         this.mouseBehavior = {
-            onClick: () => {
-                this.bringToFront();
-                this.selected = true;
-            },
-            onDragStart: () => this.bringToFront(),
-            onDragMove: event => {
-                this.selected = true;
-                this.position = this.position.add(event.delta);
-            },
+            // warning: MouseBehavior events are also set within WorkspaceController. 
+            //          Collision will happen eventually.
             onOverStart: () => this.setEditElementsVisibility(true),
             onOverEnd: () => this.setEditElementsVisibility(false)
         };
