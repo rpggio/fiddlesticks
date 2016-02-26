@@ -9,7 +9,7 @@ class TextBlockEditor extends Component<TextBlock> {
     render(textBlock: TextBlock): VNode {
         let update = tb => {
             tb._id = textBlock._id;
-            this.actions.textBlock.update.dispatch(tb);
+            this.actions.textBlock.updateAttr.dispatch(tb);
         };
         return h("div.text-block-editor",
             {},

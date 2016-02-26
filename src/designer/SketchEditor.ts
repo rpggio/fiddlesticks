@@ -61,6 +61,13 @@ class SketchEditor extends Component<Sketch> {
                             title: "Create new sketch"
                         },
                         onClick: () => this.actions.sketch.create.dispatch()
+                    },
+                    { 
+                        content: "Save Local",
+                        attrs: {
+                            title: "Save to local browser storage"
+                        },
+                        onClick: () => this.actions.designer.saveLocal.dispatch()
                     }
                 ]
             })

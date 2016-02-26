@@ -4,14 +4,14 @@ function bootstrap() {
     const channels = new Channels();
     const actions = channels.actions, events = channels.events;
 
-actions.subscribe(x => console.log('action', x));
-events.subscribe(x => console.log('event', x));
+actions.subscribe(x => console.log(x));
+events.subscribe(x => console.log(x));
 
     const rootStore = new Store(actions, events);
 
     const sketchEditor = new SketchEditor(actions); 
     const sketchDom$ = events.merge(
-        events.sketch.loaded, events.sketch.attrchanged)
+        events.sketch.loaded, events.sketch.attrChanged)
         .map(m => sketchEditor.render(m.rootData.sketch));
     ReactiveDom.renderStream(sketchDom$, document.getElementById('designer'));
 
@@ -19,7 +19,7 @@ events.subscribe(x => console.log('event', x));
 
     const designerController = new DesignerController(channels, () => {
         actions.sketch.create.dispatch();
-        actions.textBlock.add.dispatch({ text: "FIDDLESTICKS" });
+        actions.textBlock.add.dispatch({ text: "FIDDLESTICKS", textColor: "lightblue", fontSize: 128 });
     });
 }
 

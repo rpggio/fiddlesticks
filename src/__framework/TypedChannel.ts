@@ -32,7 +32,7 @@ namespace TypedChannel {
         dispatch(data?: TData) {
             this.channel.onNext({
                 type: this.type,
-                data: data
+                data: _.clone(data)
             });
         }
 
@@ -40,7 +40,7 @@ namespace TypedChannel {
             this.channel.onNext({
                 type: this.type,
                 rootData: context,
-                data: data
+                data: _.clone(data)
             });
         }
 

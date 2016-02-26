@@ -84,10 +84,14 @@ class PaperHelpers {
         return line;
     }
 
-    static marker(point: paper.Point): paper.Item {
-        let marker = paper.Shape.Circle(point, 2);
-        marker.strokeColor = 'red';
-        PaperHelpers.markerGroup.addChild(marker);
+    static marker(point: paper.Point, label: string): paper.Item {
+        //let marker = paper.Shape.Circle(point, 10);
+        let marker = new paper.PointText(point);
+        marker.fontSize = 36;
+        marker.content = label;
+        marker.strokeColor = "red";
+        marker.bringToFront();
+        //PaperHelpers.markerGroup.addChild(marker);
         return marker;
     }
 

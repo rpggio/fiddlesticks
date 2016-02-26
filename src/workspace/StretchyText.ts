@@ -3,8 +3,11 @@ class StretchyText extends StretchyPath {
 
     ffont: opentype.Font;
 
-    constructor(font: opentype.Font, options: StretchyTextOptions) {
-        super(StretchyText.getTextPath(font, options), options);
+    constructor(font: opentype.Font, 
+        options: StretchyTextOptions, 
+        position?: number[],
+        paths?: {top:any, bottom: any}) {
+        super(StretchyText.getTextPath(font, options), options, position, paths);
         this.ffont = font;
     }
     
