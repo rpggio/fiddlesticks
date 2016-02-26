@@ -21,29 +21,6 @@ class WorkspaceController {
         paper.setup(this.canvas);
         this.project = paper.project;
 
-
-        // var path = new paper.Path();
-        // path.strokeColor = 'black';
-        // path.add(new paper.Point(30, 30));
-        // path.add(new paper.Point(100, 100));
-        // path.subscribe(x => console.log('path change', x));
-        
-        // path.strokeColor = 'green';
-        // path.position = new paper.Point(10, 10);
-        // path.fillColor = 'blue';
-
-        // let compound = new paper.CompoundPath({
-        //     children: [path]
-        // });
-        // compound.subscribe(x => console.log('compound change', x));
-        // compound.position = compound.position.add(100);
-
-
-        // let shape = paper.Shape.Rectangle(new paper.Point(20,20), new paper.Point(30,30));
-        // shape.subscribe(x => console.log('shape change', x));
-        // shape.position = shape.position.add(30);
-        // shape.fillColor = 'red';
-
         const mouseTool = new MouseBehaviorTool(this.project);
         mouseTool.onToolMouseDown = ev => {
             this.channels.events.sketch.editingItemChanged.dispatch({});

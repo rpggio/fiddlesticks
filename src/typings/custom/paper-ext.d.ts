@@ -6,55 +6,84 @@ declare module paper {
         getPointAt(offset: number): paper.Point;
     }
 
-    var ChangeFlag: IChangeFlag;
-    
-    interface IChangeFlag {
-        // Anything affecting the appearance of an item, including GEOMETRY,
-        // STROKE, STYLE and ATTRIBUTE (except for the invisible ones: locked, name)
-        APPEARANCE: number,
-        // A change in the item's children
-        CHILDREN: number,
-        // A change of the item's place in the scene graph (removed, inserted,
-        // moved).
-        INSERTION: number,
-        // Item geometry (path, bounds)
-        GEOMETRY: number,
-        // Only segment(s) have changed, and affected curves have already been
-        // notified. This is to implement an optimization in _changed() calls.
-        SEGMENTS: number,
-        // Stroke geometry (excluding color)
-        STROKE: number,
-        // Fill style or stroke color / dash
-        STYLE: number,
-        // Item attributes: visible, blendMode, locked, name, opacity, clipMask ...
-        ATTRIBUTE: number,
-        // Text content
-        CONTENT: number,
-        // Raster pixels
-        PIXELS: number,
-        // Clipping in one of the child items
-        CLIPPING: number,
-        // The view has been transformed
-        VIEW: number
-    }
+    // var ChangeFlag: IChangeFlag;
 
-    // Shortcuts to often used ChangeFlag values including APPEARANCE
-    var Change: IChange;
+    // enum ChangeFlags {
+    //     // Anything affecting the appearance of an item, including GEOMETRY,
+    //     // STROKE, STYLE and ATTRIBUTE (except for the invisible ones: locked, name)
+    //     APPEARANCE = 0x1,
+    //     // A change in the item's children
+    //     CHILDREN = 0x2,
+    //     // A change of the item's place in the scene graph (removed, inserted,
+    //     // moved).
+    //     INSERTION = 0x4,
+    //     // Item geometry (path, bounds)
+    //     GEOMETRY = 0x8,
+    //     // Only segment(s) have changed, and affected curves have already been
+    //     // notified. This is to implement an optimization in _changed() calls.
+    //     SEGMENTS = 0x10,
+    //     // Stroke geometry (excluding color)
+    //     STROKE = 0x20,
+    //     // Fill style or stroke color / dash
+    //     STYLE = 0x40,
+    //     // Item attributes: visible, blendMode, locked, name, opacity, clipMask ...
+    //     ATTRIBUTE = 0x80,
+    //     // Text content
+    //     CONTENT = 0x100,
+    //     // Raster pixels
+    //     PIXELS = 0x200,
+    //     // Clipping in one of the child items
+    //     CLIPPING = 0x400,
+    //     // The view has been transformed
+    //     VIEW = 0x800
+    // }
     
-    interface IChange {
-        // CHILDREN also changes GEOMETRY, since removing children from groups
-        // changes bounds.
-        CHILDREN: number, // ChangeFlag.CHILDREN | ChangeFlag.GEOMETRY | ChangeFlag.APPEARANCE
-        // Changing the insertion can change the appearance through parent's matrix.
-        INSERTION: number, // ChangeFlag.INSERTION | ChangeFlag.APPEARANCE
-        GEOMETRY: number, // ChangeFlag.GEOMETRY | ChangeFlag.APPEARANCE
-        SEGMENTS: number, // ChangeFlag.SEGMENTS | ChangeFlag.GEOMETRY | ChangeFlag.APPEARANCE
-        STROKE: number, // ChangeFlag.STROKE | ChangeFlag.STYLE | ChangeFlag.APPEARANCE
-        STYLE: number, // ChangeFlag.STYLE | ChangeFlag.APPEARANCE
-        ATTRIBUTE: number, // ChangeFlag.ATTRIBUTE | ChangeFlag.APPEARANCE
-        CONTENT: number, // ChangeFlag.CONTENT | ChangeFlag.GEOMETRY | ChangeFlag.APPEARANCE
-        PIXELS: number, // ChangeFlag.PIXELS | ChangeFlag.APPEARANCE
-        VIEW: number, // ChangeFlag.VIEW | ChangeFlag.APPEARANCE
-    }
+    // interface IChangeFlag {
+    //     // Anything affecting the appearance of an item, including GEOMETRY,
+    //     // STROKE, STYLE and ATTRIBUTE (except for the invisible ones: locked, name)
+    //     APPEARANCE: number,
+    //     // A change in the item's children
+    //     CHILDREN: number,
+    //     // A change of the item's place in the scene graph (removed, inserted,
+    //     // moved).
+    //     INSERTION: number,
+    //     // Item geometry (path, bounds)
+    //     GEOMETRY: number,
+    //     // Only segment(s) have changed, and affected curves have already been
+    //     // notified. This is to implement an optimization in _changed() calls.
+    //     SEGMENTS: number,
+    //     // Stroke geometry (excluding color)
+    //     STROKE: number,
+    //     // Fill style or stroke color / dash
+    //     STYLE: number,
+    //     // Item attributes: visible, blendMode, locked, name, opacity, clipMask ...
+    //     ATTRIBUTE: number,
+    //     // Text content
+    //     CONTENT: number,
+    //     // Raster pixels
+    //     PIXELS: number,
+    //     // Clipping in one of the child items
+    //     CLIPPING: number,
+    //     // The view has been transformed
+    //     VIEW: number
+    // }
+
+    // // Shortcuts to often used ChangeFlag values including APPEARANCE
+    // var Change = {
+    //     // CHILDREN also changes GEOMETRY, since removing children from groups
+    //     // changes bounds.
+    //     CHILDREN: ChangeFlag.CHILDREN | ChangeFlag.GEOMETRY | ChangeFlag.APPEARANCE,
+    //     // Changing the insertion can change the appearance through parent's matrix.
+    //     INSERTION: ChangeFlag.INSERTION | ChangeFlag.APPEARANCE,
+    //     GEOMETRY: ChangeFlag.GEOMETRY | ChangeFlag.APPEARANCE,
+    //     SEGMENTS: ChangeFlag.SEGMENTS | ChangeFlag.GEOMETRY | ChangeFlag.APPEARANCE,
+    //     STROKE: ChangeFlag.STROKE | ChangeFlag.STYLE | ChangeFlag.APPEARANCE,
+    //     STYLE: ChangeFlag.STYLE | ChangeFlag.APPEARANCE,
+    //     ATTRIBUTE: ChangeFlag.ATTRIBUTE | ChangeFlag.APPEARANCE,
+    //     CONTENT: ChangeFlag.CONTENT | ChangeFlag.GEOMETRY | ChangeFlag.APPEARANCE,
+    //     PIXELS: ChangeFlag.PIXELS | ChangeFlag.APPEARANCE,
+    //     VIEW: ChangeFlag.VIEW | ChangeFlag.APPEARANCE
+    // };
+
 
 }
