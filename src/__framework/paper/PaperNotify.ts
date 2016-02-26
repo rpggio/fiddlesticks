@@ -4,7 +4,11 @@ type Callback = () => void;
 
 declare module paper {
     interface Item {
-        subscribe(handler: ItemChangeHandler): Callback;
+        
+        /**
+         * Observe all changes in item. Returns un-observe function.
+         */
+        observe(handler: ItemChangeHandler): Callback;
     }
 }
 
@@ -59,36 +63,37 @@ namespace PaperNotify {
 
     export function initialize() {
         
-        // Injecting Item.subscribe and Project._changed
-        
+        // Inject Item.observe
         const itemProto = <any>paper.Item.prototype;
-        itemProto.subscribe = function(handler: ItemChangeHandler): Callback {
-            if (!this._subscribers) {
-                this._subscribers = [];
+        itemProto.observe = function(handler: ItemChangeHandler): Callback {
+            if (!this._observers) {
+                this._observers = [];
             }
-            if (this._subscribers.indexOf(handler) < 0) {
-                this._subscribers.push(handler);
+            if (this._observers.indexOf(handler) < 0) {
+                this._observers.push(handler);
             }
             return () => {
-                let index = this._subscribers.indexOf(handler, 0);
+                let index = this._observers.indexOf(handler, 0);
                 if (index > -1) {
-                    this._subscribers.splice(index, 1);
+                    this._observers.splice(index, 1);
                 }
             }
         }
 
+        // Wrap Item.remove
         const itemRemove = itemProto.remove;
         itemProto.remove = function() {
             itemRemove.apply(this, arguments);
-            this._subscribers = null;
+            this._observers = null;
         }
 
+        // Wrap Project._changed
         const projectProto = <any>paper.Project.prototype;
         const projectChanged = projectProto._changed;
-        projectProto._changed = function(flags: PaperNotify.ChangeFlag, item: paper.Item) {
+        projectProto._changed = function(flags: ChangeFlag, item: paper.Item) {
             projectChanged.apply(this, arguments);
             if (item) {
-                const subs = (<any>item)._subscribers;
+                const subs = (<any>item)._observers;
                 if (subs) {
                     for (let s of subs) {
                         s.call(item, flags);
@@ -96,6 +101,18 @@ namespace PaperNotify {
                 }
             }
         }
+    }
+    
+    export function describe(flags: ChangeFlag){
+        let desc = ChangeFlag[flags];
+        if (desc){
+            return "ChangeFlag." + desc;
+        }
+        desc = Changes[flags];
+        if(desc){
+            return "Changes." + desc;
+        }
+        // todo: support arbitrary flag combos
     }
 
 }

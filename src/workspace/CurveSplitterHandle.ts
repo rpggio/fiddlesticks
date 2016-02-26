@@ -39,7 +39,7 @@ class CurveSplitterHandle extends paper.Shape {
             },
             onDragMove: event => {
                 let newPos = this.position.add(event.delta);
-                this.position = newPos;
+                this.position = this.position.add(event.delta);
                 newSegment.point = newPos;
 
             },

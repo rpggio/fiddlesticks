@@ -1,10 +1,10 @@
 
-class PropertyEvent<T> {
+class ObservableEvent<T> {
     
     private _subscribers: ((eventArg: T) => void)[] = [];
 
     /**
-     * Subscribes for notification. Returns unsubscribe function.
+     * Subscribe for notification. Returns unsubscribe function.
      */    
     subscribe(callback: (eventArg: T) => void): (() => void) {
         if(this._subscribers.indexOf(callback) < 0){
@@ -16,6 +16,16 @@ class PropertyEvent<T> {
                 this._subscribers.splice(index, 1);
             }
         }
+    }
+    
+    /**
+     * Subscribe for one notification.
+     */
+    subscribeOne(callback: (eventArg: T) => void){
+        let unsub = this.subscribe(t => {
+            unsub();
+            callback(t);            
+        });
     }
     
     notify(eventArg: T){

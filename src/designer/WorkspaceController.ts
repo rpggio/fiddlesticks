@@ -33,6 +33,14 @@ class WorkspaceController {
             [sheetBounds.scale(0.005).size, sheetBounds.scale(0.25).size]);
         mouseZoom.zoomTo(sheetBounds.scale(0.05));
 
+
+
+        const viewCenter = this.project.view.bounds.center;
+        let line = paper.Path.Line(viewCenter, viewCenter.add(200));
+        let stretch = new StretchPath(line.segments);
+        this.workspace.addChild(stretch);
+
+
         this.workspace.mouseBehavior.onClick = ev => {
             this.channels.actions.sketch.setSelection.dispatch({});
         }
