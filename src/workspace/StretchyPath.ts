@@ -116,7 +116,7 @@ class StretchyPath extends paper.Group {
         let top = sides[0];
         let bottom = sides[2];
         bottom.reverse();
-        let projection = PaperHelpers.sandwichPathProjection(top, bottom);
+        let projection = PaperHelpers.dualBoundsPathProjection(top, bottom);
         let transform = new PathTransform(point => {
             let relative = point.subtract(orthOrigin);
             let unit = new paper.Point(

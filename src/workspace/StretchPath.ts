@@ -1,27 +1,24 @@
 
-class StretchPath extends paper.Group {
+class StretchPath extends paper.Path {
 
     static HANDLE_RADIUS = 15;
 
-    private _path: paper.Path;
     private _handles: PathHandle[] = [];
 
     constructor(segments: paper.Segment[], style?: paper.Style) {
-        super();
+        super(segments);
 
-        this._path = new paper.Path(segments);
         if(style){
-            this._path.style = style;
+            this.style = style;
         } else {
-            this._path.strokeColor = "gray";
+            this.strokeColor = "gray";
         }
-        this.addChild(this._path);
         
-        for(const s of this._path.segments){
+        for(const s of this.segments){
             this.addSegmentHandle(s);
         }
         
-        for(const c of this._path.curves){
+        for(const c of this.curves){
             this.addCurveHandle(c);
         }
     }
@@ -35,11 +32,10 @@ class StretchPath extends paper.Group {
     private addCurveHandle(curve: paper.Curve){
         let handle = new PathHandle(curve);
         handle.curveSplit.subscribeOne(curveIdx => {
-            this.addCurveHandle(this._path.curves[curveIdx]);
-            this.addCurveHandle(this._path.curves[curveIdx + 1]);
+            this.addCurveHandle(this.curves[curveIdx]);
+            this.addCurveHandle(this.curves[curveIdx + 1]);
         });
         this._handles.push(handle);
         this.addChild(handle);
     }
-
 }

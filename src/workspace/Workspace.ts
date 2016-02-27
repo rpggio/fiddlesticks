@@ -32,8 +32,6 @@ class Workspace extends paper.Group {
 
         this.sheet.fillColor = this.defaultBackgroundColor;
 
-        //this.layer.onMouseDrag = (event) => console.log('mousedrag', event);
-
         this.mouseBehavior = <MouseBehavior>{
             // onClick: e => {
             //     paper.project.deselectAll();

@@ -34,11 +34,11 @@ class WorkspaceController {
         mouseZoom.zoomTo(sheetBounds.scale(0.05));
 
 
-
-        const viewCenter = this.project.view.bounds.center;
-        let line = paper.Path.Line(viewCenter, viewCenter.add(200));
-        let stretch = new StretchPath(line.segments);
-        this.workspace.addChild(stretch);
+const viewCenter = this.project.view.bounds.center;
+let textWarp = new TextWarp(font, "FLOOFY", 
+    { fillColor: "green", strokeColor: "gray", fontSize: 128 });
+textWarp.position = viewCenter;
+this.workspace.addChild(textWarp);
 
 
         this.workspace.mouseBehavior.onClick = ev => {

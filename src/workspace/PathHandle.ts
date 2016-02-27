@@ -8,23 +8,21 @@ class PathHandle extends paper.Group {
     private _curve: paper.Curve;
     private _smoothed: boolean;
     private _curveSplit = new ObservableEvent<number>();
-    private _curveUnSub: () => void; 
+    private _unSub: () => void;
 
     constructor(attach: paper.Segment | paper.Curve) {
         super();
 
         let position: paper.Point;
+        let path: paper.Path;
         if (attach instanceof paper.Segment) {
             this._segment = <paper.Segment>attach;
             position = this._segment.point;
+            path = this._segment.path;
         } else if (attach instanceof paper.Curve) {
             this._curve = <paper.Curve>attach;
             position = this._curve.getPointAt(this._curve.length * 0.5);
-            this._curveUnSub = this._curve.path.observe(flags => {
-                if (flags & PaperNotify.ChangeFlag.GEOMETRY) {
-                    this.center = this._curve.getPointAt(this._curve.length * 0.5);
-                } 
-            });
+            path = this._curve.path;
         } else {
             throw "attach must be Segment or Curve";
         }
@@ -43,8 +41,9 @@ class PathHandle extends paper.Group {
         this.mouseBehavior = {
             onDragStart: event => {
                 if (this._curve) {
-                    // split the curve, 'eclose' to segment handle
-                    this._curveUnSub();
+                    // split the curve, pupate to segment handle
+                    
+                    //this._unSub();
                     this._segment = new paper.Segment(this.position);
                     const curveIdx = this._curve.index;
                     this._curve.path.insert(
@@ -61,12 +60,12 @@ class PathHandle extends paper.Group {
                 this.position = newPos; 
                 if (this._segment) {
                     this._segment.point = newPos;
+                    if(this._smoothed){
+                        this._segment.smooth();
+                    }
                 }
             },
             onDragEnd: event => {
-                if (this._smoothed) {
-                    this._segment.smooth();
-                }
             },
             onClick: event => {
                 if(this._segment) {
@@ -74,6 +73,17 @@ class PathHandle extends paper.Group {
                 }
             }
         }
+        
+        this._unSub = path.observe(flags => {
+            if (flags & PaperNotify.ChangeFlag.GEOMETRY) {
+                if(this._segment) { 
+                    this.center = this._segment.point;
+                } else if(this._curve) {
+                    this.center = this._curve.getPointAt(this._curve.length * 0.5);
+                }
+            } 
+        });
+
     }
 
     get smoothed(): boolean {

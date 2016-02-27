@@ -1040,7 +1040,7 @@ declare module paper {
         /**
          * The path style of the item.
          */
-        style: Style;
+        style: IStyle;
 
         /**
          * Specifies whether the item is visible. When set to false, the item won't be drawn.
@@ -3273,12 +3273,109 @@ declare module paper {
         clone(): Symbol;
 
     }
+    
+    export interface IStyle {
+       
+        /**
+         * The color of the stroke.
+         */
+        strokeColor?: Color | string;
+        
+        /**
+         * The width of the stroke.
+         */
+        strokeWidth?: number;
+
+        /**
+         * The shape to be used at the beginning and end of open Path items, when they have a stroke.
+         * String('round', 'square', 'butt'
+         */
+        strokeCap?: string;
+
+        /**
+         * The shape to be used at the segments and corners of Path items when they have a stroke.
+         * String('miter', 'round', 'bevel')
+         */
+        strokeJoin?: string;
+
+        /**
+         * Specifies whether the stroke is to be drawn taking the current affine transformation into account (the default behavior), or whether it should appear as a non-scaling stroke.
+         */
+        strokeScaling?: boolean;
+
+        /**
+         * The dash offset of the stroke.
+         */
+        dashOffset?: number;
+
+        /**
+         * Specifies an array containing the dash and gap lengths of the stroke.
+         */
+        dashArray?: number[];
+
+        /**
+         * The miter limit of the stroke. When two line segments meet at a sharp angle and miter joins have been specified for strokeJoin, it is possible for the miter to extend far beyond the strokeWidth of the path. The miterLimit imposes a limit on the ratio of the miter length to the strokeWidth.
+         */
+        miterLimit?: number;
+
+        /**
+         * The fill color.
+         */
+        fillColor?: Color | string;
+
+        /**
+         * The shadow color.
+         */
+        shadowColor?: Color | string;
+
+        /**
+         * The shadow's blur radius.
+         */
+        shadowBlur?: number;
+
+        /** 
+         * The shadow's offset.
+         */
+        shadowOffset?: Point;
+
+        /**
+         * The color the item is highlighted with when selected. If the item does not specify its own color, the color defined by its layer is used instead.
+         */
+        selectedColor?: Color | string;
+
+        /**
+         * The font-family to be used in text content. default 'sans-serif'
+         */
+        fontFamily?: string;
+
+        /**
+         * The font-weight to be used in text content.
+         */
+        fontWeight?: string | number;
+
+        /**
+         * The font size of text content, as {@Number} in pixels, or as {@String} with optional units 'px', 'pt' and 'em'.
+         */
+        fontSize?: string | number;
+
+        /**
+         * The text leading of text content.
+         */
+        leading?: number | string;
+
+        /**
+         * The justification of text paragraphs. default "left"
+         */
+        justification?: string;
+    }
+     
+    
     /**
      * Style is used for changing the visual styles of items contained within a Paper.js project and is returned by item.style and project.currentStyle.
      * All properties of Style are also reflected directly in Item, i.e.: item.fillColor.
      * To set multiple style properties in one go, you can pass an object to item.style. This is a convenient way to define a style once and apply it to a series of items:
      */
-    export class Style {
+    export class Style implements IStyle {
 
         /**
          * The view that this style belongs to.

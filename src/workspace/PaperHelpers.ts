@@ -28,10 +28,7 @@ class PaperHelpers {
         })
     }
 
-    static tracePath(path: paper.Path, numPoints: number): paper.Path {
-        // if(!path || !path.segments || path.segments.length){
-        //     return new paper.Path();
-        // }
+    static tracePathAsPoints(path: paper.Path, numPoints: number): paper.Point[] {
         let pathLength = path.length;
         let offsetIncr = pathLength / numPoints;
         let points = [];
@@ -44,6 +41,11 @@ class PaperHelpers {
             offset += offsetIncr;
         }
 
+        return points;
+    }
+
+    static tracePath(path: paper.Path, numPoints: number): paper.Path {
+        let points = PaperHelpers.tracePathAsPoints(path, numPoints);
         return new paper.Path({
             segments: points,
             closed: true,
@@ -51,7 +53,7 @@ class PaperHelpers {
         });
     }
 
-    static sandwichPathProjection(topPath: paper.Curvelike, bottomPath: paper.Curvelike)
+    static dualBoundsPathProjection(topPath: paper.Curvelike, bottomPath: paper.Curvelike)
         : (unitPoint: paper.Point) => paper.Point {
         const topPathLength = topPath.length;
         const bottomPathLength = bottomPath.length;
