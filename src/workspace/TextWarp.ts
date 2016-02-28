@@ -1,31 +1,27 @@
 
-interface TextWarpOptions  {
-    fontSize?: number;
-}
-
 class TextWarp extends DualBoundsPathWarp {
 
-    static DEFAULT_FONT_SIZE = 32;
+    static DEFAULT_FONT_SIZE = 64;
 
     private _font: opentype.Font;
     private _text: string;
-    private _textPath: paper.CompoundPath;
+    private _fontSize: number;
 
     constructor(
         font: opentype.Font,
         text: string,
-        style?: paper.IStyle) {
-            const pathData = TextWarp.getPathData(
-                font, text, 
-                style && style.fontSize); 
-            const path = new paper.CompoundPath(pathData);
-            if(style){
-                path.style = style;
+        fontSize?: number,
+        style?: SketchItemStyle) {
+            
+            if(!fontSize){
+                fontSize = TextWarp.DEFAULT_FONT_SIZE;
             }
             
-            super(path);
+            const pathData = TextWarp.getPathData(font, text, fontSize); 
+            const path = new paper.CompoundPath(pathData);
+            
+            super(path, null, style);
 
-            this._textPath = <paper.CompoundPath>path;
             this._font = font;
             this._text = text;
     }
@@ -39,19 +35,22 @@ class TextWarp extends DualBoundsPathWarp {
         this.updateTextPath();
     }
 
-    get style(): paper.IStyle {
-        return this._textPath.style;
+    get fontSize(): number {
+        return this._fontSize;
     }
     
-    set style(value: paper.IStyle){
-        if(value){
-            this._textPath.style = value;
+    set fontSize(value: number) {
+        if(!value){
+            return;
         }
+        this._fontSize = value;
+        this.updateTextPath();
     }
 
     private updateTextPath() {
-        this._textPath.pathData = TextWarp.getPathData(
-            this._font, this._text, this._textPath.style.fontSize);
+        const pathData = TextWarp.getPathData(
+            this._font, this._text, this._fontSize);
+        this.source = new paper.CompoundPath(pathData);
     }
 
     private static getPathData(font: opentype.Font,

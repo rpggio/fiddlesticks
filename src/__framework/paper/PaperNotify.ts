@@ -102,17 +102,15 @@ namespace PaperNotify {
             }
         }
     }
-    
-    export function describe(flags: ChangeFlag){
-        let desc = ChangeFlag[flags];
-        if (desc){
-            return "ChangeFlag." + desc;
-        }
-        desc = Changes[flags];
-        if(desc){
-            return "Changes." + desc;
-        }
-        // todo: support arbitrary flag combos
+
+    export function describe(flags: ChangeFlag) {
+        let flagList: string[] = [];
+        _.forOwn(ChangeFlag, (value, key) => {
+            if ((typeof value) === "number" && (value & flags)) {
+                flagList.push(key);
+            }
+        });
+        return flagList.join(' | ');
     }
 
 }

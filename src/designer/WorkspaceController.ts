@@ -10,7 +10,7 @@ class WorkspaceController {
 
     private channels: Channels;
     private _sketch: Sketch;
-    private _textBlockItems: { [textBlockId: string]: StretchyText; } = {};
+    private _textBlockItems: { [textBlockId: string]: TextWarp } = {};
 
     constructor(channels: Channels, font: opentype.Font) {
         this.channels = channels;
@@ -32,15 +32,7 @@ class WorkspaceController {
         mouseZoom.setZoomRange(
             [sheetBounds.scale(0.005).size, sheetBounds.scale(0.25).size]);
         mouseZoom.zoomTo(sheetBounds.scale(0.05));
-
-
-const viewCenter = this.project.view.bounds.center;
-let textWarp = new TextWarp(font, "FLOOFY", 
-    { fillColor: "green", strokeColor: "gray", fontSize: 128 });
-textWarp.position = viewCenter;
-this.workspace.addChild(textWarp);
-
-
+        
         this.workspace.mouseBehavior.onClick = ev => {
             this.channels.actions.sketch.setSelection.dispatch({});
         }
@@ -70,13 +62,12 @@ this.workspace.addChild(textWarp);
             let item = this._textBlockItems[m.data._id];
             if (item) {
                 const textBlock = m.data;
-                let options = <StretchyTextOptions>{
-                    text: textBlock.text,
+                item.text = textBlock.text;
+                item.customStyle = {
                     fontSize: textBlock.fontSize,
-                    pathFillColor: textBlock.textColor,
+                    fillColor: textBlock.textColor,
                     backgroundColor: textBlock.backgroundColor
-                };
-                item.update(options);
+                }
             }
         });
 
@@ -92,13 +83,13 @@ this.workspace.addChild(textWarp);
             if (m.data && m.data.priorSelectionItemId) {
                 let prior = this._textBlockItems[m.data.priorSelectionItemId];
                 if (prior) {
-                    prior.blockSelected = false;
+                    prior.selected = false;
                 }
             }
 
             let item = m.data.itemId && this._textBlockItems[m.data.itemId];
             if (item) {
-                item.blockSelected = true;
+                item.selected = true;
             }
         });
 
@@ -121,19 +112,17 @@ this.workspace.addChild(textWarp);
             console.error('received block without id', textBlock);
         }
 
-        let options = <StretchyTextOptions>{
-            text: textBlock.text,
-            fontSize: textBlock.fontSize,
-            // pink = should not happen
-            pathFillColor: textBlock.textColor || 'pink',
-            backgroundColor: textBlock.backgroundColor
-        };
         let item = this._textBlockItems[textBlock._id];
         if (item) {
             console.error("Received addBlock for block that is already loaded");
             return;
         }
-        item = new StretchyText(this.font, options, textBlock.position, textBlock.outline);
+
+        item = new TextWarp(this.font, textBlock.text, textBlock.fontSize, {
+            fontSize: textBlock.fontSize,
+            fillColor: textBlock.textColor || "red",    // textColor should have been set elsewhere 
+            backgroundColor: textBlock.backgroundColor
+        });
 
         // warning: MouseBehavior events are also set within StretchyPath. 
         //          Collision will happen eventuall.
@@ -176,11 +165,13 @@ this.workspace.addChild(textWarp);
             this.channels.actions.textBlock.updateArrange.dispatch(block);
         }
 
-        item.onOutlineChanged = outline => {
-            let block = <TextBlock>this.getBlockArrangement(item);
-            block._id = textBlock._id;
-            this.channels.actions.textBlock.updateArrange.dispatch(block);
-        };
+        item.observe(flags => {
+            if(flags & PaperNotify.ChangeFlag.GEOMETRY){
+                let block = <TextBlock>this.getBlockArrangement(item);
+                block._id = textBlock._id;
+                this.channels.actions.textBlock.updateArrange.dispatch(block);
+            }
+        });
 
         item.data = textBlock._id;
         this.workspace.addChild(item);
@@ -192,10 +183,9 @@ this.workspace.addChild(textWarp);
         this._textBlockItems[textBlock._id] = item;
     }
 
-    private getBlockArrangement(item: StretchyText): BlockArrangement {
-        let sides = item.getOutlineSides();
-        const top = sides[0].exportJSON({ asString: false });
-        const bottom = sides[2].exportJSON({ asString: false });
+    private getBlockArrangement(item: TextWarp): BlockArrangement {
+        const top = item.upper.exportJSON({ asString: false });
+        const bottom = item.lower.exportJSON({ asString: false });
         return {
             position: [item.position.x, item.position.y],
             outline: { top, bottom }

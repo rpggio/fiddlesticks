@@ -4,12 +4,12 @@ function bootstrap() {
     const channels = new Channels();
     const actions = channels.actions, events = channels.events;
 
-actions.subscribe(x => console.log(x));
-events.subscribe(x => console.log(x));
+    actions.subscribe(x => console.log(x));
+    events.subscribe(x => console.log(x));
 
     const rootStore = new Store(actions, events);
 
-    const sketchEditor = new SketchEditor(actions); 
+    const sketchEditor = new SketchEditor(actions);
     const sketchDom$ = events.merge(
         events.sketch.loaded, events.sketch.attrChanged)
         .map(m => sketchEditor.render(m.rootData.sketch));
