@@ -10,6 +10,7 @@ class TextWarp extends DualBoundsPathWarp {
     constructor(
         font: opentype.Font,
         text: string,
+        bounds?: { upper: paper.Segment[], lower: paper.Segment[] },
         fontSize?: number,
         style?: SketchItemStyle) {
             
@@ -20,7 +21,7 @@ class TextWarp extends DualBoundsPathWarp {
             const pathData = TextWarp.getPathData(font, text, fontSize); 
             const path = new paper.CompoundPath(pathData);
             
-            super(path, null, style);
+            super(path, bounds, style);
 
             this._font = font;
             this._text = text;

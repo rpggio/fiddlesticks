@@ -16,10 +16,8 @@ class Store {
 
         actions.designer.saveLocal.subscribe(m => {
             const json = JSON.stringify(this.state);
-console.log('state', json);
 
             this.state = JSON.parse(json);
-console.log('state loaded', this.state);
             
             this.events.sketch.loaded.dispatchContext(
                 this.state, this.state.sketch);

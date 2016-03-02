@@ -4,21 +4,7 @@ class Workspace extends paper.Group {
     defaultBackgroundColor = '#fdfdfd';
 
     sheet: paper.Shape;
-
-    get backgroundColor(): string {
-        return this.sheet.fillColor.toString();
-    }
-
-    set backgroundColor(value: string) {
-        this.sheet.fillColor = value || this.defaultBackgroundColor;
-        
-        // Hide stroke when possible because it has a weird shadow. 
-        // Assume canvas is white.
-        this.sheet.strokeColor = (<paper.Color>this.sheet.fillColor).brightness > 0.97
-            ? "lightgray"
-            : null;
-    }
-
+    
     constructor(size: paper.Size) {
         super();
 
@@ -39,4 +25,19 @@ class Workspace extends paper.Group {
             onDragMove: e => this.position = this.position.add(e.delta)
         }
     }
+    
+    get backgroundColor(): string {
+        return this.sheet.fillColor.toString();
+    }
+
+    set backgroundColor(value: string) {
+        this.sheet.fillColor = value || this.defaultBackgroundColor;
+        
+        // Hide stroke when possible because it has a weird shadow. 
+        // Assume canvas is white.
+        this.sheet.strokeColor = (<paper.Color>this.sheet.fillColor).brightness > 0.97
+            ? "lightgray"
+            : null;
+    }
+  
 }

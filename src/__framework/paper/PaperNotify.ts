@@ -9,6 +9,8 @@ declare module paper {
          * Observe all changes in item. Returns un-observe function.
          */
         observe(handler: ItemChangeHandler): Callback;
+        
+        _changed(flags: PaperNotify.ChangeFlag): void;
     }
 }
 

@@ -2,6 +2,7 @@
 interface Window {
     paper: paper.PaperScope;
     DOMParser: any;
+    monitor: any;
 }
 
 declare var snabbdom: any;

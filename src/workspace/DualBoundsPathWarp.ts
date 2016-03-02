@@ -14,7 +14,7 @@ class DualBoundsPathWarp extends paper.Group {
 
     constructor(
         source: paper.CompoundPath,
-        bounds?: { upper: paper.Path, lower: paper.Path },
+        bounds?: { upper: paper.Segment[], lower: paper.Segment[] },
         customStyle?: SketchItemStyle) {
 
         super();
@@ -25,8 +25,8 @@ class DualBoundsPathWarp extends paper.Group {
         this._source.visible = false;
 
         if (bounds) {
-            this._upper = new StretchPath(bounds.upper.segments);
-            this._lower = new StretchPath(bounds.lower.segments);
+            this._upper = new StretchPath(bounds.upper);
+            this._lower = new StretchPath(bounds.lower);
         } else {
             this._upper = new StretchPath([
                 new paper.Segment(source.bounds.topLeft),
@@ -60,32 +60,34 @@ class DualBoundsPathWarp extends paper.Group {
             if (flags & PaperNotify.ChangeFlag.SEGMENTS) {
                 this.updateOutlineShape();
                 this.updateWarped();
+
+                this._changed(PaperNotify.ChangeFlag.GEOMETRY);
             }
         };
         this._upper.observe(boundsWatch);
         this._lower.observe(boundsWatch);
-
-//         source.observe(flags => {
-// console.warn(PaperNotify.describe(flags))
-//             if (flags & PaperNotify.ChangeFlag.GEOMETRY | PaperNotify.ChangeFlag.SEGMENTS) {
-//                 this.warp();
-//             }
-//         })
+        
+        //         source.observe(flags => {
+        // console.warn(PaperNotify.describe(flags))
+        //             if (flags & PaperNotify.ChangeFlag.GEOMETRY | PaperNotify.ChangeFlag.SEGMENTS) {
+        //                 this.warp();
+        //             }
+        //         })
     }
 
-    get upper(): paper.Path{
+    get upper(): paper.Path {
         return this._upper;
     }
-    
+
     get lower(): paper.Path {
         return this._lower;
     }
-    
+
     get source(): paper.CompoundPath {
         return <paper.CompoundPath>this._source.clone();
     }
-    
-    set source(value: paper.CompoundPath){
+
+    set source(value: paper.CompoundPath) {
         this._source = value;
         this.updateWarped();
     }
@@ -93,11 +95,11 @@ class DualBoundsPathWarp extends paper.Group {
     get customStyle(): SketchItemStyle {
         return this._customStyle;
     }
-    
-    set customStyle(value: SketchItemStyle){
+
+    set customStyle(value: SketchItemStyle) {
         this._customStyle = value;
         this._warped.style = value;
-        if(value.backgroundColor){
+        if (value.backgroundColor) {
             this._outline.fillColor = value.backgroundColor;
             this._outline.opacity = 1;
         } else {
@@ -115,7 +117,7 @@ class DualBoundsPathWarp extends paper.Group {
         let projection = PaperHelpers.dualBoundsPathProjection(
             this._upper, this._lower);
         let transform = new PathTransform(point => {
-            if(!point){
+            if (!point) {
                 return point;
             }
             let relative = point.subtract(orthOrigin);

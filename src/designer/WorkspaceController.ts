@@ -24,6 +24,7 @@ class WorkspaceController {
         const mouseTool = new MouseBehaviorTool(this.project);
         mouseTool.onToolMouseDown = ev => {
             this.channels.events.sketch.editingItemChanged.dispatch({});
+            this.channels.actions.sketch.setSelection.dispatch({});
         };
 
         let mouseZoom = new ViewZoom(this.project);
@@ -32,19 +33,19 @@ class WorkspaceController {
         mouseZoom.setZoomRange(
             [sheetBounds.scale(0.005).size, sheetBounds.scale(0.25).size]);
         mouseZoom.zoomTo(sheetBounds.scale(0.05));
-        
-        this.workspace.mouseBehavior.onClick = ev => {
-            this.channels.actions.sketch.setSelection.dispatch({});
-        }
 
         channels.events.sketch.loaded.subscribe(
             ev => {
                 this._sketch = ev.data;
+                this.project.clear();
+                this.project.deselectAll();
+
+                this.workspace = new Workspace(this.defaultSize);
                 this.workspace.backgroundColor = ev.data.attr.backgroundColor;
-                _.forOwn(this._textBlockItems, (block, id) => {
-                    block.remove();
-                });
                 this._textBlockItems = {};
+
+                this.workspace.removeChildren();
+                
             }
         );
 
@@ -80,12 +81,18 @@ class WorkspaceController {
         });
 
         channels.events.sketch.selectionChanged.subscribe(m => {
-            if (m.data && m.data.priorSelectionItemId) {
-                let prior = this._textBlockItems[m.data.priorSelectionItemId];
-                if (prior) {
-                    prior.selected = false;
-                }
+
+            if (!m.data || !m.data.itemId) {
+                this.project.deselectAll();
+                return;
             }
+            
+            // if (m.data.priorSelectionItemId) {
+            //     let prior = this._textBlockItems[m.data.priorSelectionItemId];
+            //     if (prior) {
+            //         prior.selected = false;
+            //     }
+            // }
 
             let item = m.data.itemId && this._textBlockItems[m.data.itemId];
             if (item) {
@@ -118,11 +125,39 @@ class WorkspaceController {
             return;
         }
 
-        item = new TextWarp(this.font, textBlock.text, textBlock.fontSize, {
-            fontSize: textBlock.fontSize,
-            fillColor: textBlock.textColor || "red",    // textColor should have been set elsewhere 
-            backgroundColor: textBlock.backgroundColor
-        });
+        let bounds: { upper: paper.Segment[], lower: paper.Segment[] };
+
+        if (textBlock.outline) {
+            const loadSegment = (record: SegmentRecord) => {
+                const point = record[0];
+                if(point instanceof Array){
+                    return new paper.Segment(
+                        new paper.Point(record[0]),
+                        record[1] && new paper.Point(record[1]),
+                        record[2] && new paper.Point(record[2]));
+                }
+                // Single-point segments are stored as number[2]
+                return new paper.Segment(new paper.Point(record));
+            };
+            bounds = {
+                upper: textBlock.outline.top.segments.map(loadSegment),
+                lower: textBlock.outline.bottom.segments.map(loadSegment)
+            };
+        }
+
+        item = new TextWarp(
+            this.font,
+            textBlock.text,
+            bounds,
+            textBlock.fontSize, {
+                fontSize: textBlock.fontSize,
+                fillColor: textBlock.textColor || "red",    // textColor should have been set elsewhere 
+                backgroundColor: textBlock.backgroundColor
+            });
+
+        if (!textBlock.outline && textBlock.position) {
+            item.position = new paper.Point(textBlock.position);
+        }
 
         // warning: MouseBehavior events are also set within StretchyPath. 
         //          Collision will happen eventuall.
@@ -166,7 +201,7 @@ class WorkspaceController {
         }
 
         item.observe(flags => {
-            if(flags & PaperNotify.ChangeFlag.GEOMETRY){
+            if (flags & PaperNotify.ChangeFlag.GEOMETRY) {
                 let block = <TextBlock>this.getBlockArrangement(item);
                 block._id = textBlock._id;
                 this.channels.actions.textBlock.updateArrange.dispatch(block);
@@ -184,8 +219,11 @@ class WorkspaceController {
     }
 
     private getBlockArrangement(item: TextWarp): BlockArrangement {
-        const top = item.upper.exportJSON({ asString: false });
-        const bottom = item.lower.exportJSON({ asString: false });
+        // export returns an array with item type and serialized object:
+        //   ["Path", { segments:[][] }]
+        const top = <PathRecord>item.upper.exportJSON({ asString: false })[1];
+        const bottom = <PathRecord>item.lower.exportJSON({ asString: false })[1];
+
         return {
             position: [item.position.x, item.position.y],
             outline: { top, bottom }

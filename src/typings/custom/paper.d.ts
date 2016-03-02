@@ -1385,13 +1385,13 @@ declare module paper {
          * @param options.asString - whether the JSON is returned as a Object or a String.
          * @param options.precision - the amount of fractional digits in numbers used in JSON data.
          */
-        exportJSON(options?: { asString?: boolean; precision?: number }): string;
+        exportJSON(options?: { asString?: boolean; precision?: number }): string|Object;
 
         /**
          * Imports (deserializes) the stored JSON data into the project.
          * Note that the project is not cleared first. You can call project.clear() to do so.
          */
-        importJSON(json: string): void;
+        importJSON(json: string|Object): void;
 
         /**
          * Exports the project with all its layers and child items as an SVG DOM, all contained in one top level SVG group node.

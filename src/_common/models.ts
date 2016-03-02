@@ -40,8 +40,8 @@ interface TextBlock extends BlockArrangement {
 interface BlockArrangement {
     position?: number[],
     outline?: {
-        top: any,
-        bottom: any
+        top: PathRecord,
+        bottom: PathRecord
     }    
 }
 
@@ -51,3 +51,14 @@ interface BackgroundActionStatus {
     error?: boolean
     message?: string;
 }
+
+interface PathRecord {
+    segments: SegmentRecord[];
+}
+
+/**
+ * Single-point segments are stored as number[2]
+ */
+type SegmentRecord = Array<PointRecord> | Array<number>;
+
+type PointRecord = Array<number>;

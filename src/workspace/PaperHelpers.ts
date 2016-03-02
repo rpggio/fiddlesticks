@@ -149,4 +149,8 @@ class PaperHelpers {
     static midpoint(a: paper.Point, b: paper.Point){
         return b.subtract(a).divide(2).add(a);
     }
+    
+    static cloneSegment(segment: paper.Segment){
+        return new paper.Segment(segment.point, segment.handleIn, segment.handleOut);
+    }
 }
