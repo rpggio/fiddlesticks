@@ -10,7 +10,7 @@ class SketchEditor extends Component<Sketch> {
         const sketchDom$ = channels.events.merge(
             channels.events.sketch.loaded, 
             channels.events.sketch.attrChanged)
-            .map(m => this.render(m.rootData.sketch));
+            .map(m => this.render(m.rootData.retained.sketch));
         ReactiveDom.renderStream(sketchDom$, container);
         
     }
@@ -71,11 +71,11 @@ class SketchEditor extends Component<Sketch> {
                         onClick: () => this.actions.sketch.create.dispatch()
                     },
                     { 
-                        content: "Save Local",
+                        content: "Load from Local",
                         attrs: {
-                            title: "Save to local browser storage"
+                            title: "Load from local browser storage"
                         },
-                        onClick: () => this.actions.designer.saveLocal.dispatch()
+                        onClick: () => this.actions.app.loadRetainedState.dispatch()
                     }
                 ]
             })

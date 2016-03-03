@@ -8,11 +8,7 @@ function bootstrap() {
     
     const sketchEditor = new SketchEditor(document.getElementById('designer'), channels);
     const selectedItemEditor = new SelectedItemEditor(document.getElementById("editorOverlay"), channels);
-    
-    const designerController = new DesignerController(channels, () => {
-        actions.sketch.create.dispatch();
-        actions.textBlock.add.dispatch({ text: "FIDDLESTICKS", textColor: "lightblue", fontSize: 128 });
-    });
+    const designerController = new DesignerController(channels);
     
     const appController = new AppController(channels, store, 
         sketchEditor, selectedItemEditor, designerController);

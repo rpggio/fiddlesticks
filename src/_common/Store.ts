@@ -7,13 +7,21 @@
  *   - Events channel to receive notification from the Store.
  * Only the Store can receive action messages.
  * Only the Store can send event messages.
+ * The Store cannot send actions or listen to events (to avoid loops).
  * Messages are to be considered immutable.
  * All mentions of the Store can be assumed to mean, of course,
  *   "The Store and its sub-components."
  */
 class Store {
 
-    retainedState = this.createRetainedState();
+    static AUTOSAVE_KEY = "Fiddlesticks.retainedState";
+
+    state: AppState = {
+        retained: {
+            sketch: this.createSketch()
+        },
+        disposable: {}
+    }
     channels: Channels;
 
     constructor(
@@ -22,37 +30,71 @@ class Store {
         this.channels = channels;
         const actions = channels.actions, events = channels.events;
 
-        // ----- Designer -----
+        // ----- App -----
 
-        actions.designer.saveLocal.subscribe(m => {
-            const json = JSON.stringify(this.retainedState);
-
-            this.retainedState = JSON.parse(json);
+        actions.app.loadRetainedState.subscribe(m => {
+            let success = false; 
             
-            events.sketch.loaded.dispatchContext(
-                this.retainedState, this.retainedState.sketch);
-            for(const tb of this.retainedState.sketch.textBlocks){
-                events.textblock.loaded.dispatchContext(
-                this.retainedState, tb);
+            if (!localStorage || !localStorage.getItem) {
+                // not supported
+                return;
             }
+
+            const saved = localStorage.getItem(Store.AUTOSAVE_KEY);
+            if (saved) {
+                const loaded = <RetainedState>JSON.parse(saved);
+                if (loaded && loaded.sketch && loaded.sketch.textBlocks) {
+                    // data seems legit
+                    this.state.retained = loaded;
+                    events.sketch.loaded.dispatchContext(
+                        this.state, this.state.retained.sketch);
+                    for (const tb of this.state.retained.sketch.textBlocks) {
+                        events.textblock.loaded.dispatchContext(
+                            this.state, tb);
+                    }
+                    success = true;
+                }
+            }
+            
+            events.app.retainedStateLoadAttemptComplete.dispatch(success);
         });
 
+        actions.app.saveRetainedState.subscribe(m => {
+            if (!localStorage || !localStorage.getItem) {
+                // not supported
+                return;
+            }
+
+            localStorage.setItem(Store.AUTOSAVE_KEY, JSON.stringify(this.state.retained));
+        });
+
+        actions.app.setFontsReady.subscribe(m => {
+            if (m.data !== this.state.disposable.fontsReady) {
+                this.state.disposable.fontsReady = m.data;
+                events.app.fontsReadyChanged.dispatchContext(this.state,
+                    this.state.disposable.fontsReady)
+            }
+
+        })
 
         // ----- Sketch -----
 
         actions.sketch.create
             .subscribe((m) => {
-                this.retainedState.sketch = this.createSketch();
+                this.state.retained.sketch = this.createSketch();
                 const attr = m.data || {};
                 attr.backgroundColor = attr.backgroundColor || '#f6f3eb';
-                this.retainedState.sketch.attr = attr;
-                events.sketch.loaded.dispatchContext(this.retainedState, this.retainedState.sketch);
+                this.state.retained.sketch.attr = attr;
+                events.sketch.loaded.dispatchContext(this.state, this.state.retained.sketch);
+                this.changedRetainedState();
             });
 
         actions.sketch.attrUpdate
             .subscribe(ev => {
-                this.assign(this.retainedState.sketch.attr, ev.data);
-                events.sketch.attrChanged.dispatchContext(this.retainedState, this.retainedState.sketch.attr);
+                this.assign(this.state.retained.sketch.attr, ev.data);
+                events.sketch.attrChanged.dispatchContext(this.state,
+                    this.state.retained.sketch.attr);
+                this.changedRetainedState();
             });
 
         actions.sketch.setEditingItem.subscribe(m => {
@@ -60,7 +102,7 @@ class Store {
                 throw `Unhandled type ${m.type}`;
             }
             const item = this.getBlock(m.data.itemId);
-            this.retainedState.sketch.editingItem = {
+            this.state.disposable.editingItem = {
                 itemId: m.data.itemId,
                 itemType: "TextBlock",
                 item: item,
@@ -68,28 +110,28 @@ class Store {
                 clientY: m.data.clientY
             };
             events.sketch.editingItemChanged.dispatchContext(
-                this.retainedState, this.retainedState.sketch.editingItem);
+                this.state, this.state.disposable.editingItem);
         });
 
         actions.sketch.setSelection.subscribe(m => {
             if (m.data.itemType && m.data.itemType !== "TextBlock") {
                 throw `Unhandled type ${m.type}`;
             }
-            
-            if((m.data && m.data.itemId) 
-                === (this.retainedState.sketch.selection && this.retainedState.sketch.selection.itemId)){
+
+            if ((m.data && m.data.itemId)
+                === (this.state.retained.sketch.selection && this.state.retained.sketch.selection.itemId)) {
                 // nothing to do
                 return;
             }
-            
-            this.retainedState.sketch.selection = <ItemSelection>{
+
+            this.state.retained.sketch.selection = <ItemSelection>{
                 itemId: m.data.itemId,
                 itemType: m.data.itemType,
-                priorSelectionItemId: this.retainedState.sketch.selection
-                && this.retainedState.sketch.selection.itemId
+                priorSelectionItemId: this.state.retained.sketch.selection
+                && this.state.retained.sketch.selection.itemId
             };
             events.sketch.selectionChanged.dispatchContext(
-                this.retainedState, this.retainedState.sketch.selection);
+                this.state, this.state.retained.sketch.selection);
         });
         
 
@@ -98,19 +140,20 @@ class Store {
         actions.textBlock.add
             .subscribe(ev => {
                 let patch = ev.data;
-                if(!patch.text || !patch.text.length){
+                if (!patch.text || !patch.text.length) {
                     return;
                 }
                 let block = { _id: newid() } as TextBlock;
                 this.assign(block, patch);
-                if(!block.fontSize){
+                if (!block.fontSize) {
                     block.fontSize = 64;
                 }
-                if(!block.textColor){
+                if (!block.textColor) {
                     block.textColor = "gray"
                 }
-                this.retainedState.sketch.textBlocks.push(block);
-                events.textblock.added.dispatchContext(this.retainedState, block);
+                this.state.retained.sketch.textBlocks.push(block);
+                events.textblock.added.dispatchContext(this.state, block);
+                this.changedRetainedState();
             });
 
         actions.textBlock.updateAttr
@@ -122,60 +165,61 @@ class Store {
                         backgroundColor: ev.data.backgroundColor,
                         textColor: ev.data.textColor,
                         font: ev.data.font,
-                        fontSize: ev.data.fontSize    
+                        fontSize: ev.data.fontSize
                     };
                     this.assign(block, patch);
-                    events.textblock.attrChanged.dispatchContext(this.retainedState, block);
+                    events.textblock.attrChanged.dispatchContext(this.state, block);
+                    this.changedRetainedState();
                 }
             });
 
         actions.textBlock.remove
             .subscribe(ev => {
                 let didDelete = false;
-                _.remove(this.retainedState.sketch.textBlocks, tb => {
+                _.remove(this.state.retained.sketch.textBlocks, tb => {
                     if (tb._id === ev.data._id) {
                         didDelete = true;
                         return true;
                     }
                 });
                 if (didDelete) {
-                    events.textblock.removed.dispatchContext(this.retainedState, { _id: ev.data._id });
-                    if (this.retainedState.sketch.editingItem.itemId == ev.data._id) {
-                        this.retainedState.sketch.editingItem = {};
-                        events.sketch.editingItemChanged.dispatch(this.retainedState.sketch.editingItem);
+                    events.textblock.removed.dispatchContext(this.state, { _id: ev.data._id });
+                    if (this.state.disposable.editingItem.itemId == ev.data._id) {
+                        this.state.disposable.editingItem = {};
+                        events.sketch.editingItemChanged.dispatch(this.state.disposable.editingItem);
                     }
+                    this.changedRetainedState();
                 }
             });
-            
+
         actions.textBlock.updateArrange
             .subscribe(ev => {
                 let block = this.getBlock(ev.data._id);
                 if (block) {
                     block.position = ev.data.position;
                     block.outline = ev.data.outline;
-                    events.textblock.arrangeChanged.dispatchContext(this.retainedState, block);
+                    events.textblock.arrangeChanged.dispatchContext(this.state, block);
+                    this.changedRetainedState();
                 }
             });
+    }
+
+    changedRetainedState() {
+        this.channels.events.app.retainedStateChanged.dispatch(this.state.retained);
     }
 
     assign<T>(dest: T, source: T) {
         _.merge(dest, source);
     }
 
-    createRetainedState() : AppState {
+    createSketch(): Sketch {
         return {
-            sketch: this.createSketch()
-        }
-    }
-
-    createSketch() : Sketch {
-        return {
-            attr: {}, 
-            textBlocks: <TextBlock[]>[] 
+            attr: {},
+            textBlocks: <TextBlock[]>[]
         };
     }
-    
-    private getBlock(id: string){
-        return _.find(this.retainedState.sketch.textBlocks, tb => tb._id === id);
+
+    private getBlock(id: string) {
+        return _.find(this.state.retained.sketch.textBlocks, tb => tb._id === id);
     }
 }

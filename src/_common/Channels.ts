@@ -1,8 +1,18 @@
 
 class Actions extends TypedChannel.Channel<void> {
     
-    designer = {
-        saveLocal: this.topic<void>("designer.savelocal"),
+    app = {
+        /**
+         * Instructs Store to load retained state from local storage, if it exists.
+         */
+        loadRetainedState: this.topic<void>("app.loadRetainedState"),
+        
+        /**
+         * Instructs Store to save retained state to local storage.
+         */
+        saveRetainedState: this.topic<void>("app.saveRetainedState"),
+        
+        setFontsReady: this.topic<boolean>("app.setFontsReady")
     };
     
     sketch = {
@@ -23,9 +33,15 @@ class Actions extends TypedChannel.Channel<void> {
 
 class Events extends TypedChannel.Channel<AppState> {
     
+    app = {
+        retainedStateLoadAttemptComplete: this.topic<boolean>("app.retainedStateLoadAttemptComplete"),
+        retainedStateChanged: this.topic<RetainedState>("app.retainedStateChanged"),
+        fontsReadyChanged: this.topic<boolean>("app.fontsReadyChanged")
+    }
+    
     designer = {
-        saveLocalRequested: this.topic<void>("savelocalRequested"),
-        backgroundActionCompleted: this.topic<BackgroundActionStatus>("backgroundActionCompleted"),
+        saveLocalRequested: this.topic<void>("designer.saveLocalRequested"),
+        backgroundActionCompleted: this.topic<BackgroundActionStatus>("designer.backgroundActionCompleted"),
     };
     
     sketch = {

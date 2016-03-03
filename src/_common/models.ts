@@ -1,13 +1,22 @@
 
 interface AppState {
+    retained: RetainedState;
+    disposable: DisposableState;
+}
+
+interface RetainedState {
     sketch: Sketch;
+}
+
+interface DisposableState {
+    editingItem?: PositionedItem;
+    fontsReady?: boolean;
 }
 
 interface Sketch {
     attr: SketchAttr;
     textBlocks: TextBlock[];
     selection?: ItemSelection;
-    editingItem?: PositionedItem;
 }
 
 interface SketchAttr {
