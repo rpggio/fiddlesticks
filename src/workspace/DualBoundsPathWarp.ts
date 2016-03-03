@@ -38,7 +38,10 @@ class DualBoundsPathWarp extends paper.Group {
             ]);
         }
 
-        this._outline = new paper.Path();
+        this._upper.visible = this.selected;
+        this._lower.visible = this.selected;
+
+        this._outline = new paper.Path({closed: true});
         this.updateOutlineShape();
 
         this._warped = new paper.CompoundPath(source.pathData);
@@ -67,12 +70,14 @@ class DualBoundsPathWarp extends paper.Group {
         this._upper.observe(boundsWatch);
         this._lower.observe(boundsWatch);
         
-        //         source.observe(flags => {
-        // console.warn(PaperNotify.describe(flags))
-        //             if (flags & PaperNotify.ChangeFlag.GEOMETRY | PaperNotify.ChangeFlag.SEGMENTS) {
-        //                 this.warp();
-        //             }
-        //         })
+        this.observe(flags => {
+           if(flags & PaperNotify.ChangeFlag.ATTRIBUTE){
+               if(this._upper.visible !== this.selected){
+                   this._upper.visible = this.selected;
+                   this._lower.visible = this.selected;
+               }
+           } 
+        });
     }
 
     get upper(): paper.Path {

@@ -1,7 +1,7 @@
 
 class PathHandle extends paper.Group {
 
-    static MARKER_RADIUS = 15;
+    static MARKER_RADIUS = 8;
 
     private _marker: paper.Shape;
     private _segment: paper.Segment;

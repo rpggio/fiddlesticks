@@ -26,7 +26,9 @@ class WorkspaceController {
         const mouseTool = new MouseBehaviorTool(this.project);
         mouseTool.onToolMouseDown = ev => {
             this.channels.events.sketch.editingItemChanged.dispatch({});
-            this.channels.actions.sketch.setSelection.dispatch({});
+            if(!ev.item || ev.item === this.workspace){
+                this.channels.actions.sketch.setSelection.dispatch({});
+            }
         };
 
         this.viewZoom = new ViewZoom(this.project);
