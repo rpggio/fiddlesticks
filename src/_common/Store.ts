@@ -1,29 +1,39 @@
 
+/**
+ * The singleton Store controls all application state.
+ * No parts outside of the Store modify application state.
+ * Communication with the Store is done through message Channels: 
+ *   - Actions channel to send into the Store,
+ *   - Events channel to receive notification from the Store.
+ * Only the Store can receive action messages.
+ * Only the Store can send event messages.
+ * Messages are to be considered immutable.
+ * All mentions of the Store can be assumed to mean, of course,
+ *   "The Store and its sub-components."
+ */
 class Store {
 
-    state = this.createAppState();
-    actions: Actions;
-    events: Events;
+    retainedState = this.createRetainedState();
+    channels: Channels;
 
     constructor(
-        actions: Actions,
-        events: Events) {
+        channels: Channels) {
 
-        this.actions = actions;
-        this.events = events;
+        this.channels = channels;
+        const actions = channels.actions, events = channels.events;
 
         // ----- Designer -----
 
         actions.designer.saveLocal.subscribe(m => {
-            const json = JSON.stringify(this.state);
+            const json = JSON.stringify(this.retainedState);
 
-            this.state = JSON.parse(json);
+            this.retainedState = JSON.parse(json);
             
-            this.events.sketch.loaded.dispatchContext(
-                this.state, this.state.sketch);
-            for(const tb of this.state.sketch.textBlocks){
-                this.events.textblock.loaded.dispatchContext(
-                this.state, tb);
+            events.sketch.loaded.dispatchContext(
+                this.retainedState, this.retainedState.sketch);
+            for(const tb of this.retainedState.sketch.textBlocks){
+                events.textblock.loaded.dispatchContext(
+                this.retainedState, tb);
             }
         });
 
@@ -32,17 +42,17 @@ class Store {
 
         actions.sketch.create
             .subscribe((m) => {
-                this.state.sketch = this.createSketch();
+                this.retainedState.sketch = this.createSketch();
                 const attr = m.data || {};
                 attr.backgroundColor = attr.backgroundColor || '#f6f3eb';
-                this.state.sketch.attr = attr;
-                this.events.sketch.loaded.dispatchContext(this.state, this.state.sketch);
+                this.retainedState.sketch.attr = attr;
+                events.sketch.loaded.dispatchContext(this.retainedState, this.retainedState.sketch);
             });
 
         actions.sketch.attrUpdate
             .subscribe(ev => {
-                this.assign(this.state.sketch.attr, ev.data);
-                this.events.sketch.attrChanged.dispatchContext(this.state, this.state.sketch.attr);
+                this.assign(this.retainedState.sketch.attr, ev.data);
+                events.sketch.attrChanged.dispatchContext(this.retainedState, this.retainedState.sketch.attr);
             });
 
         actions.sketch.setEditingItem.subscribe(m => {
@@ -50,7 +60,7 @@ class Store {
                 throw `Unhandled type ${m.type}`;
             }
             const item = this.getBlock(m.data.itemId);
-            this.state.sketch.editingItem = {
+            this.retainedState.sketch.editingItem = {
                 itemId: m.data.itemId,
                 itemType: "TextBlock",
                 item: item,
@@ -58,7 +68,7 @@ class Store {
                 clientY: m.data.clientY
             };
             events.sketch.editingItemChanged.dispatchContext(
-                this.state, this.state.sketch.editingItem);
+                this.retainedState, this.retainedState.sketch.editingItem);
         });
 
         actions.sketch.setSelection.subscribe(m => {
@@ -67,19 +77,19 @@ class Store {
             }
             
             if((m.data && m.data.itemId) 
-                === (this.state.sketch.selection && this.state.sketch.selection.itemId)){
+                === (this.retainedState.sketch.selection && this.retainedState.sketch.selection.itemId)){
                 // nothing to do
                 return;
             }
             
-            this.state.sketch.selection = <ItemSelection>{
+            this.retainedState.sketch.selection = <ItemSelection>{
                 itemId: m.data.itemId,
                 itemType: m.data.itemType,
-                priorSelectionItemId: this.state.sketch.selection
-                && this.state.sketch.selection.itemId
+                priorSelectionItemId: this.retainedState.sketch.selection
+                && this.retainedState.sketch.selection.itemId
             };
             events.sketch.selectionChanged.dispatchContext(
-                this.state, this.state.sketch.selection);
+                this.retainedState, this.retainedState.sketch.selection);
         });
         
 
@@ -99,8 +109,8 @@ class Store {
                 if(!block.textColor){
                     block.textColor = "gray"
                 }
-                this.state.sketch.textBlocks.push(block);
-                this.events.textblock.added.dispatchContext(this.state, block);
+                this.retainedState.sketch.textBlocks.push(block);
+                events.textblock.added.dispatchContext(this.retainedState, block);
             });
 
         actions.textBlock.updateAttr
@@ -115,24 +125,24 @@ class Store {
                         fontSize: ev.data.fontSize    
                     };
                     this.assign(block, patch);
-                    this.events.textblock.attrChanged.dispatchContext(this.state, block);
+                    events.textblock.attrChanged.dispatchContext(this.retainedState, block);
                 }
             });
 
         actions.textBlock.remove
             .subscribe(ev => {
                 let didDelete = false;
-                _.remove(this.state.sketch.textBlocks, tb => {
+                _.remove(this.retainedState.sketch.textBlocks, tb => {
                     if (tb._id === ev.data._id) {
                         didDelete = true;
                         return true;
                     }
                 });
                 if (didDelete) {
-                    this.events.textblock.removed.dispatchContext(this.state, { _id: ev.data._id });
-                    if (this.state.sketch.editingItem.itemId == ev.data._id) {
-                        this.state.sketch.editingItem = {};
-                        events.sketch.editingItemChanged.dispatch(this.state.sketch.editingItem);
+                    events.textblock.removed.dispatchContext(this.retainedState, { _id: ev.data._id });
+                    if (this.retainedState.sketch.editingItem.itemId == ev.data._id) {
+                        this.retainedState.sketch.editingItem = {};
+                        events.sketch.editingItemChanged.dispatch(this.retainedState.sketch.editingItem);
                     }
                 }
             });
@@ -143,7 +153,7 @@ class Store {
                 if (block) {
                     block.position = ev.data.position;
                     block.outline = ev.data.outline;
-                    events.textblock.arrangeChanged.dispatchContext(this.state, block);
+                    events.textblock.arrangeChanged.dispatchContext(this.retainedState, block);
                 }
             });
     }
@@ -152,7 +162,7 @@ class Store {
         _.merge(dest, source);
     }
 
-    createAppState() : AppState {
+    createRetainedState() : AppState {
         return {
             sketch: this.createSketch()
         }
@@ -166,6 +176,6 @@ class Store {
     }
     
     private getBlock(id: string){
-        return _.find(this.state.sketch.textBlocks, tb => tb._id === id);
+        return _.find(this.retainedState.sketch.textBlocks, tb => tb._id === id);
     }
 }
