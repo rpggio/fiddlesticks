@@ -28,24 +28,20 @@ class WorkspaceController {
         };
 
         let mouseZoom = new ViewZoom(this.project);
-        this.workspace = new Workspace(this.defaultSize);
-        let sheetBounds = this.workspace.sheet.bounds;
-        mouseZoom.setZoomRange(
-            [sheetBounds.scale(0.005).size, sheetBounds.scale(0.25).size]);
-        mouseZoom.zoomTo(sheetBounds.scale(0.05));
 
         channels.events.sketch.loaded.subscribe(
             ev => {
                 this._sketch = ev.data;
                 this.project.clear();
                 this.project.deselectAll();
+                this._textBlockItems = {};
 
                 this.workspace = new Workspace(this.defaultSize);
                 this.workspace.backgroundColor = ev.data.attr.backgroundColor;
-                this._textBlockItems = {};
-
-                this.workspace.removeChildren();
-                
+                let sheetBounds = this.workspace.sheet.bounds;
+                mouseZoom.setZoomRange(
+                    [sheetBounds.scale(0.005).size, sheetBounds.scale(0.25).size]);
+                mouseZoom.zoomTo(sheetBounds.scale(0.05));
             }
         );
 
