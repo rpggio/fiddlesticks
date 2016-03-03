@@ -563,17 +563,28 @@ declare module paper {
         modulo(number: number): Point;
 
     }
-    /**
-     * A Rectangle specifies an area that is enclosed by it's top-left point (x, y), its width, and its height. It should not be confused with a rectangular path, it is not an item.
-     */
-    export class Rectangle {
 
-        /**
+    interface SizeOperations<T> {
+        add(obj: T): T;
+        subtract(obj: T): T;
+        multiply(obj: T): T;
+        divide(obj: T): T;
+        modulo(obj: T): T;
+
+        add(number: number): T;
+        subtract(number: number): T;
+        multiply(number: number): T;
+        divide(number: number): T;
+        modulo(number: number): T;
+    }
+    
+    export var Rectangle: {
+       /**
          * Creates a Rectangle object.
          * @param point - the top-left point of the rectangle
          * @param size - the size of the rectangle
          */
-        constructor(point: Point, size: Size);
+        new(point: Point, size: Size): Rectangle;
 
         /**
          * Creates a rectangle object.
@@ -582,26 +593,67 @@ declare module paper {
          * @param width - the width
          * @param height - the height
          */
-        constructor(x: number, y: number, width: number, height: number);
+        new(x: number, y: number, width: number, height: number): Rectangle;
 
         /**
          * Creates a Rectangle object.
          * @param object - an object containing properties to be set on the rectangle.
          */
-        constructor(object: any);
+        new(object: any): Rectangle;
 
         /**
          * Creates a rectangle object from the passed points. These do not necessarily need to be the top left and bottom right corners, the constructor figures out how to fit a rectangle between them.
          * @param from - The first point defining the rectangle
          * @param to - The second point defining the rectangle
          */
-        constructor(from: Point, to: Point);
+        new(from: Point, to: Point): Rectangle;
 
         /**
          * Creates a new rectangle object from the passed rectangle object.
          * @param rt - the rectangle to copy from
          */
-        constructor(rt: Rectangle);
+        new(rt: Rectangle): Rectangle;
+    }
+    
+    /**
+     * A Rectangle specifies an area that is enclosed by it's top-left point (x, y), its width, and its height. It should not be confused with a rectangular path, it is not an item.
+     */
+    export interface Rectangle {
+
+        // /**
+        //  * Creates a Rectangle object.
+        //  * @param point - the top-left point of the rectangle
+        //  * @param size - the size of the rectangle
+        //  */
+        // constructor(point: Point, size: Size);
+
+        // /**
+        //  * Creates a rectangle object.
+        //  * @param x - the left coordinate
+        //  * @param y - the top coordinate
+        //  * @param width - the width
+        //  * @param height - the height
+        //  */
+        // constructor(x: number, y: number, width: number, height: number);
+
+        // /**
+        //  * Creates a Rectangle object.
+        //  * @param object - an object containing properties to be set on the rectangle.
+        //  */
+        // constructor(object: any);
+
+        // /**
+        //  * Creates a rectangle object from the passed points. These do not necessarily need to be the top left and bottom right corners, the constructor figures out how to fit a rectangle between them.
+        //  * @param from - The first point defining the rectangle
+        //  * @param to - The second point defining the rectangle
+        //  */
+        // constructor(from: Point, to: Point);
+
+        // /**
+        //  * Creates a new rectangle object from the passed rectangle object.
+        //  * @param rt - the rectangle to copy from
+        //  */
+        // constructor(rt: Rectangle);
 
         /**
          * The x position of the rectangle.
@@ -796,60 +848,114 @@ declare module paper {
         scale(hor: number, ver: number): Rectangle;
 
     }
-    /**
-     * The Size object is used to describe the size or dimensions of something, through its width and height properties.
-     */
-    export class Size {
-
+    
+    export var Size: {
+        
         /**
          * Returns a new size object with the smallest width and height of the supplied sizes.
          * @param size1 - the first size
          * @param size2 - the second size
          */
-        static min(size1: Size, size2: Size): Size;
+        min(size1: Size, size2: Size): Size;
 
         /**
          * Returns a new size object with the largest width and height of the supplied sizes.
          * @param size1 - the first size
          * @param size2 - the second size
          */
-        static max(size1: Size, size2: Size): Size;
+        max(size1: Size, size2: Size): Size;
 
         /**
          * Returns a size object with random width and height values between 0 and 1.
          */
-        static random(): Size;
-
+        random(): Size;
+        
         /**
          * Creates a Size object with the given width and height values.
          * @param width - the width
          * @param height - the height
          */
-        constructor(width: number, height: number);
+        new(width: number, height: number): Size;
 
         /**
          * Creates a Size object using the numbers in the given array as dimensions.
          * @param array - an array of numbers
          */
-        constructor(array: number[]);
+        new(array: number[]): Size;
 
         /**
          * Creates a Size object using the properties in the given object.
          * @param object - the object literal containing properies (width:10, height:10 etc)
          */
-        constructor(object: any);
+        new(object: any): Size;
 
         /**
          * Creates a Size object using the coordinates of the given Size object.
          * @param size - the size to duplicate from
          */
-        constructor(size: Size);
+        new(size: Size): Size;
 
         /**
          * Creates a Size object using the point.x and point.y values of the given Point object.
          * @param point - the point from which to create a size
          */
-        constructor(point: Point);
+        new(point: Point): Size;
+    };
+    
+    /**
+     * The Size object is used to describe the size or dimensions of something, through its width and height properties.
+     */
+    export interface Size extends SizeOperations<Size> {
+
+        // /**
+        //  * Returns a new size object with the smallest width and height of the supplied sizes.
+        //  * @param size1 - the first size
+        //  * @param size2 - the second size
+        //  */
+        // static min(size1: Size, size2: Size): Size;
+
+        // /**
+        //  * Returns a new size object with the largest width and height of the supplied sizes.
+        //  * @param size1 - the first size
+        //  * @param size2 - the second size
+        //  */
+        // static max(size1: Size, size2: Size): Size;
+
+        // /**
+        //  * Returns a size object with random width and height values between 0 and 1.
+        //  */
+        // static random(): Size;
+
+        // /**
+        //  * Creates a Size object with the given width and height values.
+        //  * @param width - the width
+        //  * @param height - the height
+        //  */
+        // constructor(width: number, height: number);
+
+        // /**
+        //  * Creates a Size object using the numbers in the given array as dimensions.
+        //  * @param array - an array of numbers
+        //  */
+        // constructor(array: number[]);
+
+        // /**
+        //  * Creates a Size object using the properties in the given object.
+        //  * @param object - the object literal containing properies (width:10, height:10 etc)
+        //  */
+        // constructor(object: any);
+
+        // /**
+        //  * Creates a Size object using the coordinates of the given Size object.
+        //  * @param size - the size to duplicate from
+        //  */
+        // constructor(size: Size);
+
+        // /**
+        //  * Creates a Size object using the point.x and point.y values of the given Point object.
+        //  * @param point - the point from which to create a size
+        //  */
+        // constructor(point: Point);
 
         /**
          * The width of the size

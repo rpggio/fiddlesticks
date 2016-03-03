@@ -2,11 +2,13 @@
 class WorkspaceController {
 
     defaultSize = new paper.Size(50000, 40000);
+    defaultScale = 0.02;
 
     canvas: HTMLCanvasElement;
     workspace: Workspace;
     project: paper.Project;
     font: opentype.Font;
+    viewZoom: ViewZoom;
 
     private channels: Channels;
     private _sketch: Sketch;
@@ -27,7 +29,7 @@ class WorkspaceController {
             this.channels.actions.sketch.setSelection.dispatch({});
         };
 
-        let mouseZoom = new ViewZoom(this.project);
+        this.viewZoom = new ViewZoom(this.project);
 
         channels.events.sketch.loaded.subscribe(
             ev => {
@@ -37,11 +39,12 @@ class WorkspaceController {
                 this._textBlockItems = {};
 
                 this.workspace = new Workspace(this.defaultSize);
+                this.workspace.bounds.center = new paper.Point(0,0);
                 this.workspace.backgroundColor = ev.data.attr.backgroundColor;
+
                 let sheetBounds = this.workspace.sheet.bounds;
-                mouseZoom.setZoomRange(
+                this.viewZoom.setZoomRange(
                     [sheetBounds.scale(0.005).size, sheetBounds.scale(0.25).size]);
-                mouseZoom.zoomTo(sheetBounds.scale(0.05));
             }
         );
 
@@ -96,14 +99,25 @@ class WorkspaceController {
             }
         });
 
-        channels.events.designer.saveLocalRequested.subscribe(m => {
-            _.forOwn(this._textBlockItems, tbi => {
-                const doc = this.project.exportJSON(false);
-                console.log(doc);
-
-            });
-
+        channels.events.designer.zoomToFitRequested.subscribe(() => {
+            this.zoomToFit();
         });
+    }
+
+    zoomToFit() {
+        let bounds: paper.Rectangle;
+        _.forOwn(this._textBlockItems, (item) => {
+            bounds = bounds
+                ? bounds.unite(item.bounds)
+                : item.bounds;
+        });
+
+        if (!bounds) {
+            bounds = new paper.Rectangle(new paper.Point(0, 0),
+                this.defaultSize.multiply(this.defaultScale));
+        }
+
+        this.viewZoom.zoomTo(bounds.scale(1.05));
     }
 
     addBlock(textBlock: TextBlock) {
@@ -126,7 +140,7 @@ class WorkspaceController {
         if (textBlock.outline) {
             const loadSegment = (record: SegmentRecord) => {
                 const point = record[0];
-                if(point instanceof Array){
+                if (point instanceof Array) {
                     return new paper.Segment(
                         new paper.Point(record[0]),
                         record[1] && new paper.Point(record[1]),

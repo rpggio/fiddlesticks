@@ -15,6 +15,10 @@ class Actions extends TypedChannel.Channel<void> {
         setFontsReady: this.topic<boolean>("app.setFontsReady")
     };
     
+    designer = {
+        zoomToFit: this.topic<ItemSelection>("designer.zoomToFit")
+    }
+    
     sketch = {
         create: this.topic<SketchAttr>("sketch.create"),
         attrUpdate: this.topic<SketchAttr>("sketch.attrupdate"),
@@ -24,8 +28,8 @@ class Actions extends TypedChannel.Channel<void> {
     
     textBlock = {
         add: this.topic<TextBlock>("textblock.add"),
-        updateAttr: this.topic<TextBlock>("textblock.updateattr"),
-        updateArrange: this.topic<TextBlock>("textblock.updatearrange"),
+        updateAttr: this.topic<TextBlock>("textblock.updateAttr"),
+        updateArrange: this.topic<TextBlock>("textblock.updateArrange"),
         remove: this.topic<TextBlock>("textblock.remove")
     };
     
@@ -40,16 +44,15 @@ class Events extends TypedChannel.Channel<AppState> {
     }
     
     designer = {
-        saveLocalRequested: this.topic<void>("designer.saveLocalRequested"),
-        backgroundActionCompleted: this.topic<BackgroundActionStatus>("designer.backgroundActionCompleted"),
+        zoomToFitRequested: this.topic<void>("designer.zoomToFitRequested")
     };
     
     sketch = {
         loaded: this.topic<Sketch>("sketch.loaded"),
-        attrChanged: this.topic<SketchAttr>("sketch.attrchanged"),
-        editingItemChanged: this.topic<PositionedItem>("sketch.editingitemchanged"),
-        selectionChanged: this.topic<ItemSelection>("sketch.selectionchanged"),
-        saveLocalRequested: this.topic<ItemSelection>("sketch.savelocal.requested")
+        attrChanged: this.topic<SketchAttr>("sketch.attrChanged"),
+        editingItemChanged: this.topic<PositionedItem>("sketch.editingItemChanged"),
+        selectionChanged: this.topic<ItemSelection>("sketch.selectionChanged"),
+        saveLocalRequested: this.topic<ItemSelection>("sketch.savelocal.saveLocalRequested")
     };
     
     textblock = {

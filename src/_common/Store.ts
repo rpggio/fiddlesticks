@@ -8,7 +8,7 @@
  * Only the Store can receive action messages.
  * Only the Store can send event messages.
  * The Store cannot send actions or listen to events (to avoid loops).
- * Messages are to be considered immutable.
+ * Messages are to be treated as immutable.
  * All mentions of the Store can be assumed to mean, of course,
  *   "The Store and its sub-components."
  */
@@ -24,8 +24,7 @@ class Store {
     }
     channels: Channels;
 
-    constructor(
-        channels: Channels) {
+    constructor(channels: Channels) {
 
         this.channels = channels;
         const actions = channels.actions, events = channels.events;
@@ -52,6 +51,7 @@ class Store {
                         events.textblock.loaded.dispatchContext(
                             this.state, tb);
                     }
+                    events.designer.zoomToFitRequested.dispatch();
                     success = true;
                 }
             }
@@ -77,6 +77,12 @@ class Store {
 
         })
 
+        // ----- Designer -----
+        
+        actions.designer.zoomToFit.subscribe(m => {
+            events.designer.zoomToFitRequested.dispatch(null);
+        })
+        
         // ----- Sketch -----
 
         actions.sketch.create
@@ -86,6 +92,7 @@ class Store {
                 attr.backgroundColor = attr.backgroundColor || '#f6f3eb';
                 this.state.retained.sketch.attr = attr;
                 events.sketch.loaded.dispatchContext(this.state, this.state.retained.sketch);
+                events.designer.zoomToFitRequested.dispatchContext(this.state);
                 this.changedRetainedState();
             });
 
@@ -146,7 +153,7 @@ class Store {
                 let block = { _id: newid() } as TextBlock;
                 this.assign(block, patch);
                 if (!block.fontSize) {
-                    block.fontSize = 64;
+                    block.fontSize = 128;
                 }
                 if (!block.textColor) {
                     block.textColor = "gray"

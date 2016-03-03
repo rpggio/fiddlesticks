@@ -96,7 +96,7 @@ class ViewZoom {
         let view = this.project.view;
         view.center = rect.center;
         view.zoom = Math.min( 
-            view.bounds.height / rect.height,         
-            view.bounds.width / rect.width) * 0.95;
+            view.viewSize.height / rect.height, 
+            view.viewSize.width / rect.width);
     }
 }

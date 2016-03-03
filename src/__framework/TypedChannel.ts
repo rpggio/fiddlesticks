@@ -36,7 +36,7 @@ namespace TypedChannel {
             });
         }
 
-        dispatchContext(context: TContextData, data: TData) {
+        dispatchContext(context: TContextData, data?: TData) {
             this.channel.onNext({
                 type: this.type,
                 rootData: context,

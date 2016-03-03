@@ -70,12 +70,19 @@ class SketchEditor extends Component<Sketch> {
                         },
                         onClick: () => this.actions.sketch.create.dispatch()
                     },
+                    // { 
+                    //     content: "Load from local",
+                    //     attrs: {
+                    //         title: "Load from local browser storage"
+                    //     },
+                    //     onClick: () => this.actions.app.loadRetainedState.dispatch()
+                    // },
                     { 
-                        content: "Load from Local",
+                        content: "Zoom to fit",
                         attrs: {
-                            title: "Load from local browser storage"
+                            title: "Fit sketch contents in view"
                         },
-                        onClick: () => this.actions.app.loadRetainedState.dispatch()
+                        onClick: () => this.actions.designer.zoomToFit.dispatch()
                     }
                 ]
             })
