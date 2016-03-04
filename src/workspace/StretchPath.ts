@@ -1,51 +1,60 @@
 
-class StretchPath extends paper.Path {
+class StretchPath extends paper.Group {
 
-    private _handles: PathHandle[] = [];
+    private _path: paper.Path;
+    private _pathChanged = new ObservableEvent<paper.Path>();
 
     constructor(segments: paper.Segment[], style?: paper.Style) {
-        super(segments);
+        super();
+
+        this._path = new paper.Path(segments);
+        this.addChild(this._path);
 
         if(style){
-            this.style = style;
+            this._path.style = style;
         } else {
-            this.strokeColor = "lightgray";
-            this.strokeWidth = 6;
+            this._path.strokeColor = "lightgray";
+            this._path.strokeWidth = 6;
         }
         
-        for(const s of this.segments){
+        for(const s of this._path.segments){
             this.addSegmentHandle(s);
         }
         
-        for(const c of this.curves){
+        for(const c of this._path.curves){
             this.addCurveHandle(c);
         }
-        
-        this.observe(flags => {
-           if(flags & PaperNotify.ChangeFlag.ATTRIBUTE){
-               if(this._handles[0].visible != this.visible)
-               for(const h of this._handles){
-                   h.visible = this.visible;
-               }
-           } 
-        });
+    }
+    
+    get path(): paper.Path {
+        return this._path;
+    }
+    
+    get pathChanged() {
+        return this._pathChanged;
     }
     
     private addSegmentHandle(segment: paper.Segment){
-        let handle = new PathHandle(segment);
-        handle.visible = this.visible;
-        this._handles.push(handle);
-        this.addChild(handle);
+        this.addHandle(new PathHandle(segment));
     }
     
     private addCurveHandle(curve: paper.Curve){
         let handle = new PathHandle(curve);
-        handle.visible = this.visible;
         handle.curveSplit.subscribeOne(curveIdx => {
-            this.addCurveHandle(this.curves[curveIdx]);
-            this.addCurveHandle(this.curves[curveIdx + 1]);
+            this.addCurveHandle(this._path.curves[curveIdx]);
+            this.addCurveHandle(this._path.curves[curveIdx + 1]);
         });
-        this._handles.push(handle);
-        this.addChild(handle);
+        this.addHandle(handle);
+    }
+    
+    private addHandle(handle: PathHandle){
+        handle.visible = this.visible;
+        handle.on(PaperHelpers.EventType.smartDragMove, ev => {
+           this._pathChanged.notify(this._path); 
+        });
+        handle.on(PaperHelpers.EventType.clickWithoutDrag, ev => {
+           this._pathChanged.notify(this._path); 
+        })
+        this.addChild(handle);        
     }
 }

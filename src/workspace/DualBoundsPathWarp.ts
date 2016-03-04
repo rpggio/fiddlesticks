@@ -39,7 +39,7 @@ class DualBoundsPathWarp extends paper.Group {
         this._upper.visible = this.selected;
         this._lower.visible = this.selected;
 
-        this._outline = new paper.Path({closed: true});
+        this._outline = new paper.Path({ closed: true });
         this.updateOutlineShape();
 
         this._warped = new paper.CompoundPath(source.pathData);
@@ -59,34 +59,31 @@ class DualBoundsPathWarp extends paper.Group {
 
         // -- set up observers --
 
-        const boundsWatch = (flags: PaperNotify.ChangeFlag) => {
-            if (flags & PaperNotify.ChangeFlag.SEGMENTS) {
-                this.updateOutlineShape();
-                this.updateWarped();
-
-                this._changed(PaperNotify.ChangeFlag.GEOMETRY);
-            }
+        const handlePathChange = (path: paper.Path) => {
+            this.updateOutlineShape();
+            this.updateWarped();
+            this._changed(PaperNotify.ChangeFlag.GEOMETRY);
         };
-        this._upper.observe(boundsWatch);
-        this._lower.observe(boundsWatch);
-        
+        this._upper.pathChanged.subscribe(handlePathChange);
+        this._lower.pathChanged.subscribe(handlePathChange);
+
         this.observe(flags => {
-           if(flags & PaperNotify.ChangeFlag.ATTRIBUTE){
-               if(this._upper.visible !== this.selected){
-                   this._upper.visible = this.selected;
-                   this._lower.visible = this.selected;
-               }
-           } 
+            if (flags & PaperNotify.ChangeFlag.ATTRIBUTE) {
+                if (this._upper.visible !== this.selected) {
+                    this._upper.visible = this.selected;
+                    this._lower.visible = this.selected;
+                }
+            }
         });
-        
+
     }
 
     get upper(): paper.Path {
-        return this._upper;
+        return this._upper.path;
     }
 
     get lower(): paper.Path {
-        return this._lower;
+        return this._lower.path;
     }
 
     get source(): paper.CompoundPath {
@@ -115,13 +112,12 @@ class DualBoundsPathWarp extends paper.Group {
     }
 
     private updateWarped() {
-        console.warn("warp");
         let orthOrigin = this._source.bounds.topLeft;
         let orthWidth = this._source.bounds.width;
         let orthHeight = this._source.bounds.height;
 
         let projection = PaperHelpers.dualBoundsPathProjection(
-            this._upper, this._lower);
+            this._upper.path, this._lower.path);
         let transform = new PathTransform(point => {
             if (!point) {
                 return point;
@@ -153,9 +149,9 @@ class DualBoundsPathWarp extends paper.Group {
     }
 
     private updateOutlineShape() {
-        const lower = new paper.Path(this._lower.segments);
+        const lower = new paper.Path(this._lower.path.segments);
         lower.reverse();
-        this._outline.segments = this._upper.segments.concat(lower.segments);
+        this._outline.segments = this._upper.path.segments.concat(lower.segments);
         lower.remove();
     }
 

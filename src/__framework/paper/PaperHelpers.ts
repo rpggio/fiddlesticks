@@ -161,25 +161,37 @@ namespace PaperHelpers {
         item.isSmartDraggable = true;
 
         item.on(paper.EventType.mouseDrag, ev => {
+            if (ev.smartDragItem) {
+                console.warn("Will not assign smartDragItem: value was already " + ev.smartDragItem);
+            } else {
+                ev.smartDragItem = item;
+            }
+
             if (!item.isSmartDragging) {
                 item.isSmartDragging = true;
                 item.emit(EventType.smartDragStart, ev);
             }
-            
+
             item.position = item.position.add(ev.delta);
             ev.stop();
-            
-            item.emit(EventType.smartDragMove, ev); 
+
+            item.emit(EventType.smartDragMove, ev);
         });
 
         item.on(paper.EventType.mouseUp, ev => {
+            if (ev.smartDragItem) {
+                console.warn("Will not assign smartDragItem: value was already " + ev.smartDragItem);
+            } else {
+                ev.smartDragItem = item;
+            }
+            
             if (item.isSmartDragging) {
                 item.isSmartDragging = false;
-                if(item.emit(EventType.smartDragEnd, ev)){
+                if (item.emit(EventType.smartDragEnd, ev)) {
                     ev.stop();
                 }
             } else {
-                if(item.emit(EventType.clickWithoutDrag, ev)){
+                if (item.emit(EventType.clickWithoutDrag, ev)) {
                     ev.stop();
                 }
             }
@@ -222,5 +234,9 @@ declare module paper {
          * Dragging behavior added by PaperHelpers: is the item draggable?
          */
         isSmartDraggable: boolean;
+    }
+
+    export interface ToolEvent {
+        smartDragItem: Item;
     }
 }

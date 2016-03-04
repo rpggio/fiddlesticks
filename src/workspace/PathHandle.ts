@@ -9,7 +9,7 @@ class PathHandle extends paper.Group {
     private _curve: paper.Curve;
     private _smoothed: boolean;
     private _curveSplit = new ObservableEvent<number>();
-    private _unSub: () => void;
+    private _curveChangeUnsub: () => void;
     private dragging;
 
     constructor(attach: paper.Segment | paper.Curve) {
@@ -45,9 +45,9 @@ class PathHandle extends paper.Group {
         this.on(PaperHelpers.EventType.smartDragStart, ev => {
             if (this._curve) {
                 // split the curve, pupate to segment handle
-                    
-                //this._unSub();
-                this._segment = new paper.Segment(this.position);
+                
+                this._curveChangeUnsub();    
+                this._segment = new paper.Segment(this.center);
                 const curveIdx = this._curve.index;
                 this._curve.path.insert(
                     curveIdx + 1,
@@ -61,7 +61,7 @@ class PathHandle extends paper.Group {
 
         this.on(PaperHelpers.EventType.smartDragMove, ev => {
             if (this._segment) {
-                this._segment.point = this.position;
+                this._segment.point = this.center;
                 if (this._smoothed) {
                     this._segment.smooth();
                 }
@@ -74,13 +74,10 @@ class PathHandle extends paper.Group {
             }
         });
 
-        this._unSub = path.observe(flags => {
-            if (flags & PaperNotify.ChangeFlag.GEOMETRY) {
-                if (this._segment) {
-                    this.center = this._segment.point;
-                } else if (this._curve) {
-                    this.center = this._curve.getPointAt(this._curve.length * 0.5);
-                }
+        this._curveChangeUnsub = path.observe(flags => {
+            if (this._curve && !this._segment 
+                && (flags & PaperNotify.ChangeFlag.SEGMENTS)) {
+                this.center = this._curve.getPointAt(this._curve.length * 0.5);
             }
         });
 
