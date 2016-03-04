@@ -4,9 +4,11 @@ class Workspace extends paper.Group {
     defaultBackgroundColor = '#fdfdfd';
 
     sheet: paper.Shape;
-    
+
     constructor(size: paper.Size) {
         super();
+        
+        this.mouseBehavior = {};
 
         let sheet = paper.Shape.Rectangle(
             new paper.Point(0, 0), size);
@@ -17,15 +19,8 @@ class Workspace extends paper.Group {
         this.addChild(sheet);
 
         this.sheet.fillColor = this.defaultBackgroundColor;
-
-        this.mouseBehavior = <MouseBehavior>{
-            // onClick: e => {
-            //     paper.project.deselectAll();
-            // },
-            onDragMove: e => this.position = this.position.add(e.delta)
-        }
     }
-    
+
     get backgroundColor(): string {
         return this.sheet.fillColor.toString();
     }
@@ -39,5 +34,5 @@ class Workspace extends paper.Group {
             ? "lightgray"
             : null;
     }
-  
+
 }

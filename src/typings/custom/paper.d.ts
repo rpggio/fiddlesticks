@@ -1355,44 +1355,44 @@ declare module paper {
         /**
          * The function to be called when the mouse button is pushed down on the item. The function receives a MouseEvent object which contains information about the mouse event.
          */
-        onMouseDown: (event: MouseEvent) => void;
+        onMouseDown: (event: PaperMouseEvent) => void;
 
         /**
          * The function to be called when the mouse is dragged. The function receives a MouseEvent object which contains information about the mouse event.
          */
-        onMouseDrag: (event: MouseEvent) => void;
+        onMouseDrag: (event: PaperMouseEvent) => void;
 
         /**
          * The function to be called when the mouse button is released over the item.
          * The function receives a MouseEvent object which contains information about the mouse event.
          */
-        onMouseUp: (event: MouseEvent) => void;
+        onMouseUp: (event: PaperMouseEvent) => void;
 
         /**
          * The function to be called when the mouse clicks on the item. The function receives a MouseEvent object which contains information about the mouse event.
          */
-        onClick: (event: MouseEvent) => void;
+        onClick: (event: PaperMouseEvent) => void;
 
         /**
          * The function to be called when the mouse double clicks on the item. The function receives a MouseEvent object which contains information about the mouse event.
          */
-        onDoubleClick: (event: MouseToolEvent) => void;
+        onDoubleClick: (event: PaperMouseEvent) => void;
 
         /**
          * The function to be called repeatedly when the mouse moves on top of the item. The function receives a MouseEvent object which contains information about the mouse event.
          */
-        onMouseMove: (event: MouseEvent) => void;
+        onMouseMove: (event: PaperMouseEvent) => void;
 
         /**
          * The function to be called when the mouse moves over the item. This function will only be called again, once the mouse moved outside of the item first. The function receives a MouseEvent object which contains information about the mouse event.
          */
-        onMouseEnter: (event: MouseEvent) => void;
+        onMouseEnter: (event: PaperMouseEvent) => void;
 
         /**
          * The function to be called when the mouse moves out of the item.
          * The function receives a MouseEvent object which contains information about the mouse event.
          */
-        onMouseLeave: (event: MouseEvent) => void;
+        onMouseLeave: (event: PaperMouseEvent) => void;
 
         /**
          * Sets those properties of the passed object literal on this item to the values defined in the object literal, if the item has property of the given name (or a setter defined for it).
@@ -4106,24 +4106,33 @@ declare module paper {
         responds(type: string): boolean;
 
     }
-    export class Event {
+    
+    export interface Event {
+
+        timeStamp: number;
 
         /**
          * Read Only
          */
         modifiers: any;
 
+        preventDefault()
+        stopPropagation()
+        stop()
+
     }
     
-    /** rs */
-    export class MouseToolEvent extends Event {
+    export interface PaperMouseEvent extends Event {
         
         type: string;
-        event: MouseEvent;
         point: Point;
         target: Item;
         delta: Point;
         
+        /**
+         * Native event.
+         */
+        event: MouseEvent;
     }
     
     /**
@@ -4171,6 +4180,9 @@ declare module paper {
          * The item at the position of the mouse (if any). If the item is contained within one or more Group or CompoundPath items, the most top level group or compound path that it is contained within is returned.
          */
         item: Item;
+
+
+        event: MouseEvent;
 
         /**
          * a string representation of the tool event

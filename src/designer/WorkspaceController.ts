@@ -24,12 +24,6 @@ class WorkspaceController {
         this.project = paper.project;
 
         const mouseTool = new MouseBehaviorTool(this.project);
-        mouseTool.onToolMouseDown = ev => {
-            this.channels.events.sketch.editingItemChanged.dispatch({});
-            if(!ev.item || ev.item === this.workspace){
-                this.channels.actions.sketch.setSelection.dispatch({});
-            }
-        };
 
         this.viewZoom = new ViewZoom(this.project);
 
@@ -40,9 +34,30 @@ class WorkspaceController {
                 this.project.deselectAll();
                 this._textBlockItems = {};
 
+                if(this.workspace){
+                    this.workspace.mouseBehavior = null;
+                    this.workspace.onClick = null;
+                }
+
                 this.workspace = new Workspace(this.defaultSize);
-                this.workspace.bounds.center = new paper.Point(0,0);
+                this.workspace.bounds.center = new paper.Point(0, 0);
                 this.workspace.backgroundColor = ev.data.attr.backgroundColor;
+
+                // -- Wire up workspace events. --
+
+                this.workspace.onClick = ev => {
+                    this.channels.actions.sketch.setSelection.dispatch({});
+                };
+                
+                // Paperjs does not include dragStart event. 
+                this.workspace.mouseBehavior.onDragStart = ev => {
+                    this.channels.actions.sketch.setSelection.dispatch({});
+                }
+
+                // Paperjs loses its drag target if mouse passes over a different element.
+                this.workspace.mouseBehavior.onDragMove = ev => { 
+                    this.workspace.position = this.workspace.position.add(ev.delta);
+                }
 
                 let sheetBounds = this.workspace.sheet.bounds;
                 this.viewZoom.setZoomRange(
@@ -82,21 +97,16 @@ class WorkspaceController {
         });
 
         channels.events.sketch.selectionChanged.subscribe(m => {
-
             if (!m.data || !m.data.itemId) {
                 this.project.deselectAll();
+                this.channels.events.sketch.editingItemChanged.dispatch({});
                 return;
             }
             
-            // if (m.data.priorSelectionItemId) {
-            //     let prior = this._textBlockItems[m.data.priorSelectionItemId];
-            //     if (prior) {
-            //         prior.selected = false;
-            //     }
-            // }
-
             let item = m.data.itemId && this._textBlockItems[m.data.itemId];
-            if (item) {
+            if (item && !item.selected) {
+                this.project.deselectAll();
+                this.channels.events.sketch.editingItemChanged.dispatch({});
                 item.selected = true;
             }
         });
@@ -171,27 +181,27 @@ class WorkspaceController {
             item.position = new paper.Point(textBlock.position);
         }
 
-        // warning: MouseBehavior events are also set within StretchyPath. 
-        //          Collision will happen eventuall.
-        // todo: Fix drag handler in paper.js so it doesn't fire click.
-        //       Then we can use the item.click event.
-        item.mouseBehavior.onClick = ev => {
+        item.onClick = ev => {
             item.bringToFront();
-            const editorAt = this.project.view.projectToView(
-                PaperHelpers.midpoint(item.bounds.topLeft, item.bounds.center));
-            // select
-            if (!item.selected) {
+            if (item.selected) {
+                // edit
+                const editorAt = this.project.view.projectToView(
+                    PaperHelpers.midpoint(item.bounds.topLeft, item.bounds.center));
+                this.channels.actions.sketch.setEditingItem.dispatch(
+                    {
+                        itemId: textBlock._id,
+                        itemType: "TextBlock",
+                        clientX: editorAt.x,
+                        clientY: editorAt.y
+                    });
+            } else {
+                // select
                 this.channels.actions.sketch.setSelection.dispatch(
                     { itemId: textBlock._id, itemType: "TextBlock" });
             }
-            // edit
-            this.channels.actions.sketch.setEditingItem.dispatch(
-                {
-                    itemId: textBlock._id,
-                    itemType: "TextBlock",
-                    clientX: editorAt.x,
-                    clientY: editorAt.y
-                });
+            
+            ev.stopPropagation();
+            ev.preventDefault();
         };
 
         item.mouseBehavior.onDragStart = ev => {
