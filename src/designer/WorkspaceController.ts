@@ -44,7 +44,7 @@ class WorkspaceController {
                 this.workspace.bounds.center = new paper.Point(0, 0);
                 this.workspace.backgroundColor = ev.data.attr.backgroundColor;
 
-                this.workspace.on(paper.EventType.click, clearSelection);
+                this.workspace.on(PaperHelpers.EventType.clickWithoutDrag, clearSelection);
                 this.workspace.on(PaperHelpers.EventType.smartDragStart, clearSelection);
                 
                 let sheetBounds = this.workspace.sheet.bounds;
