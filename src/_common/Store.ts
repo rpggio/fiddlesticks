@@ -93,6 +93,10 @@ class Store {
                 this.state.retained.sketch.attr = attr;
                 events.sketch.loaded.dispatchContext(this.state, this.state.retained.sketch);
                 events.designer.zoomToFitRequested.dispatchContext(this.state);
+
+                this.state.disposable.editingItem = null;
+                this.state.disposable.selection = null;
+                
                 this.changedRetainedState();
             });
 

@@ -6,7 +6,10 @@ class SelectedItemEditor {
     constructor(container: HTMLElement, channels: Channels) {
         this.channels = channels;
 
-        const dom$ = channels.events.sketch.editingItemChanged.observe().map(i => {
+        const dom$ = channels.events.mergeTyped<PositionedItem>( 
+                channels.events.sketch.editingItemChanged,
+                channels.events.sketch.loaded
+            ).map(i => {
 
             if (!i.data || !i.data.itemId) {
                 return h('div#editorOverlay',
