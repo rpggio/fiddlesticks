@@ -154,6 +154,9 @@ namespace PaperHelpers {
         return new paper.Segment(segment.point, segment.handleIn, segment.handleOut);
     }
 
+    /**
+     * Make an item draggable, adding related events.
+     */
     export const addSmartDrag = function(item: paper.Item) {
         item.isSmartDraggable = true;
 
@@ -164,26 +167,46 @@ namespace PaperHelpers {
             }
             
             item.position = item.position.add(ev.delta);
-            ev.stopPropagation();
-            ev.preventDefault();
+            ev.stop();
             
-            item.emit(EventType.smartDragMove, ev);
+            item.emit(EventType.smartDragMove, ev); 
         });
 
         item.on(paper.EventType.mouseUp, ev => {
             if (item.isSmartDragging) {
                 item.isSmartDragging = false;
-                item.emit(EventType.smartDragEnd, ev);
+                if(item.emit(EventType.smartDragEnd, ev)){
+                    ev.stop();
+                }
             } else {
-                item.emit(EventType.clickWithoutDrag, ev);
+                if(item.emit(EventType.clickWithoutDrag, ev)){
+                    ev.stop();
+                }
             }
         });
     }
 
     export const EventType = {
+        
+        /**
+         * Drag action has started.
+         */
         smartDragStart: "smartDragStart",
+        
+        /**
+         * Dragged item has moved.
+         */
         smartDragMove: "smartDragMove",
+        
+        /**
+         * Drag action has ended.
+         */
         smartDragEnd: "smartDragEnd",
+        
+        /**
+         * The normal click event will fire even at the end of a drag.
+         * This click event does not. 
+         */
         clickWithoutDrag: "clickWithoutDrag"
     }
 }

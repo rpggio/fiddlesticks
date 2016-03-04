@@ -169,7 +169,7 @@ class WorkspaceController {
             item.position = new paper.Point(textBlock.position);
         }
 
-        item.on(paper.EventType.click, ev => {
+        item.on(PaperHelpers.EventType.clickWithoutDrag, ev => {
             item.bringToFront();
             if (item.selected) {
                 // edit
@@ -187,8 +187,6 @@ class WorkspaceController {
                 this.channels.actions.sketch.setSelection.dispatch(
                     { itemId: textBlock._id, itemType: "TextBlock" });
             }
-            
-            ev.stopPropagation();
         });
 
         item.on(PaperHelpers.EventType.smartDragStart, ev => {
