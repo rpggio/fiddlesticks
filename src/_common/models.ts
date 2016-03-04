@@ -11,12 +11,12 @@ interface RetainedState {
 interface DisposableState {
     editingItem?: PositionedItem;
     fontsReady?: boolean;
+    selection?: ItemSelection;
 }
 
 interface Sketch {
     attr: SketchAttr;
     textBlocks: TextBlock[];
-    selection?: ItemSelection;
 }
 
 interface SketchAttr {

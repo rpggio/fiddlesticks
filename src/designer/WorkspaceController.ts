@@ -23,8 +23,6 @@ class WorkspaceController {
         paper.setup(this.canvas);
         this.project = paper.project;
 
-        const mouseTool = new MouseBehaviorTool(this.project);
-
         this.viewZoom = new ViewZoom(this.project);
 
         channels.events.sketch.loaded.subscribe(
@@ -34,31 +32,21 @@ class WorkspaceController {
                 this.project.deselectAll();
                 this._textBlockItems = {};
 
+                const clearSelection = (ev: paper.ToolEvent) => 
+                    this.channels.actions.sketch.setSelection.dispatch({});
+
                 if(this.workspace){
-                    this.workspace.mouseBehavior = null;
-                    this.workspace.onClick = null;
+                    this.workspace.off(paper.EventType.click, clearSelection);
+                    this.workspace.off(PaperHelpers.EventType.smartDragStart, clearSelection);
                 }
 
                 this.workspace = new Workspace(this.defaultSize);
                 this.workspace.bounds.center = new paper.Point(0, 0);
                 this.workspace.backgroundColor = ev.data.attr.backgroundColor;
 
-                // -- Wire up workspace events. --
-
-                this.workspace.onClick = ev => {
-                    this.channels.actions.sketch.setSelection.dispatch({});
-                };
+                this.workspace.on(paper.EventType.click, clearSelection);
+                this.workspace.on(PaperHelpers.EventType.smartDragStart, clearSelection);
                 
-                // Paperjs does not include dragStart event. 
-                this.workspace.mouseBehavior.onDragStart = ev => {
-                    this.channels.actions.sketch.setSelection.dispatch({});
-                }
-
-                // Paperjs loses its drag target if mouse passes over a different element.
-                this.workspace.mouseBehavior.onDragMove = ev => { 
-                    this.workspace.position = this.workspace.position.add(ev.delta);
-                }
-
                 let sheetBounds = this.workspace.sheet.bounds;
                 this.viewZoom.setZoomRange(
                     [sheetBounds.scale(0.005).size, sheetBounds.scale(0.25).size]);
@@ -181,7 +169,7 @@ class WorkspaceController {
             item.position = new paper.Point(textBlock.position);
         }
 
-        item.onClick = ev => {
+        item.on(paper.EventType.click, ev => {
             item.bringToFront();
             if (item.selected) {
                 // edit
@@ -201,26 +189,21 @@ class WorkspaceController {
             }
             
             ev.stopPropagation();
-            ev.preventDefault();
-        };
+        });
 
-        item.mouseBehavior.onDragStart = ev => {
+        item.on(PaperHelpers.EventType.smartDragStart, ev => {
             item.bringToFront();
             if (!item.selected) {
                 this.channels.actions.sketch.setSelection.dispatch(
                     { itemId: textBlock._id, itemType: "TextBlock" });
             }
-        };
-
-        item.mouseBehavior.onDragMove = ev => {
-            item.position = item.position.add(ev.delta);
-        };
-
-        item.mouseBehavior.onDragEnd = ev => {
+        });
+        
+        item.on(PaperHelpers.EventType.smartDragEnd, ev => {
             let block = <TextBlock>this.getBlockArrangement(item);
             block._id = textBlock._id;
             this.channels.actions.textBlock.updateArrange.dispatch(block);
-        }
+        });
 
         item.observe(flags => {
             if (flags & PaperNotify.ChangeFlag.GEOMETRY) {

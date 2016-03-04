@@ -126,19 +126,19 @@ class Store {
             }
 
             if ((m.data && m.data.itemId)
-                === (this.state.retained.sketch.selection && this.state.retained.sketch.selection.itemId)) {
+                === (this.state.disposable.selection && this.state.disposable.selection.itemId)) {
                 // nothing to do
                 return;
             }
 
-            this.state.retained.sketch.selection = <ItemSelection>{
+            this.state.disposable.selection = <ItemSelection>{
                 itemId: m.data.itemId,
                 itemType: m.data.itemType,
-                priorSelectionItemId: this.state.retained.sketch.selection
-                && this.state.retained.sketch.selection.itemId
+                priorSelectionItemId: this.state.disposable.selection
+                && this.state.disposable.selection.itemId
             };
             events.sketch.selectionChanged.dispatchContext(
-                this.state, this.state.retained.sketch.selection);
+                this.state, this.state.disposable.selection);
         });
         
 

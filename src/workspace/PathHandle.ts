@@ -2,6 +2,7 @@
 class PathHandle extends paper.Group {
 
     static MARKER_RADIUS = 8;
+    static DRAG_THRESHOLD = 3;
 
     private _marker: paper.Shape;
     private _segment: paper.Segment;
@@ -9,6 +10,7 @@ class PathHandle extends paper.Group {
     private _smoothed: boolean;
     private _curveSplit = new ObservableEvent<number>();
     private _unSub: () => void;
+    private dragging;
 
     constructor(attach: paper.Segment | paper.Curve) {
         super();
@@ -38,50 +40,48 @@ class PathHandle extends paper.Group {
             this.styleAsCurve();
         }
 
-        this.mouseBehavior = {
-            onDragStart: event => {
-                if (this._curve) {
-                    // split the curve, pupate to segment handle
+        PaperHelpers.addSmartDrag(this);
+
+        this.on(PaperHelpers.EventType.smartDragStart, ev => {
+            if (this._curve) {
+                // split the curve, pupate to segment handle
                     
-                    //this._unSub();
-                    this._segment = new paper.Segment(this.position);
-                    const curveIdx = this._curve.index;
-                    this._curve.path.insert(
-                        curveIdx + 1,
-                        this._segment
-                    );
-                    this._curve = null;
-                    this.styleAsSegment();
-                    this.curveSplit.notify(curveIdx);
-                }
-            },
-            onDragMove: event => {
-                let newPos = this.position.add(event.delta);
-                this.position = newPos; 
-                if (this._segment) {
-                    this._segment.point = newPos;
-                    if(this._smoothed){
-                        this._segment.smooth();
-                    }
-                }
-            },
-            onDragEnd: event => {
-            },
-            onClick: event => {
-                if(this._segment) {
-                    this.smoothed = !this.smoothed;
+                //this._unSub();
+                this._segment = new paper.Segment(this.position);
+                const curveIdx = this._curve.index;
+                this._curve.path.insert(
+                    curveIdx + 1,
+                    this._segment
+                );
+                this._curve = null;
+                this.styleAsSegment();
+                this.curveSplit.notify(curveIdx);
+            }
+        });
+
+        this.on(PaperHelpers.EventType.smartDragMove, ev => {
+            if (this._segment) {
+                this._segment.point = this.position;
+                if (this._smoothed) {
+                    this._segment.smooth();
                 }
             }
-        }
-        
+        });
+
+        this.on(PaperHelpers.EventType.clickWithoutDrag, ev => {
+            if (this._segment) {
+                this.smoothed = !this.smoothed;
+            }
+        });
+
         this._unSub = path.observe(flags => {
             if (flags & PaperNotify.ChangeFlag.GEOMETRY) {
-                if(this._segment) { 
+                if (this._segment) {
                     this.center = this._segment.point;
-                } else if(this._curve) {
+                } else if (this._curve) {
                     this.center = this._curve.getPointAt(this._curve.length * 0.5);
                 }
-            } 
+            }
         });
 
     }
@@ -100,7 +100,7 @@ class PathHandle extends paper.Group {
             this._segment.handleOut = null;
         }
     }
-    
+
     get curveSplit() {
         return this._curveSplit;
     }

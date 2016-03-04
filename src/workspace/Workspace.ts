@@ -8,8 +8,6 @@ class Workspace extends paper.Group {
     constructor(size: paper.Size) {
         super();
         
-        this.mouseBehavior = {};
-
         let sheet = paper.Shape.Rectangle(
             new paper.Point(0, 0), size);
         sheet.style.shadowColor = 'gray';
@@ -19,6 +17,8 @@ class Workspace extends paper.Group {
         this.addChild(sheet);
 
         this.sheet.fillColor = this.defaultBackgroundColor;
+        
+        PaperHelpers.addSmartDrag(this);
     }
 
     get backgroundColor(): string {

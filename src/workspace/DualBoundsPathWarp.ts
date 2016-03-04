@@ -3,8 +3,6 @@ class DualBoundsPathWarp extends paper.Group {
 
     static POINTS_PER_PATH = 200;
 
-    mouseBehavior: MouseBehavior = {};
-
     private _source: paper.CompoundPath;
     private _upper: StretchPath;
     private _lower: StretchPath;
@@ -57,6 +55,8 @@ class DualBoundsPathWarp extends paper.Group {
             strokeColor: "lightgray"
         };
 
+        PaperHelpers.addSmartDrag(this);
+
         // -- set up observers --
 
         const boundsWatch = (flags: PaperNotify.ChangeFlag) => {
@@ -78,6 +78,7 @@ class DualBoundsPathWarp extends paper.Group {
                }
            } 
         });
+        
     }
 
     get upper(): paper.Path {

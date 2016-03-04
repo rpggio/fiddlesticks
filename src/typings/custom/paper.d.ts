@@ -4107,7 +4107,7 @@ declare module paper {
 
     }
     
-    export interface Event {
+    export interface PaperEvent {
 
         timeStamp: number;
 
@@ -4122,7 +4122,7 @@ declare module paper {
 
     }
     
-    export interface PaperMouseEvent extends Event {
+    export interface PaperMouseEvent extends PaperEvent {
         
         type: string;
         point: Point;
@@ -4138,7 +4138,7 @@ declare module paper {
     /**
      * ToolEvent The ToolEvent object is received by the Tool's mouse event handlers tool.onMouseDown, tool.onMouseDrag, tool.onMouseMove and tool.onMouseUp. The ToolEvent object is the only parameter passed to these functions and contains information about the mouse event.
      */
-    export class ToolEvent extends Event {
+    export interface ToolEvent extends PaperEvent {
 
         /**
          * The type of tool event.
@@ -4170,11 +4170,6 @@ declare module paper {
          * The difference between the current position and the last position of the mouse when the event was fired. In case of the mouseup event, the difference to the mousedown position is returned.
          */
         delta: Point;
-
-        /**
-         * The number of times the mouse event was fired.
-         */
-        count: number;
 
         /**
          * The item at the position of the mouse (if any). If the item is contained within one or more Group or CompoundPath items, the most top level group or compound path that it is contained within is returned.
