@@ -74,7 +74,7 @@ class PathHandle extends paper.Group {
             }
         });
 
-        this._curveChangeUnsub = path.observe(flags => {
+        this._curveChangeUnsub = path.subscribe(flags => {
             if (this._curve && !this._segment 
                 && (flags & PaperNotify.ChangeFlag.SEGMENTS)) {
                 this.center = this._curve.getPointAt(this._curve.length * 0.5);

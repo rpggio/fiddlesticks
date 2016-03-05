@@ -4,11 +4,10 @@ type Callback = () => void;
 
 declare module paper {
     interface Item {
-        
         /**
-         * Observe all changes in item. Returns un-observe function.
+         * Subscribe to all changes in item. Returns un-subscribe function.
          */
-        observe(handler: ItemChangeHandler): Callback;
+        subscribe(handler: ItemChangeHandler): Callback;
         
         _changed(flags: PaperNotify.ChangeFlag): void;
     }
@@ -65,19 +64,19 @@ namespace PaperNotify {
 
     export function initialize() {
         
-        // Inject Item.observe
+        // Inject Item.subscribe
         const itemProto = (<any>paper).Item.prototype;
-        itemProto.observe = function(handler: ItemChangeHandler): Callback {
-            if (!this._observers) {
-                this._observers = [];
+        itemProto.subscribe = function(handler: ItemChangeHandler): Callback {
+            if (!this._subscribers) {
+                this._subscribers = [];
             }
-            if (this._observers.indexOf(handler) < 0) {
-                this._observers.push(handler);
+            if (this._subscribers.indexOf(handler) < 0) {
+                this._subscribers.push(handler);
             }
             return () => {
-                let index = this._observers.indexOf(handler, 0);
+                let index = this._subscribers.indexOf(handler, 0);
                 if (index > -1) {
-                    this._observers.splice(index, 1);
+                    this._subscribers.splice(index, 1);
                 }
             }
         }
@@ -86,7 +85,7 @@ namespace PaperNotify {
         const itemRemove = itemProto.remove;
         itemProto.remove = function() {
             itemRemove.apply(this, arguments);
-            this._observers = null;
+            this._subscribers = null;
         }
 
         // Wrap Project._changed
@@ -95,7 +94,7 @@ namespace PaperNotify {
         projectProto._changed = function(flags: ChangeFlag, item: paper.Item) {
             projectChanged.apply(this, arguments);
             if (item) {
-                const subs = (<any>item)._observers;
+                const subs = (<any>item)._subscribers;
                 if (subs) {
                     for (let s of subs) {
                         s.call(item, flags);
@@ -113,6 +112,25 @@ namespace PaperNotify {
             }
         });
         return flagList.join(' | ');
+    }
+    
+    export function observe(item: paper.Item, flags: ChangeFlag): 
+        Rx.Observable<ChangeFlag> 
+    {
+        let unsub: () => void;
+        return Rx.Observable.fromEventPattern<ChangeFlag>(
+            addHandler => {
+                unsub = item.subscribe(f => {
+                    if(f & flags){
+                        addHandler(f);
+                    }
+                });
+            }, 
+            removeHandler => {
+                if(unsub){
+                    unsub();
+                }
+            });
     }
 
 }

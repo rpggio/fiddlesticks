@@ -1,6 +1,8 @@
 
 class WorkspaceController {
 
+    static BLOCK_BOUNDS_CHANGE_THROTTLE_MS = 500; 
+
     defaultSize = new paper.Size(50000, 40000);
     defaultScale = 0.02;
 
@@ -184,14 +186,15 @@ class WorkspaceController {
             this.channels.actions.textBlock.updateArrange.dispatch(block);
         });
 
-        item.observe(flags => {
-            if (flags & PaperNotify.ChangeFlag.GEOMETRY) {
+        const itemChange$ = PaperNotify.observe(item, PaperNotify.ChangeFlag.GEOMETRY);
+            itemChange$
+            .debounce(WorkspaceController.BLOCK_BOUNDS_CHANGE_THROTTLE_MS)
+            .subscribe(() => {
                 let block = <TextBlock>this.getBlockArrangement(item);
                 block._id = textBlock._id;
                 this.channels.actions.textBlock.updateArrange.dispatch(block);
-            }
-        });
-
+            });
+        
         item.data = textBlock._id;
         if (!textBlock.position) {
             item.position = this.project.view.bounds.point.add(

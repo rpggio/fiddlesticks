@@ -69,7 +69,7 @@ class DualBoundsPathWarp extends paper.Group {
         this._upper.pathChanged.subscribe(handlePathChange);
         this._lower.pathChanged.subscribe(handlePathChange);
 
-        this.observe(flags => {
+        this.subscribe(flags => {
             if (flags & PaperNotify.ChangeFlag.ATTRIBUTE) {
                 if (this._upper.visible !== this.selected) {
                     this._upper.visible = this.selected;

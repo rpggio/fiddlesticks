@@ -1,5 +1,18 @@
 
+interface Console {
+    log(message?: any, ...optionalParams: any[]): void;
+    log(...optionalParams: any[]): void;
+}
+
 namespace PaperHelpers {
+
+    export var shouldLogInfo: boolean;
+
+    const log = function(...params: any[]){
+        if(shouldLogInfo){
+            console.log(...params);
+        }
+    } 
 
     export const importOpenTypePath = function(openPath: opentype.Path): paper.CompoundPath {
         return new paper.CompoundPath(openPath.toPathData());
@@ -161,7 +174,7 @@ namespace PaperHelpers {
         item.isSmartDraggable = true;
 
         item.on(paper.EventType.mouseDrag, ev => {
-            console.log("smartDrag.onMouseDrag", item, ev);
+            log("smartDrag.onMouseDrag", item, ev);
             if (ev.smartDragItem) {
                 console.warn("Will not assign smartDragItem: value was already " + ev.smartDragItem);
             } else {
@@ -170,20 +183,20 @@ namespace PaperHelpers {
 
             if (!item.isSmartDragging) {
                 item.isSmartDragging = true;
-                console.log("emitting smartDrag.smartDragStart");
+                log("emitting smartDrag.smartDragStart");
                 item.emit(EventType.smartDragStart, ev);
             }
 
             item.position = item.position.add(ev.delta);
 
-            console.log("emitting smartDrag.smartDragMove");
+            log("emitting smartDrag.smartDragMove");
             item.emit(EventType.smartDragMove, ev);
 
             ev.stop();
         });
 
         item.on(paper.EventType.mouseUp, ev => {
-            console.log("smartDrag.onMouseUp", item, ev);
+            log("smartDrag.onMouseUp", item, ev);
             if (ev.smartDragItem) {
                 console.warn("Will not assign smartDragItem: value was already " + ev.smartDragItem);
             } else {
@@ -192,10 +205,10 @@ namespace PaperHelpers {
                         
             if (item.isSmartDragging) {
                 item.isSmartDragging = false;
-                console.log("emitting smartDrag.smartDragEnd");
+                log("emitting smartDrag.smartDragEnd");
                 item.emit(EventType.smartDragEnd, ev);
             } else {
-                console.log("emitting smartDrag.clickWithoutDrag");
+                log("emitting smartDrag.clickWithoutDrag");
                 item.emit(EventType.clickWithoutDrag, ev);
             }
 
