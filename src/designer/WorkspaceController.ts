@@ -1,7 +1,8 @@
 
 class WorkspaceController {
 
-    static BLOCK_BOUNDS_CHANGE_THROTTLE_MS = 500; 
+    static TEXT_CHANGE_RENDER_THROTTLE_MS = 500;
+    static BLOCK_BOUNDS_CHANGE_THROTTLE_MS = 500;
 
     defaultSize = new paper.Size(50000, 40000);
     defaultScale = 0.02;
@@ -30,7 +31,7 @@ class WorkspaceController {
         }
         paper.view.on(paper.EventType.click, clearSelection);
         paper.view.on(PaperHelpers.EventType.smartDragStart, clearSelection);
-                
+
         channels.events.sketch.loaded.subscribe(
             ev => {
                 this._sketch = ev.data;
@@ -46,18 +47,21 @@ class WorkspaceController {
         ).subscribe(
             ev => this.addBlock(ev.data));
 
-        channels.events.textblock.attrChanged.subscribe(m => {
-            let item = this._textBlockItems[m.data._id];
-            if (item) {
-                const textBlock = m.data;
-                item.text = textBlock.text;
-                item.customStyle = {
-                    fontSize: textBlock.fontSize,
-                    fillColor: textBlock.textColor,
-                    backgroundColor: textBlock.backgroundColor
+        channels.events.textblock.attrChanged
+            .observe()
+            .throttle(WorkspaceController.TEXT_CHANGE_RENDER_THROTTLE_MS)
+            .subscribe(m => {
+                let item = this._textBlockItems[m.data._id];
+                if (item) {
+                    const textBlock = m.data;
+                    item.text = textBlock.text;
+                    item.customStyle = {
+                        fontSize: textBlock.fontSize,
+                        fillColor: textBlock.textColor,
+                        backgroundColor: textBlock.backgroundColor
+                    }
                 }
-            }
-        });
+            });
 
         channels.events.textblock.removed.subscribe(m => {
             let item = this._textBlockItems[m.data._id];
@@ -155,7 +159,7 @@ class WorkspaceController {
         item.on(PaperHelpers.EventType.clickWithoutDrag, ev => {
             item.bringToFront();
             if (item.selected) {
-                // edit
+                // edit item
                 const editorAt = this.project.view.projectToView(
                     PaperHelpers.midpoint(item.bounds.topLeft, item.bounds.center));
                 this.channels.actions.sketch.setEditingItem.dispatch(
@@ -166,7 +170,7 @@ class WorkspaceController {
                         clientY: editorAt.y
                     });
             } else {
-                // select
+                // select item
                 this.channels.actions.sketch.setSelection.dispatch(
                     { itemId: textBlock._id, itemType: "TextBlock" });
             }
@@ -187,14 +191,14 @@ class WorkspaceController {
         });
 
         const itemChange$ = PaperNotify.observe(item, PaperNotify.ChangeFlag.GEOMETRY);
-            itemChange$
+        itemChange$
             .debounce(WorkspaceController.BLOCK_BOUNDS_CHANGE_THROTTLE_MS)
             .subscribe(() => {
                 let block = <TextBlock>this.getBlockArrangement(item);
                 block._id = textBlock._id;
                 this.channels.actions.textBlock.updateArrange.dispatch(block);
             });
-        
+
         item.data = textBlock._id;
         if (!textBlock.position) {
             item.position = this.project.view.bounds.point.add(
