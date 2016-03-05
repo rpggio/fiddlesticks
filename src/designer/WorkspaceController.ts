@@ -5,7 +5,6 @@ class WorkspaceController {
     defaultScale = 0.02;
 
     canvas: HTMLCanvasElement;
-    workspace: Workspace;
     project: paper.Project;
     font: opentype.Font;
     viewZoom: ViewZoom;
@@ -24,7 +23,12 @@ class WorkspaceController {
         this.project = paper.project;
 
         this.viewZoom = new ViewZoom(this.project);
-
+        const clearSelection = (ev: paper.PaperMouseEvent) => {
+            this.channels.actions.sketch.setSelection.dispatch({});
+        }
+        paper.view.on(paper.EventType.click, clearSelection);
+        paper.view.on(PaperHelpers.EventType.smartDragStart, clearSelection);
+                
         channels.events.sketch.loaded.subscribe(
             ev => {
                 this._sketch = ev.data;
@@ -32,30 +36,16 @@ class WorkspaceController {
                 this.project.deselectAll();
                 this._textBlockItems = {};
 
-                const clearSelection = (ev: paper.ToolEvent) => 
-                    this.channels.actions.sketch.setSelection.dispatch({});
+                //this.project.activeLayer.fillColor = ev.data.attr.backgroundColor;
 
-                if(this.workspace){
-                    this.workspace.off(paper.EventType.click, clearSelection);
-                    this.workspace.off(PaperHelpers.EventType.smartDragStart, clearSelection);
-                }
-
-                this.workspace = new Workspace(this.defaultSize);
-                this.workspace.bounds.center = new paper.Point(0, 0);
-                this.workspace.backgroundColor = ev.data.attr.backgroundColor;
-
-                this.workspace.on(PaperHelpers.EventType.clickWithoutDrag, clearSelection);
-                this.workspace.on(PaperHelpers.EventType.smartDragStart, clearSelection);
-                
-                let sheetBounds = this.workspace.sheet.bounds;
-                this.viewZoom.setZoomRange(
-                    [sheetBounds.scale(0.005).size, sheetBounds.scale(0.25).size]);
+                // this.viewZoom.setZoomRange(
+                //     [sheetBounds.scale(0.005).size, sheetBounds.scale(0.25).size]);
             }
         );
 
-        channels.events.sketch.attrChanged.subscribe(
-            ev => this.workspace.backgroundColor = ev.data.backgroundColor
-        );
+        // channels.events.sketch.attrChanged.subscribe(
+        //     ev => this.project.activeLayer.fillColor = ev.data.backgroundColor
+        // );
 
         channels.events.mergeTyped(
             channels.events.textblock.added,
@@ -90,7 +80,7 @@ class WorkspaceController {
                 this.channels.events.sketch.editingItemChanged.dispatch({});
                 return;
             }
-            
+
             let item = m.data.itemId && this._textBlockItems[m.data.itemId];
             if (item && !item.selected) {
                 this.project.deselectAll();
@@ -196,7 +186,7 @@ class WorkspaceController {
                     { itemId: textBlock._id, itemType: "TextBlock" });
             }
         });
-        
+
         item.on(PaperHelpers.EventType.smartDragEnd, ev => {
             let block = <TextBlock>this.getBlockArrangement(item);
             block._id = textBlock._id;
@@ -204,6 +194,7 @@ class WorkspaceController {
         });
 
         item.observe(flags => {
+            console.warn("item flags", PaperNotify.describe(flags));
             if (flags & PaperNotify.ChangeFlag.GEOMETRY) {
                 let block = <TextBlock>this.getBlockArrangement(item);
                 block._id = textBlock._id;
@@ -212,7 +203,6 @@ class WorkspaceController {
         });
 
         item.data = textBlock._id;
-        this.workspace.addChild(item);
         if (!textBlock.position) {
             item.position = this.project.view.bounds.point.add(
                 new paper.Point(item.bounds.width / 2, item.bounds.height / 2)
@@ -223,7 +213,7 @@ class WorkspaceController {
 
     private getBlockArrangement(item: TextWarp): BlockArrangement {
         // export returns an array with item type and serialized object:
-        //   ["Path", { segments:[][] }]
+        //   ["Path", PathRecord]
         const top = <PathRecord>item.upper.exportJSON({ asString: false })[1];
         const bottom = <PathRecord>item.lower.exportJSON({ asString: false })[1];
 

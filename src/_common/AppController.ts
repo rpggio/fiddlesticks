@@ -32,7 +32,15 @@ class AppController {
 
                 actions.app.loadRetainedState.dispatch();
             }
-        })
+        });
+        
+        events.sketch.loaded.subscribe(ev =>
+            $("#mainCanvas").css("background-color", ev.data.attr.backgroundColor)
+        );
+        
+        events.sketch.attrChanged.subscribe(ev =>
+            $("#mainCanvas").css("background-color", ev.data.backgroundColor)
+        );
 
     }
 

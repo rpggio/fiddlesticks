@@ -36,6 +36,8 @@ class DualBoundsPathWarp extends paper.Group {
             ]);
         }
 
+        this.controlBoundsOpacity = 0.75;
+
         this._upper.visible = this.selected;
         this._lower.visible = this.selected;
 
@@ -109,6 +111,10 @@ class DualBoundsPathWarp extends paper.Group {
             this._outline.fillColor = "white";
             this._outline.opacity = 0;
         }
+    }
+
+    set controlBoundsOpacity(value: number){
+        this._upper.opacity = this._lower.opacity = value;
     }
 
     private updateWarped() {

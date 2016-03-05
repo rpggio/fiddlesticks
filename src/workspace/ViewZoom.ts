@@ -6,15 +6,47 @@ class ViewZoom {
     
     private _minZoom: number;
     private _maxZoom: number;
+    private _mouseNativeStart: paper.Point;
+    private _viewCenterStart: paper.Point;
 
     constructor(project: paper.Project) {
         this.project = project;
         
-        let view = this.project.view;
+        const view = this.project.view;
 
         (<any>$(view.element)).mousewheel((event) => {
-            let mousePosition = new paper.Point(event.offsetX, event.offsetY);
+            const mousePosition = new paper.Point(event.offsetX, event.offsetY);
             this.changeZoomCentered(event.deltaY, mousePosition);
+        });
+        
+        view.on("mousedrag", ev => {
+            if(!this._viewCenterStart){
+                this._viewCenterStart = view.center;
+                // Have to use native mouse offset, because ev.delta 
+                //  changes as the view is scrolled.
+                this._mouseNativeStart = new paper.Point(ev.event.offsetX, ev.event.offsetY);
+
+                view.emit(PaperHelpers.EventType.smartDragStart, ev);
+            } else {
+                const nativeDelta = new paper.Point(
+                    ev.event.offsetX - this._mouseNativeStart.x,
+                    ev.event.offsetY - this._mouseNativeStart.y
+                );
+                // Move into view coordinates to subract delta,
+                //  then back into project coords.
+                view.center = view.viewToProject( 
+                    view.projectToView(this._viewCenterStart)
+                    .subtract(nativeDelta));
+                view.emit(PaperHelpers.EventType.smartDragMove, ev);
+            }
+        });
+        
+        view.on("mouseup", ev => {
+            if(this._mouseNativeStart){
+                this._mouseNativeStart = null;
+                this._viewCenterStart = null;
+                view.emit(PaperHelpers.EventType.smartDragEnd, ev);
+            }
         });
     }
 
@@ -37,7 +69,7 @@ class ViewZoom {
         if(this._maxZoom){
             zoom = Math.min(zoom, this._maxZoom);
         }
-        let view = this.project.view;
+        const view = this.project.view;
         if(zoom != view.zoom){
             view.zoom = zoom;
             return zoom;
@@ -46,36 +78,36 @@ class ViewZoom {
     }
 
     setZoomRange(range: paper.Size[]): number[] {
-        let view = this.project.view;
-        let aSize = range.shift();
-        let bSize = range.shift();
-        let a = aSize && Math.min( 
+        const view = this.project.view;
+        const aSize = range.shift();
+        const bSize = range.shift();
+        const a = aSize && Math.min( 
             view.bounds.height / aSize.height,         
             view.bounds.width / aSize.width);
-        let b = bSize && Math.min( 
+        const b = bSize && Math.min( 
             view.bounds.height / bSize.height,         
             view.bounds.width / bSize.width);
-        let min = Math.min(a,b);
+        const min = Math.min(a,b);
         if(min){
             this._minZoom = min;
         }
-        let max = Math.max(a,b);
+        const max = Math.max(a,b);
         if(max){
             this._maxZoom = max;
         }
         return [this._minZoom, this._maxZoom];
     }
 
-    changeZoomCentered(deltaY: number, mousePos: paper.Point) {
-        if (!deltaY) {
+    changeZoomCentered(delta: number, mousePos: paper.Point) {
+        if (!delta) {
             return;
         }
-        let view = this.project.view;
-        let oldZoom = view.zoom;
-        let oldCenter = view.center;
-        let viewPos = view.viewToProject(mousePos);
+        const view = this.project.view;
+        const oldZoom = view.zoom;
+        const oldCenter = view.center;
+        const viewPos = view.viewToProject(mousePos);
         
-        let newZoom = deltaY > 0
+        let newZoom = delta > 0
             ? view.zoom * this.factor
             : view.zoom / this.factor;
         newZoom = this.setZoomConstrained(newZoom);
@@ -84,16 +116,16 @@ class ViewZoom {
             return;
         }
 
-        let zoomScale = oldZoom / newZoom;
-        let centerAdjust = viewPos.subtract(oldCenter);
-        let offset = viewPos.subtract(centerAdjust.multiply(zoomScale))
+        const zoomScale = oldZoom / newZoom;
+        const centerAdjust = viewPos.subtract(oldCenter);
+        const offset = viewPos.subtract(centerAdjust.multiply(zoomScale))
             .subtract(oldCenter);
 
         view.center = view.center.add(offset);
     };
     
     zoomTo(rect: paper.Rectangle){
-        let view = this.project.view;
+        const view = this.project.view;
         view.center = rect.center;
         view.zoom = Math.min( 
             view.viewSize.height / rect.height, 

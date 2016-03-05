@@ -849,6 +849,146 @@ declare module paper {
 
     }
     
+    export interface ITransformable {
+         /**
+         * Translates (moves) the item by the given offset point.
+         * @param delta - the offset to translate the item by
+         */
+        translate(delta: Point): void;
+
+        /** 
+         * Rotates the item by a given angle around the given point.
+         * Angles are oriented clockwise and measured in degrees.
+         * @param angle - the rotation angle
+         * @param center [optional] - default: item.position
+         */
+        rotate(angle: number, center?: Point): void;
+
+        /**
+         * Scales the item by the given value from its center point, or optionally from a supplied point.
+         * @param scale - the scale factor
+         * @param center [optional] - default: item.position
+         */
+        scale(scale: number, center?: Point): void;
+
+        /**
+         * Scales the item by the given values from its center point, or optionally from a supplied point.
+         * @param hor - the horizontal scale factor
+         * @param ver - the vertical scale factor
+         * @param center [optional] - default: item.position
+         */
+        scale(hor: number, ver: number, center?: Point): void;
+
+        /**
+         * Shears the item by the given value from its center point, or optionally by a supplied point.
+         * @param shear - the horziontal and vertical shear factors as a point
+         * @param center [optional] - default: item.position
+         */
+        shear(shear: number, center?: Point): void;
+
+        /**
+         * Shears the item by the given values from its center point, or optionally by a supplied point.
+         * @param hor - the horizontal shear factor
+         * @param ver - the vertical shear factor 
+         * @param center [optional] - default: item.position
+         */
+        shear(hor: number, ver: number, center?: Point): void;
+
+        /**
+         * Skews the item by the given angles from its center point, or optionally by a supplied point.
+         * @param skew - the horziontal and vertical skew angles in degrees
+         * @param center [optional] - default: item.position
+         */
+        skew(skew: Point, center?: Point): void;
+
+        /**
+         * Skews the item by the given angles from its center point, or optionally by a supplied point.
+         * @param hor - the horizontal skew angle in degrees
+         * @param ver - the vertical sskew angle in degrees
+         * @param center [optional] - default: item.position
+         */
+        skew(hor: number, ver: number, center?: Point): void;
+
+        /**
+         * Transform the item.
+         * @param matrix - the matrix by which the item shall be transformed.
+         */
+        transform(matrix: Matrix): void;
+        
+        /**
+         * Makes all animation play by adding the view to the request animation loop.
+         */
+        play(): void;
+
+        /**
+         * Makes all animation pause by removing the view to the request animation loop.
+         */
+        pause(): void;
+
+        /**
+         * Updates the view if there are changes. Note that when using built-in event hanlders for interaction, animation and load events, this method is invoked for you automatically at the end.
+         */
+        update(): void;
+
+        /**
+         *
+         * @param point - 
+         */
+        projectToView(point: Point): Point;
+
+        /**
+         *
+         * @param point -
+         */
+        viewToProject(point: Point): Point;
+        
+        /**
+         * Get point for a native event.
+         */
+        getEventPoint(event: Event): Point;
+    }
+    
+    export interface IEventEmitter {
+
+        /**
+         * Attach an event handler to the view.
+         * @param type - String('frame'|'resize') the event type
+         * @param function - The function to be called when the event occurs
+         */
+        on(type: string, callback: (event: PaperMouseEvent) => void): Item;
+
+        /**
+         * Attach one or more event handlers to the view.
+         */
+        on(param: any): Item;
+
+        /**
+         * Detach an event handler from the view.
+         * @param type - String('frame'|'resize') the event type
+         * @param function - The function to be detached
+         */
+        off(type: string, callback: (event: PaperMouseEvent) => void): Item;
+
+        /**
+         * Detach one or more event handlers from the view.
+         * @param param -  an object literal containing one or more of the following properties: frame, resize
+         */
+        off(param: any): Item;
+
+        /**
+         * Emit an event on the view.
+         * @param type - String('frame'|'resize') the event type
+         * @param event - an object literal containing properties describing the event.
+         */
+        emit(type: string, event: any): boolean;
+
+        /**
+         * Check if the view has one or more event handlers of the specified type.
+         * @param type - String('frame'|'resize') the event type
+         */
+        responds(type: string): boolean;
+    }
+    
     export var Size: {
         
         /**
@@ -1109,7 +1249,7 @@ declare module paper {
     /**
      * The Item type allows you to access and modify the items in Paper.js projects. Its functionality is inherited by different project item types such as Path, CompoundPath, Group, Layer and Raster. They each add a layer of functionality that is unique to their type, but share the underlying properties and functions that they inherit from Item.
      */
-    export class Item {
+    export interface Item extends ITransformable, IEventEmitter {
 
         /**
          * The tangential vector to the #curve at the given location.
@@ -1670,82 +1810,6 @@ declare module paper {
          */
         isGroupedWith(item: Item): boolean;
 
-        /**
-         * Translates (moves) the item by the given offset point.
-         * @param delta - the offset to translate the item by
-         */
-        translate(delta: Point): void;
-
-        /** 
-         * Rotates the item by a given angle around the given point.
-         * Angles are oriented clockwise and measured in degrees.
-         * @param angle - the rotation angle
-         * @param center [optional] - default: item.position
-         */
-        rotate(angle: number, center?: Point): void;
-
-        /**
-         * Scales the item by the given value from its center point, or optionally from a supplied point.
-         * @param scale - the scale factor
-         * @param center [optional] - default: item.position
-         */
-        scale(scale: number, center?: Point): void;
-
-        /**
-         * Scales the item by the given values from its center point, or optionally from a supplied point.
-         * @param hor - the horizontal scale factor
-         * @param ver - the vertical scale factor
-         * @param center [optional] - default: item.position
-         */
-        scale(hor: number, ver: number, center?: Point): void;
-
-        /**
-         * Shears the item by the given value from its center point, or optionally by a supplied point.
-         * @param shear - the horziontal and vertical shear factors as a point
-         * @param center [optional] - default: item.position
-         */
-        shear(shear: number, center?: Point): void;
-
-        /**
-         * Shears the item by the given values from its center point, or optionally by a supplied point.
-         * @param hor - the horizontal shear factor
-         * @param ver - the vertical shear factor 
-         * @param center [optional] - default: item.position
-         */
-        shear(hor: number, ver: number, center?: Point): void;
-
-        /**
-         * Skews the item by the given angles from its center point, or optionally by a supplied point.
-         * @param skew - the horziontal and vertical skew angles in degrees
-         * @param center [optional] - default: item.position
-         */
-        skew(skew: Point, center?: Point): void;
-
-        /**
-         * Skews the item by the given angles from its center point, or optionally by a supplied point.
-         * @param hor - the horizontal skew angle in degrees
-         * @param ver - the vertical sskew angle in degrees
-         * @param center [optional] - default: item.position
-         */
-        skew(hor: number, ver: number, center?: Point): void;
-
-        /**
-         * Transform the item.
-         * @param matrix - the matrix by which the item shall be transformed.
-         */
-        transform(matrix: Matrix): void;
-
-        /**
-         * Converts the specified point from global project coordinate space to the item's own local coordinate space.
-         * @param point - the point to be transformed
-         */
-        globalToLocal(point: Point): Point;
-
-        /**
-         * Converts the specified point from the item's own local coordinate space to the global project coordinate space.
-         * @param point - the point to be transformed
-         */
-        localToGlobal(point: Point): Point;
 
         /**
          * Converts the specified point from the parent's coordinate space to item's own local coordinate space.
@@ -1765,86 +1829,6 @@ declare module paper {
          * @param fill [optiona;] - default = false
          */
         fitBounds(rectangle: Rectangle, fill?: boolean): void;
-
-        //I cannot use function: Function as it is a reserved keyword
-
-        /**
-         * Attach an event handler to the tool.
-         * @param type - String('mousedown'|'mouseup'|'mousedrag'|'mousemove'|'keydown'|'keyup') the event type
-         * @param function - The function to be called when the event occurs
-         */
-        on(type: string, callback: (event: ToolEvent) => void): Tool;
-
-        /**
-         * Attach one or more event handlers to the tool.
-         * @param param - an object literal containing one or more of the following properties: mousedown, mouseup, mousedrag, mousemove, keydown, keyup
-         */
-        on(param: any): Tool;
-
-        /**
-         * Detach an event handler from the tool.
-         * @param type - String('mousedown'|'mouseup'|'mousedrag'|'mousemove'|'keydown'|'keyup') the event type
-         * @param function - The function to be detached
-         */
-        off(type: string, callback: (event: ToolEvent) => void): Tool;
-
-        /**
-         * Detach one or more event handlers from the tool.
-         * @param param -  an object literal containing one or more of the following properties: mousedown, mouseup, mousedrag, mousemove, keydown, keyup
-         */
-        off(param: any): Tool;
-
-        /**
-         * Emit an event on the tool.
-         * @param type - String('mousedown'|'mouseup'|'mousedrag'|'mousemove'|'keydown'|'keyup') the event type
-         * @param event - an object literal containing properties describing the event.
-         */
-        emit(type: string, event: any): boolean;
-
-        /**
-         * Check if the tool has one or more event handlers of the specified type.
-         * @param type - String('mousedown'|'mouseup'|'mousedrag'|'mousemove'|'keydown'|'keyup') the event type
-         */
-        responds(type: string): boolean;//I cannot use function: Function as it is a reserved keyword
-
-        /**
-         * Attaches an event handler to the item.
-         * @param type - String('mousedown'|'mouseup'|'mousedrag'|'mousemove'|'keydown'|'keyup') the event type
-         * @param function - The function to be called when the event occurs
-         */
-        on(type: string, callback: () => void): Item;
-
-        /**
-         * Attaches one or more event handlers to the item.
-         * @param param - an object literal containing one or more of the following properties: mousedown, mouseup, mousedrag, mousemove, keydown, keyup
-         */
-        on(param: any): Item;
-
-        /**
-         * Detach an event handler from the item.
-         * @param type - String('mousedown'|'mouseup'|'mousedrag'|'mousemove'|'keydown'|'keyup') the event type
-         * @param function - The function to be detached
-         */
-        off(type: string, callback: (event: ToolEvent) => void): Item;
-
-        /**
-         * Detach one or more event handlers to the item.
-         * @param param -  an object literal containing one or more of the following properties: mousedown, mouseup, mousedrag, mousemove, keydown, keyup
-         */
-        off(param: any): Item;
-
-        /**
-         * Emit an event on the item.
-         * @param type - String('mousedown'|'mouseup'|'mousedrag'|'mousemove'|'keydown'|'keyup') the event type
-         * @param event - an object literal containing properties describing the event.
-         */
-        emit(type: string, event: any): boolean;
-
-        /**
-         * Check if the item has one or more event handlers of the specified type..
-         * @param type - String('mousedown'|'mouseup'|'mousedrag'|'mousemove'|'keydown'|'keyup') the event type
-         */
-        responds(type: string): boolean;
 
         /**
          * Removes the item when the events specified in the passed object literal occur.
@@ -1877,22 +1861,25 @@ declare module paper {
         removeOnUp(): void;
 
     }
-    /**
-     * A Group is a collection of items. When you transform a Group, its children are treated as a single unit without changing their relative positions.
-     */
-    export class Group extends Item {
-
+    
+    export var Group: {
         /**
          * Creates a new Group item and places it at the top of the active layer.
          * @param children [optional] - An array of Item Objects children that will be added to the newly created group.
          */
-        constructor(children?: Item[]);
+        new (children?: Item[]): Group;
 
         /**
          * Creates a new Group item and places it at the top of the active layer.
          * @param object [optional] - an object literal containing the properties to be set on the group.
          */
-        constructor(object?: any);
+        new (object?: any): Group;
+    }    
+    
+    /**
+     * A Group is a collection of items. When you transform a Group, its children are treated as a single unit without changing their relative positions.
+     */
+    export interface Group extends Item {
 
         /**
          * Specifies whether the group item is to be clipped.
@@ -1901,23 +1888,27 @@ declare module paper {
         clipped: boolean;
 
     }
+    
+    export var Layer: {
+        /**
+         * Creates a new Layer item and places it at the end of the project.layers array. The newly created layer will be activated, so all newly created items will be placed within it.
+         * @param children [optional] - An array of Items that will be added to the newly created layer.
+         */
+        new (children?: Item[]): Layer;
+        /**
+         * Creates a new Layer item and places it at the end of the project.layers array. The newly created layer will be activated, so all newly created items will be placed within it.
+         * @param object [optional] - an object literal containing the properties to be set on the layer.
+         */
+        new (object?: any): Layer;
+        
+    }
+    
     /**
      * The Layer item represents a layer in a Paper.js project.
      * The layer which is currently active can be accessed through project.activeLayer.
      * An array of all layers in a project can be accessed through project.layers.
      */
-    export class Layer extends Group {
-
-        /**
-         * Creates a new Layer item and places it at the end of the project.layers array. The newly created layer will be activated, so all newly created items will be placed within it.
-         * @param children [optional] - An array of Items that will be added to the newly created layer.
-         */
-        constructor(children?: Item[]);
-        /**
-         * Creates a new Layer item and places it at the end of the project.layers array. The newly created layer will be activated, so all newly created items will be placed within it.
-         * @param object [optional] - an object literal containing the properties to be set on the layer.
-         */
-        constructor(object?: any);
+    export interface Layer extends Group {
 
         /**
          * Activates the layer.
@@ -1925,60 +1916,63 @@ declare module paper {
         activate(): void;
 
     }
-    export class Shape extends Item {
-
-        /**
+    
+    export var Shape: {
+       /**
          * Creates a circular shape item.
          * @param center - the center point of the circle
          * @param radius - the radius of the circle 
          */
-        static Circle(center: Point, radius: number): Shape;
+        Circle(center: Point, radius: number): Shape;
 
         /**
          * Creates a circular shape item from the properties described by an object literal.
          * @param object - an object literal containing properties descriving the shapes attributes
          */
-        static Circle(object: any): Shape;
+        Circle(object: any): Shape;
 
         /**
          * Creates a rectangular shape item, with optionally rounded corners.
          * @param rectangle - the rectangle object describing the geometry of the rectangular shape to be created.
          * @param radius [optional] - the size of the rounded corners, default: null
          */
-        static Rectangle(rectangle: Rectangle, radius?: number): Shape;
+        Rectangle(rectangle: Rectangle, radius?: number): Shape;
 
         /**
          * Creates a rectangular shape item from a point and a size object.
          * @param point - the rectangle's top-left corner
          * @param size - the rectangle's size.
          */
-        static Rectangle(point: Point, size: Size): Shape;
+        Rectangle(point: Point, size: Size): Shape;
 
         /**
          * Creates a rectangular shape item from the passed points. These do not necessarily need to be the top left and bottom right corners, the constructor figures out how to fit a rectangle between them.
          * @param from - the first point defining the rectangle
          * @param to - the second point defining the rectangle
          */
-        static Rectangle(from: Point, to: Point): Shape;
+        Rectangle(from: Point, to: Point): Shape;
 
         /**
          * Creates a rectangular shape item from the properties described by an object literal.
          * @param object - an object literal containing properties describing the shape's attributes
          */
-        static Rectangle(object: any): Shape;
+        Rectangle(object: any): Shape;
 
         /**
          * Creates an elliptical shape item.
          * @param rectangle - the rectangle circumscribing the ellipse 
          */
-        static Ellipse(rectangle: Rectangle): Shape;
+        Ellipse(rectangle: Rectangle): Shape;
 
         /**
          * Creates an elliptical shape item from the properties described by an object literal.
          * @param object - an object literal containing properties describing the shape's attributes
          */
-        static Ellipse(object: any): Shape;
+        Ellipse(object: any): Shape;
 
+    }
+    
+    export interface Shape extends Item {
         /**
          * The type of shape of the item as a string.
          */
@@ -1995,17 +1989,22 @@ declare module paper {
         radius: number | Size;
 
     }
-    /**
-     * The Raster item represents an image in a Paper.js project.
-     */
-    export class Raster extends Item {
+    
+    export var Raster: {
 
         /**
          * Creates a new raster item from the passed argument, and places it in the active layer. object can either be a DOM Image, a Canvas, or a string describing the URL to load the image from, or the ID of a DOM element to get the image from (either a DOM Image or a Canvas).
          * @param source [optional] - the source of the raster
          * @param position [optional] - the center position at which the raster item is placed
          */
-        constructor(source?: HTMLImageElement | HTMLCanvasElement | string, position?: Point);
+        new (source?: HTMLImageElement | HTMLCanvasElement | string, position?: Point): Raster;
+
+    }
+    
+    /**
+     * The Raster item represents an image in a Paper.js project.
+     */
+    export interface Raster extends Item {
 
         /**
          * The size of the raster in pixels.
@@ -2127,17 +2126,22 @@ declare module paper {
         getImageData(data: ImageData, point: Point): void;
 
     }
-    /**
-     * A PlacedSymbol represents an instance of a symbol which has been placed in a Paper.js project.
-     */
-    export class PlacedSymbol extends Item {
-
+    
+    export var PlacedSymbol: {
+        
         /**
          * Creates a new PlacedSymbol Item.
          * @param symbol - the symbol to place
          * @param point [optional] - the center point of the placed symbol
          */
-        constructor(symbol: Symbol, point?: Point);
+        new (symbol: Symbol, point?: Point): PlacedSymbol;
+
+    }
+    
+    /**
+     * A PlacedSymbol represents an instance of a symbol which has been placed in a Paper.js project.
+     */
+    export interface PlacedSymbol extends Item {
 
         /**
          * The symbol that the placed symbol refers to.
@@ -2148,7 +2152,7 @@ declare module paper {
     /**
      * A HitResult object contains information about the results of a hit test. It is returned by item.hitTest(point) and project.hitTest(point).
      */
-    export class HitResult {
+    export interface HitResult {
 
         /**
          * Describes the type of the hit result. For example, if you hit a segment point, the type would be 'segment'.
@@ -2191,7 +2195,7 @@ declare module paper {
     /**
      * The PathItem class is the base for any items that describe paths and offer standardised methods for drawing and path manipulation, such as Path and CompoundPath.
      */
-    export class PathItem extends Item {
+    export interface PathItem extends Item {
 
         /**
          * The path's geometry, formatted as SVG style path data.
@@ -2345,88 +2349,90 @@ declare module paper {
         divide(path: PathItem): PathItem;
 
     }
+    
     /**
      * The path item represents a path in a Paper.js project.
      */
-    export class Path extends PathItem {
+    export var Path: {
 
         /**
          * Creates a linear path item from two points describing a line.
          * @param from - the line's starting point
          * @param to - the line's ending point
          */
-        static Line(from: Point, to: Point): Path;
+        Line(from: Point, to: Point): Path;
 
         /**
          * Creates a linear path item from the properties described by an object literal.
          * @param object - an object literal containing properties describing the path's attributes
          */
-        static Line(object: any): Path;
+        Line(object: any): Path;
 
         /**
          * Creates a circular path item.
          * @param center - the center point of the circle
          * @param radius - the radius of the circle
          */
-        static Circle(center: Point, radius: number): Path;
+        Circle(center: Point, radius: number): Path;
 
         /**
          * Creates a circular path item from the properties described by an object literal.
          * @param object - an object literal containing properties describing the path's attributes
          */
-        static Circle(object: any): Path;
+        Circle(object: any): Path;
 
         /** 
          * Creates a rectangular path item, with optionally rounded corners.
          * @param rectangle - the rectangle object describing the geometry of the rectangular path to be created.
          * @param radius [optional] - the size of the rounded corners default: null
          */
-        static Rectangle(rectangle: Rectangle, radius?: number): Path;
+        Rectangle(rectangle: Rectangle, radius?: number): Path;
 
         /**
          * Creates a rectangular path item from a point and a size object.
          * @param point - the rectangle's top-left corner.
          * @param size - the rectangle's size. 
          */
-        static Rectangle(point: Point, size: Size): Path;
+        Rectangle(point: Point, size: Size): Path;
 
         /**
          * Creates a rectangular path item from the passed points. These do not necessarily need to be the top left and bottom right corners, the constructor figures out how to fit a rectangle between them.
          * @param from - the first point defining the rectangle
          * @param to - the second point defining the rectangle
          */
-        static Rectangle(from: Point, to: Point): Path;
+        Rectangle(from: Point, to: Point): Path;
 
         /**
          * Creates a rectangular path item from the properties described by an object literal.
          * @param object - an object literal containing properties describing the path's attributes
          */
-        static Rectangle(object: any): Path;
+        Rectangle(object: any): Path;
 
         /**
          * Creates an elliptical path item.
          * @param rectangle - the rectangle circumscribing the ellipse
          */
-        static Ellipse(rectangle: Rectangle): Path;
+        Ellipse(rectangle: Rectangle): Path;
 
         /**
          * Creates an elliptical path item from the properties described by an object literal.
          * @param object - an object literal containing properties describing the path's attributes
          */
-        static Ellipse(object: any): Path;
+        Ellipse(object: any): Path;
+        
         /**
          * Creates a circular arc path item
          * @param from - the starting point of the circular arc
          * @param through - the point the arc passes through
          * @param to - the end point of the arc
          */
-        static Arc(from: Point, through: Point, to: Point): Path;
+        Arc(from: Point, through: Point, to: Point): Path;
 
         /**
          * Creates an circular arc path item from the properties described by an object literal.
          * @param object - an object literal containing properties describing the path's attributes
          */
-        static Arc(object: any): Path;
+        Arc(object: any): Path;
 
         /**
          * Creates a regular polygon shaped path item.
@@ -2434,13 +2440,13 @@ declare module paper {
          * @param sides - the number of sides of the polygon
          * @param radius - the radius of the polygon
          */
-        static RegularPolygon(center: Point, sides: number, radius: number): Path;
+        RegularPolygon(center: Point, sides: number, radius: number): Path;
 
         /**
          * Creates a regular polygon shaped path item from the properties described by an object literal.
          * @param object - an object literal containing properties describing the path's attributes
          */
-        static RegularPolygon(object: any): Path;
+        RegularPolygon(object: any): Path;
 
         /**
          * Creates a star shaped path item. The largest of radius1 and radius2 will be the outer radius of the star. The smallest of radius1 and radius2 will be the inner radius.
@@ -2449,32 +2455,38 @@ declare module paper {
          * @param radius1
          * @param radius2
          */
-        static Star(center: Point, points: number, radius1: number, radius2: number): Path;
+        Star(center: Point, points: number, radius1: number, radius2: number): Path;
 
         /**
          * Creates a star shaped path item from the properties described by an object literal.
          * @param object - an object literal containing properties describing the path's attributes
          */
-        static Star(object: any): Path;
+        Star(object: any): Path;
 
         /**
          * Creates a new path item and places it at the top of the active layer.
          * @param segments [optional] - An array of segments (or points to be converted to segments) that will be added to the path
          */
-        constructor(segments?: Segment[]| Point[]);
+        new (segments?: Segment[]| Point[]): Path;
 
         /**
          * Creates a new path item from an object description and places it at the top of the active layer.
          * @param object - an object literal containing properties describing the path's attributes
          */
-        constructor(object?: any);
+        new (object?: any): Path;
 
         /**
          * Creates a new path item from SVG path-data and places it at the top of the active layer.
          * @param pathData - the SVG path-data that describes the geometry of this path.
          */
-        constructor(pathData?: string);
+        new (pathData?: string): Path;
 
+    }
+    
+    /**
+     * The path item represents a path in a Paper.js project.
+     */
+    export interface Path extends PathItem {
         /**
          * The segments contained within the path.
          * Array of Segment objects
@@ -2697,22 +2709,28 @@ declare module paper {
 
 
     }
+    
     /**
      * A compound path contains two or more paths, holes are drawn where the paths overlap. All the paths in a compound path take on the style of the backmost path and can be accessed through its item.children list.
      */
-    export class CompoundPath extends PathItem {
-
+    export var CompoundPath: {
         /**
          * Creates a new compound path item from an object description and places it at the top of the active layer.
          * @param object - an object literal containing properties to be set on the path
          */
-        constructor(object: any);
+        new (object: any): CompoundPath;
 
         /**
          * Creates a new compound path item from SVG path-data and places it at the top of the active layer.
          * @param pathData - the SVG path-data that describes the geometry of this path.
          */
-        constructor(pathData: string);
+        new (pathData: string): CompoundPath;
+    }
+    
+    /**
+     * A compound path contains two or more paths, holes are drawn where the paths overlap. All the paths in a compound path take on the style of the backmost path and can be accessed through its item.children list.
+     */
+    export interface CompoundPath extends PathItem {
 
         /**
          * Specifies whether the compound path is oriented clock-wise.
@@ -3853,7 +3871,7 @@ declare module paper {
     /**
      * The View object wraps an HTML element and handles drawing and user interaction through mouse and keyboard for it. It offer means to scroll the view, find the currently visible bounds in project coordinates, or the center, both useful for constructing artwork that should appear centered on screen.
      */
-    export class View {
+    export interface View extends ITransformable, IEventEmitter {
 
         /**
          * The underlying native element.
@@ -3957,44 +3975,6 @@ declare module paper {
         viewToProject(point: Point): Point;
 
         //I cannot use function: Function as it is a reserved keyword
-
-        /**
-         * Attach an event handler to the view.
-         * @param type - String('frame'|'resize') the event type
-         * @param function - The function to be called when the event occurs
-         */
-        on(type: string, callback: (event: Event) => void): Item;
-
-        /**
-         * Attach one or more event handlers to the view.
-         */
-        on(param: any): Item;
-
-        /**
-         * Detach an event handler from the view.
-         * @param type - String('frame'|'resize') the event type
-         * @param function - The function to be detached
-         */
-        off(type: string, callback: (event: Event) => void): Item;
-
-        /**
-         * Detach one or more event handlers from the view.
-         * @param param -  an object literal containing one or more of the following properties: frame, resize
-         */
-        off(param: any): Item;
-
-        /**
-         * Emit an event on the view.
-         * @param type - String('frame'|'resize') the event type
-         * @param event - an object literal containing properties describing the event.
-         */
-        emit(type: string, event: any): boolean;
-
-        /**
-         * Check if the view has one or more event handlers of the specified type.
-         * @param type - String('frame'|'resize') the event type
-         */
-        responds(type: string): boolean;
 
         draw(): void;
 
@@ -4224,7 +4204,7 @@ declare module paper {
     /**
      * The TextItem type allows you to create typography. Its functionality is inherited by different text item types such as PointText, and AreaText (coming soon). They each add a layer of functionality that is unique to their type, but share the underlying properties and functions that they inherit from TextItem.
      */
-    export class TextItem extends Item {
+    export interface TextItem extends Item {
 
         /**
          * The text contents of the text item.
@@ -4258,22 +4238,28 @@ declare module paper {
         justification: string;
 
     }
+
     /**
      * A PointText item represents a piece of typography in your Paper.js project which starts from a certain point and extends by the amount of characters contained in it.
-     */
-    export class PointText extends TextItem {
-
+     */    
+    export var PointText: {
         /**
          * Creates a point text item
          * @param point - the position where the text will start
          */
-        constructor(point: Point);
+        new (point: Point): PointText;
 
         /**
          * Creates a point text item from the properties described by an object literal.
          * @param object - an object literal containing properties describing the path's attributes
          */
-        constructor(object?: any);
+        new (object?: any): PointText;
+    }
+    
+    /**
+     * A PointText item represents a piece of typography in your Paper.js project which starts from a certain point and extends by the amount of characters contained in it.
+     */
+    export interface PointText extends TextItem {
 
         /**
          * The PointText's anchor point
@@ -4281,24 +4267,51 @@ declare module paper {
         point: Point;
 
     }
-    
+
     /**
      * A line object for vector calculations
      */
-    export class Line {
-
+    export var Line: {
         /**
          * Create line from either endpoints, or base point plus vector.
          * @param asVector - true if the second point is expressed relative to the first 
          */
-        constructor(p1: paper.Point, p2: paper.Point, asVector?: boolean);
+        new (p1: paper.Point, p2: paper.Point, asVector?: boolean): Line;
         
         /**
          * Create line from numeric values.
          * @param asVector - true if the second point is expressed relative to the first 
          */
-        constructor(x1: number, y1: number, x2: number, y2: number, asVector?: boolean);
+        new (x1: number, y1: number, x2: number, y2: number, asVector?: boolean): Line;
+        
+        intersect(
+                p1x: number, p1y: number, 
+                v1x: number, v1y: number, 
+                p2x: number, p2y: number, 
+                v2x: number, v2y: number, 
+                asVector: boolean,
+                isInfinite: boolean): Point;
+                
+        getSide(
+            px: number, py: number, 
+            vx: number, vy: number, 
+            x: number, y: number, 
+            asVector: boolean, 
+            isInfinite: boolean
+        ): number;     
+                
+        getSignedDistance(
+            px: number, py: number, 
+            vx: number, vy: number, 
+            x: number, y: number, 
+            asVector: boolean): number;
+    }
     
+    /**
+     * A line object for vector calculations
+     */
+    export interface Line {
+
         /**
          * The starting point of the line
          */
@@ -4323,28 +4336,6 @@ declare module paper {
         distance(point: Point): number;        
         isCollinear(line: Line): boolean;
         isOrthogonal(line: Line): boolean;
-        
-        static intersect(
-                p1x: number, p1y: number, 
-                v1x: number, v1y: number, 
-                p2x: number, p2y: number, 
-                v2x: number, v2y: number, 
-                asVector: boolean,
-                isInfinite: boolean): Point;
-                
-        static getSide(
-            px: number, py: number, 
-            vx: number, vy: number, 
-            x: number, y: number, 
-            asVector: boolean, 
-            isInfinite: boolean
-        ): number;     
-                
-        static getSignedDistance(
-            px: number, py: number, 
-            vx: number, vy: number, 
-            x: number, y: number, 
-            asVector: boolean): number;
     }
     
     export class Numerical {

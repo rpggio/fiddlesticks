@@ -66,7 +66,7 @@ namespace PaperNotify {
     export function initialize() {
         
         // Inject Item.observe
-        const itemProto = <any>paper.Item.prototype;
+        const itemProto = (<any>paper).Item.prototype;
         itemProto.observe = function(handler: ItemChangeHandler): Callback {
             if (!this._observers) {
                 this._observers = [];

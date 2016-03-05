@@ -244,4 +244,8 @@ declare module paper {
     export interface ToolEvent {
         smartDragItem: Item;
     }
+    
+    export interface PaperMouseEvent {
+        smartDragItem: Item;
+    }
 }
