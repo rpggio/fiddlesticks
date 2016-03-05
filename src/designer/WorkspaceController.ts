@@ -35,17 +35,8 @@ class WorkspaceController {
                 this.project.clear();
                 this.project.deselectAll();
                 this._textBlockItems = {};
-
-                //this.project.activeLayer.fillColor = ev.data.attr.backgroundColor;
-
-                // this.viewZoom.setZoomRange(
-                //     [sheetBounds.scale(0.005).size, sheetBounds.scale(0.25).size]);
             }
         );
-
-        // channels.events.sketch.attrChanged.subscribe(
-        //     ev => this.project.activeLayer.fillColor = ev.data.backgroundColor
-        // );
 
         channels.events.mergeTyped(
             channels.events.textblock.added,
@@ -194,7 +185,6 @@ class WorkspaceController {
         });
 
         item.observe(flags => {
-            console.warn("item flags", PaperNotify.describe(flags));
             if (flags & PaperNotify.ChangeFlag.GEOMETRY) {
                 let block = <TextBlock>this.getBlockArrangement(item);
                 block._id = textBlock._id;

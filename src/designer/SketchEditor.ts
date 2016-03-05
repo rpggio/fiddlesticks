@@ -4,15 +4,15 @@ class SketchEditor extends Component<Sketch> {
 
     constructor(container: HTMLElement, channels: Channels) {
         super();
-        
+
         this.actions = channels.actions;
-        
+
         const sketchDom$ = channels.events.merge(
-            channels.events.sketch.loaded, 
+            channels.events.sketch.loaded,
             channels.events.sketch.attrChanged)
             .map(m => this.render(m.rootData.retained.sketch));
         ReactiveDom.renderStream(sketchDom$, container);
-        
+
     }
 
     render(sketch: Sketch) {
@@ -55,22 +55,25 @@ class SketchEditor extends Component<Sketch> {
                                         { backgroundColor: color && color.toHexString() });
                                 }
                             ),
+                        update: (oldVnode, vnode) => {
+                            ColorPicker.set(vnode.elm, sketch.attr.backgroundColor);
+                        },
                         destroy: (vnode) => ColorPicker.destroy(vnode.elm)
                     }
                 }),
 
-            BootScript.dropdown({ 
+            BootScript.dropdown({
                 id: "sketchMenu",
                 content: "Fiddle",
                 items: [
-                    { 
+                    {
                         content: "New",
                         attrs: {
                             title: "Create new sketch"
                         },
                         onClick: () => this.actions.sketch.create.dispatch()
                     },
-                    { 
+                    {
                         content: "Zoom to fit",
                         attrs: {
                             title: "Fit sketch contents in view"

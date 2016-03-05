@@ -25,6 +25,10 @@ class ColorPicker {
         });
     };
     
+    static set(elem: HTMLElement, value: string){
+        (<any>$(elem)).spectrum("set", value);
+    }
+    
     static destroy(elem){
        (<any>$(elem)).spectrum("destroy");
     }

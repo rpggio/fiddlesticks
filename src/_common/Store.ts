@@ -91,6 +91,7 @@ class Store {
                 const attr = m.data || {};
                 attr.backgroundColor = attr.backgroundColor || '#f6f3eb';
                 this.state.retained.sketch.attr = attr;
+                
                 events.sketch.loaded.dispatchContext(this.state, this.state.retained.sketch);
                 events.designer.zoomToFitRequested.dispatchContext(this.state);
 
