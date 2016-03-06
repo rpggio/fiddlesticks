@@ -75,6 +75,17 @@ class TextBlockEditor extends Component<TextBlock> {
                             })
                     ]),
 
+                // h("div.select-font",
+                //     {
+                //         hook: {
+                //             insert: (vnode) => {
+                //                 new FontPicker(vnode.elm);
+                //             },
+                //         }
+                //     }
+                // ),
+
+
                 h("button.delete-textblock.btn.btn-danger",
                     {
                         type: "button",

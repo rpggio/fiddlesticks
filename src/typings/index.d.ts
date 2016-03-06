@@ -7,6 +7,9 @@
 /// <reference path="react/react-dom.d.ts" />
 /// <reference path="custom/paper.d.ts" />
 
+import React = __React;
+import ReactDOM = __React.__DOM;
+
 
 // NPM
 
