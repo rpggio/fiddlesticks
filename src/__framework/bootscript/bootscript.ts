@@ -3,8 +3,8 @@ namespace BootScript {
 
     interface MenuItem {
         content: any,
-        attrs?: Object,
-        onClick?: () => void
+        options?: Object
+        //onClick?: () => void
     }
 
     export function dropdown(
@@ -33,12 +33,9 @@ namespace BootScript {
                 args.items.map(item =>
                     h("li",
                         {
-                            on: {
-                                click: (ev) => item.onClick && item.onClick()
-                            }
                         },
                         [
-                            h('a', {}, [item.content])
+                            h('a', item.options || {}, [item.content])
                         ]
                     )
                 )

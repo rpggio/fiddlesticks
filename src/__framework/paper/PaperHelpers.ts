@@ -8,15 +8,15 @@ namespace PaperHelpers {
 
     export var shouldLogInfo: boolean;
 
-    const log = function(...params: any[]){
-        if(shouldLogInfo){
+    const log = function(...params: any[]) {
+        if (shouldLogInfo) {
             console.log(...params);
         }
-    } 
+    }
 
     export const importOpenTypePath = function(openPath: opentype.Path): paper.CompoundPath {
         return new paper.CompoundPath(openPath.toPathData());
-        
+
         // let svg = openPath.toSVG(4);
         // return <paper.Path>paper.project.importSVG(svg);
     }
@@ -129,7 +129,7 @@ namespace PaperHelpers {
         }
         return PaperHelpers.findAncestor(item, predicate);
     }
-    
+
     /**
      * Find nearest ancestor satisfying the predicate.
      */
@@ -148,14 +148,14 @@ namespace PaperHelpers {
         }
         return null;
     }
-    
+
     /**
      * The corners of the rect, clockwise starting from topLeft
      */
     export const corners = function(rect: paper.Rectangle): paper.Point[] {
         return [rect.topLeft, rect.topRight, rect.bottomRight, rect.bottomLeft];
     }
-    
+
     /**
      * the midpoint between two points
      */
@@ -202,7 +202,7 @@ namespace PaperHelpers {
             } else {
                 ev.smartDragItem = item;
             }
-                        
+
             if (item.isSmartDragging) {
                 item.isSmartDragging = false;
                 log("emitting smartDrag.smartDragEnd");
@@ -215,24 +215,24 @@ namespace PaperHelpers {
             ev.stop();
         });
     }
-
+    
     export const EventType = {
-        
+
         /**
          * Drag action has started.
          */
         smartDragStart: "smartDragStart",
-        
+
         /**
          * Dragged item has moved.
          */
         smartDragMove: "smartDragMove",
-        
+
         /**
          * Drag action has ended.
          */
         smartDragEnd: "smartDragEnd",
-        
+
         /**
          * The normal click event will fire even at the end of a drag.
          * This click event does not. 
@@ -257,7 +257,7 @@ declare module paper {
     export interface ToolEvent {
         smartDragItem: Item;
     }
-    
+
     export interface PaperMouseEvent {
         smartDragItem: Item;
     }

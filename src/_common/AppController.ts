@@ -9,6 +9,9 @@
 
 class AppController {
 
+    store: Store;
+    workspaceController: WorkspaceController;
+
     constructor(
         store: Store,
         sketchEditor: SketchEditor,
@@ -19,10 +22,9 @@ class AppController {
         actions.subscribe(x => console.log(x));
         events.subscribe(x => console.log(x));
 
-        let workspaceController: WorkspaceController;
         events.app.fontLoaded.observe().first().subscribe(m => {
             
-            workspaceController = new WorkspaceController(store, m.data);
+            this.workspaceController = new WorkspaceController(store, m.data);
             
             events.app.retainedStateLoadAttemptComplete.subscribe(m => {
                 if (!m.data) {

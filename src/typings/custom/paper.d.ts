@@ -1554,8 +1554,9 @@ declare module paper {
         /**
          * Rasterizes the item into a newly created Raster object. The item itself is not removed after rasterization.
          * @param resolution [optional] - the resolution of the raster in pixels per inch (DPI). If not specified, the value of view.resolution is used. default: view.resolution
+         * @param insert [optional] - specifies whether the raster should be inserted into the scene graph. When set to true, it is inserted above the original — optional, default: true
          */
-        rasterize(resolution: number): Raster;
+        rasterize(resolution: number, insert?: boolean): Raster;
 
         /**
          * Checks whether the item's geometry contains the given point.

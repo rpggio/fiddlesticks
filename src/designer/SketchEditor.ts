@@ -17,6 +17,9 @@ class SketchEditor extends Component<Sketch> {
     }
 
     render(sketch: Sketch) {
+
+        const self = this;
+
         return h("div", [
             h("label", "Add text: "),
             h("input.add-text", {
@@ -40,24 +43,7 @@ class SketchEditor extends Component<Sketch> {
                 style: {
                 }
             }),
-            
-            // h("div.font-picker-container",
-            //     {
-            //         hook: {
-            //             insert: (vnode) => {
-            //                 const props: FontPickerProps = {
-            //                     store: this._store,
-            //                     selection: sketch.defaultFontDesc,
-            //                     selectionChanged: (defaultFontDesc) => {
-            //                         this._store.actions.sketch.attrUpdate.dispatch({ defaultFontDesc });
-            //                     }
-            //                 };
-            //                 ReactDOM.render(rh(FontPicker, props), vnode.elm);
-            //             },
-            //         }
-            //     }
-            // ),            
-            
+
             h("label", "Background: "),
             h("input.background-color",
                 {
@@ -84,22 +70,48 @@ class SketchEditor extends Component<Sketch> {
 
             BootScript.dropdown({
                 id: "sketchMenu",
-                content: "Fiddle",
+                content: "Actions",
                 items: [
                     {
                         content: "New",
-                        attrs: {
-                            title: "Create new sketch"
-                        },
-                        onClick: () => this.store.actions.sketch.create.dispatch()
+                        options: {
+                            attrs: {
+                                title: "Create new sketch"
+                            },
+                            on: {
+                                click: () => this.store.actions.sketch.create.dispatch()
+                            }
+                        }
                     },
                     {
                         content: "Zoom to fit",
-                        attrs: {
-                            title: "Fit sketch contents in view"
-                        },
-                        onClick: () => this.store.actions.designer.zoomToFit.dispatch()
-                    }
+                        options: {
+                            attrs: {
+                                title: "Fit contents in view"
+                            },
+                            on: {
+                                click: () => this.store.actions.designer.zoomToFit.dispatch()
+                            }
+                        }
+                    },
+                    {
+                        content: "Export image",
+                        options: {
+                            attrs: {
+                                title: "Export Fiddle as PNG",
+                                href: "#",
+                                download: "fiddle.png"
+                            },
+                            hook: {
+                                insert: (vnode) => {
+                                    vnode.elm.onclick = () => {
+                                        app.workspaceController.handleImageDownloadClick(vnode.elm);
+                                        self.store.actions.designer.exportingImage.dispatch(null);
+                                    }
+                                }
+                            }
+                        }
+                    },
                 ]
             })
 

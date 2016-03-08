@@ -92,8 +92,8 @@ class Store {
 
         actions.designer.zoomToFit.subscribe(m => {
             events.designer.zoomToFitRequested.dispatch(null);
-        })
-
+        });
+        
         // ----- Sketch -----
 
         actions.sketch.create

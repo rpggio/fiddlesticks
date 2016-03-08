@@ -16,7 +16,8 @@ class Actions extends TypedChannel.Channel {
     };
     
     designer = {
-        zoomToFit: this.topic<ItemSelection>("designer.zoomToFit")
+        zoomToFit: this.topic<ItemSelection>("designer.zoomToFit"),
+        exportingImage: this.topic<void>("designer.exportImage")
     }
     
     sketch = {
@@ -45,7 +46,7 @@ class Events extends TypedChannel.Channel {
     }
     
     designer = {
-        zoomToFitRequested: this.topic<void>("designer.zoomToFitRequested")
+        zoomToFitRequested: this.topic<void>("designer.zoomToFitRequested"),
     };
     
     sketch = {

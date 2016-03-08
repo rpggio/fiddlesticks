@@ -12,12 +12,12 @@ class WorkspaceController {
     fallbackFont: opentype.Font;
     viewZoom: ViewZoom;
 
-    private _store: Store;
+    private store: Store;
     private _sketch: Sketch;
     private _textBlockItems: { [textBlockId: string]: TextWarp } = {};
 
     constructor(store: Store, fallbackFont: opentype.Font) {
-        this._store = store;
+        this.store = store;
         this.fallbackFont = fallbackFont;
         paper.settings.handleSize = 1;
 
@@ -32,6 +32,14 @@ class WorkspaceController {
         paper.view.on(paper.EventType.click, clearSelection);
         paper.view.on(PaperHelpers.EventType.smartDragStart, clearSelection);
 
+        // ----- Designer -----
+
+        store.events.designer.zoomToFitRequested.subscribe(() => {
+            this.zoomToFit();
+        });
+
+        // ----- Sketch -----
+
         store.events.sketch.loaded.subscribe(
             ev => {
                 this._sketch = ev.data;
@@ -40,6 +48,23 @@ class WorkspaceController {
                 this._textBlockItems = {};
             }
         );
+
+        store.events.sketch.selectionChanged.subscribe(m => {
+            if (!m.data || !m.data.itemId) {
+                this.project.deselectAll();
+                store.events.sketch.editingItemChanged.dispatch({});
+                return;
+            }
+
+            let item = m.data.itemId && this._textBlockItems[m.data.itemId];
+            if (item && !item.selected) {
+                this.project.deselectAll();
+                store.events.sketch.editingItemChanged.dispatch({});
+                item.selected = true;
+            }
+        });
+
+        // ----- TextBlock -----
 
         store.events.mergeTyped(
             store.events.textblock.added,
@@ -76,25 +101,6 @@ class WorkspaceController {
             }
         });
 
-        store.events.sketch.selectionChanged.subscribe(m => {
-            if (!m.data || !m.data.itemId) {
-                this.project.deselectAll();
-                store.events.sketch.editingItemChanged.dispatch({});
-                return;
-            }
-
-            let item = m.data.itemId && this._textBlockItems[m.data.itemId];
-            if (item && !item.selected) {
-                this.project.deselectAll();
-                store.events.sketch.editingItemChanged.dispatch({});
-                item.selected = true;
-            }
-        });
-
-        store.events.designer.zoomToFitRequested.subscribe(() => {
-            this.zoomToFit();
-        });
-        
         store.events.textblock.editorClosed.subscribe(m => {
             let item = this._textBlockItems[m.data._id];
             if (item) {
@@ -117,6 +123,48 @@ class WorkspaceController {
         }
 
         this.viewZoom.zoomTo(bounds.scale(1.05));
+    }
+
+    handleImageDownloadClick(clickElement: HTMLLinkElement) {
+        let background: paper.Shape;
+        if (this.store.state.retained.sketch.backgroundColor) {
+            const bounds = app.workspaceController.project.activeLayer.bounds;
+            background = paper.Shape.Rectangle(
+                bounds.topLeft.subtract(20),
+                bounds.bottomRight.add(20));
+            background.fillColor = this.store.state.retained.sketch.backgroundColor;
+            background.sendToBack();
+        }
+
+        const raster = app.workspaceController.project.activeLayer.rasterize(300, false);
+        const data = raster.toDataURL();
+        clickElement.href = data;
+        (<any>clickElement).download = this.getSketchFileName(30);
+
+        if (background) {
+            background.remove();
+        }
+    }
+
+    private getSketchFileName(length: number): string {
+        let name = "";
+        outer: 
+        for (const block of this.store.state.retained.sketch.textBlocks) {
+            for (const word of block.text.split(/\s/)) {
+                const trim = word.replace(/\W/g, '').trim();
+                if (trim.length) {
+                    if (name.length) name += " ";
+                    name += trim;
+                }
+                if (name.length > 40) {
+                    break outer;
+                }
+            }
+        }
+        if (!name.length){
+            return "fiddle.png";
+        }
+        return name + ".png";
     }
 
     addBlock(textBlock: TextBlock) {
@@ -166,7 +214,7 @@ class WorkspaceController {
 
         if (textBlock.fontDesc && textBlock.fontDesc.url) {
             // push in font when ready
-            this._store.resources.parsedFonts.get(textBlock.fontDesc.url,
+            this.store.resources.parsedFonts.get(textBlock.fontDesc.url,
                 (url, font) => item.font = font);
         }
 
@@ -177,7 +225,7 @@ class WorkspaceController {
         const sendEditAction = () => {
             const editorAt = this.project.view.projectToView(
                 PaperHelpers.midpoint(item.bounds.topLeft, item.bounds.center));
-            this._store.actions.sketch.setEditingItem.dispatch(
+            this.store.actions.sketch.setEditingItem.dispatch(
                 {
                     itemId: textBlock._id,
                     itemType: "TextBlock",
@@ -192,7 +240,7 @@ class WorkspaceController {
                 sendEditAction();
             } else {
                 // select item
-                this._store.actions.sketch.setSelection.dispatch(
+                this.store.actions.sketch.setSelection.dispatch(
                     { itemId: textBlock._id, itemType: "TextBlock" });
             }
         });
@@ -200,7 +248,7 @@ class WorkspaceController {
         item.on(PaperHelpers.EventType.smartDragStart, ev => {
             item.bringToFront();
             if (!item.selected) {
-                this._store.actions.sketch.setSelection.dispatch(
+                this.store.actions.sketch.setSelection.dispatch(
                     { itemId: textBlock._id, itemType: "TextBlock" });
             }
         });
@@ -208,7 +256,7 @@ class WorkspaceController {
         item.on(PaperHelpers.EventType.smartDragEnd, ev => {
             let block = <TextBlock>this.getBlockArrangement(item);
             block._id = textBlock._id;
-            this._store.actions.textBlock.updateArrange.dispatch(block);
+            this.store.actions.textBlock.updateArrange.dispatch(block);
         });
 
         const itemChange$ = PaperNotify.observe(item, PaperNotify.ChangeFlag.GEOMETRY);
@@ -217,7 +265,7 @@ class WorkspaceController {
             .subscribe(() => {
                 let block = <TextBlock>this.getBlockArrangement(item);
                 block._id = textBlock._id;
-                this._store.actions.textBlock.updateArrange.dispatch(block);
+                this.store.actions.textBlock.updateArrange.dispatch(block);
             });
 
         item.data = textBlock._id;
@@ -227,9 +275,9 @@ class WorkspaceController {
                     .add(50));
         }
         this._textBlockItems[textBlock._id] = item;
-        
-        if(!this._store.state.retained.sketch.loading
-            && this._store.state.retained.sketch.textBlocks.length <= 1) {
+
+        if (!this.store.state.retained.sketch.loading
+            && this.store.state.retained.sketch.textBlocks.length <= 1) {
             // open editor for newly added block
             sendEditAction();
         }
