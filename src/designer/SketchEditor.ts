@@ -2,15 +2,15 @@
 class SketchEditor extends Component<Sketch> {
     actions: Actions;
 
-    constructor(container: HTMLElement, channels: Channels) {
+    constructor(container: HTMLElement, store: Store) {
         super();
 
-        this.actions = channels.actions;
+        this.actions = store.actions;
 
-        const sketchDom$ = channels.events.merge(
-            channels.events.sketch.loaded,
-            channels.events.sketch.attrChanged)
-            .map(m => this.render(m.rootData.retained.sketch));
+        const sketchDom$ = store.events.merge(
+            store.events.sketch.loaded,
+            store.events.sketch.attrChanged)
+            .map(m => this.render(store.state.retained.sketch));
         ReactiveDom.renderStream(sketchDom$, container);
 
     }

@@ -56,11 +56,10 @@ class Store {
                 if (loaded && loaded.sketch && loaded.sketch.textBlocks) {
                     // data seems legit
                     this.state.retained = loaded;
-                    events.sketch.loaded.dispatchContext(
-                        this.state, this.state.retained.sketch);
+                    events.sketch.loaded.dispatch(
+                        this.state.retained.sketch);
                     for (const tb of this.state.retained.sketch.textBlocks) {
-                        events.textblock.loaded.dispatchContext(
-                            this.state, tb);
+                        events.textblock.loaded.dispatch(tb);
                     }
                     events.designer.zoomToFitRequested.dispatch();
                     success = true;
@@ -97,8 +96,8 @@ class Store {
                 patch.backgroundColor = patch.backgroundColor || '#f6f3eb';
                 this.assign(this.state.retained.sketch, patch);
 
-                events.sketch.loaded.dispatchContext(this.state, this.state.retained.sketch);
-                events.designer.zoomToFitRequested.dispatchContext(this.state);
+                events.sketch.loaded.dispatch(this.state.retained.sketch);
+                events.designer.zoomToFitRequested.dispatch();
 
                 this.resources.parsedFonts.get(this.state.retained.sketch.fontUrl);
 
@@ -111,7 +110,7 @@ class Store {
         actions.sketch.attrUpdate
             .subscribe(ev => {
                 this.assign(this.state.retained.sketch, ev.data);
-                events.sketch.attrChanged.dispatchContext(this.state,
+                events.sketch.attrChanged.dispatch(
                     this.state.retained.sketch);
                 this.changedRetainedState();
             });
@@ -128,8 +127,8 @@ class Store {
                 clientX: m.data.clientX,
                 clientY: m.data.clientY
             };
-            events.sketch.editingItemChanged.dispatchContext(
-                this.state, this.state.disposable.editingItem);
+            events.sketch.editingItemChanged.dispatch(
+                this.state.disposable.editingItem);
         });
 
         actions.sketch.setSelection.subscribe(m => {
@@ -149,8 +148,8 @@ class Store {
                 priorSelectionItemId: this.state.disposable.selection
                 && this.state.disposable.selection.itemId
             };
-            events.sketch.selectionChanged.dispatchContext(
-                this.state, this.state.disposable.selection);
+            events.sketch.selectionChanged.dispatch(
+                this.state.disposable.selection);
         });
 
 
@@ -171,7 +170,7 @@ class Store {
                     block.textColor = "gray"
                 }
                 this.state.retained.sketch.textBlocks.push(block);
-                events.textblock.added.dispatchContext(this.state, block);
+                events.textblock.added.dispatch(block);
                 this.changedRetainedState();
             });
 
@@ -187,7 +186,7 @@ class Store {
                         fontSize: ev.data.fontSize
                     };
                     this.assign(block, patch);
-                    events.textblock.attrChanged.dispatchContext(this.state, block);
+                    events.textblock.attrChanged.dispatch(block);
                     this.changedRetainedState();
                 }
             });
@@ -202,7 +201,7 @@ class Store {
                     }
                 });
                 if (didDelete) {
-                    events.textblock.removed.dispatchContext(this.state, { _id: ev.data._id });
+                    events.textblock.removed.dispatch({ _id: ev.data._id });
                     if (this.state.disposable.editingItem.itemId == ev.data._id) {
                         this.state.disposable.editingItem = {};
                         events.sketch.editingItemChanged.dispatch(this.state.disposable.editingItem);
@@ -217,7 +216,7 @@ class Store {
                 if (block) {
                     block.position = ev.data.position;
                     block.outline = ev.data.outline;
-                    events.textblock.arrangeChanged.dispatchContext(this.state, block);
+                    events.textblock.arrangeChanged.dispatch(block);
                     this.changedRetainedState();
                 }
             });

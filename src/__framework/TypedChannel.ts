@@ -7,25 +7,24 @@ namespace TypedChannel {
 
     type Value = number | string | boolean | Date;
 
-    export interface Message<TData extends Serializable, TContextData extends Serializable> {
+    export interface Message<TData extends Serializable> {
         type: string;
         data?: TData;
-        rootData?: TContextData;
         meta?: Object;
     }
 
     type ISubject<T> = Rx.Observer<T> & Rx.Observable<T>;
 
-    export class ChannelTopic<TData extends Serializable, TContextData extends Serializable> {
+    export class ChannelTopic<TData extends Serializable> {
         type: string;
-        channel: ISubject<Message<TData, TContextData>>;
+        channel: ISubject<Message<TData>>;
 
-        constructor(channel: ISubject<Message<TData, TContextData>>, type: string) {
+        constructor(channel: ISubject<Message<TData>>, type: string) {
             this.channel = channel;
             this.type = type;
         }
 
-        subscribe(observer: (message: Message<TData, TContextData>) => void) {
+        subscribe(observer: (message: Message<TData>) => void) {
             this.observe().subscribe(observer);
         }
 
@@ -36,45 +35,37 @@ namespace TypedChannel {
             });
         }
 
-        dispatchContext(context: TContextData, data?: TData) {
-            this.channel.onNext({
-                type: this.type,
-                rootData: context,
-                data: _.clone(data)
-            });
-        }
-
-        observe(): Rx.Observable<Message<TData, TContextData>> {
+        observe(): Rx.Observable<Message<TData>> {
             return this.channel.filter(m => m.type === this.type);
         }
     }
 
-    export class Channel<TContextData extends Serializable> {
+    export class Channel {
         type: string;
-        private subject: ISubject<Message<Serializable, TContextData>>;
+        private subject: ISubject<Message<Serializable>>;
 
-        constructor(subject?: ISubject<Message<Serializable, TContextData>>, type?: string) {
-            this.subject = subject || new Rx.Subject<Message<Serializable, TContextData>>();
+        constructor(subject?: ISubject<Message<Serializable>>, type?: string) {
+            this.subject = subject || new Rx.Subject<Message<Serializable>>();
             this.type = type;
         }
 
-        subscribe(onNext?: (value: Message<Serializable, TContextData>) => void): Rx.IDisposable {
+        subscribe(onNext?: (value: Message<Serializable>) => void): Rx.IDisposable {
             return this.subject.subscribe(onNext);
         }
 
-        topic<TData extends Serializable>(type: string) : ChannelTopic<TData, TContextData> {
-            return new ChannelTopic<TData, TContextData>(this.subject as ISubject<Message<TData, TContextData>>,
+        topic<TData extends Serializable>(type: string) : ChannelTopic<TData> {
+            return new ChannelTopic<TData>(this.subject as ISubject<Message<TData>>,
                 this.type ? this.type + '.' + type : type);
         }
         
-        mergeTyped<TData extends Serializable>(...topics: ChannelTopic<TData, TContextData>[]) 
-            : Rx.Observable<Message<TData, TContextData>> {
+        mergeTyped<TData extends Serializable>(...topics: ChannelTopic<TData>[]) 
+            : Rx.Observable<Message<TData>> {
             const types = topics.map(t => t.type);
-            return this.subject.filter(m => types.indexOf(m.type) >= 0 ) as Rx.Observable<Message<TData, TContextData>>;
+            return this.subject.filter(m => types.indexOf(m.type) >= 0 ) as Rx.Observable<Message<TData>>;
         }
         
-        merge(...topics: ChannelTopic<Serializable, TContextData>[]) 
-            : Rx.Observable<Message<Serializable, TContextData>> {
+        merge(...topics: ChannelTopic<Serializable>[]) 
+            : Rx.Observable<Message<Serializable>> {
             const types = topics.map(t => t.type);
             return this.subject.filter(m => types.indexOf(m.type) >= 0 );
         }

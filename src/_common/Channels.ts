@@ -1,5 +1,5 @@
 
-class Actions extends TypedChannel.Channel<void> {
+class Actions extends TypedChannel.Channel {
     
     app = {
         /**
@@ -35,7 +35,7 @@ class Actions extends TypedChannel.Channel<void> {
     
 }
 
-class Events extends TypedChannel.Channel<any> {
+class Events extends TypedChannel.Channel {
     
     app = {
         retainedStateLoadAttemptComplete: this.topic<boolean>("app.retainedStateLoadAttemptComplete"),
