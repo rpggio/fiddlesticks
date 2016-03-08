@@ -17,7 +17,7 @@ class FontFamiliesLoader {
 
     loadListRemote(callback: (families: FontFamily[]) => void) {
         var url = 'https://www.googleapis.com/webfonts/v1/webfonts?';
-        var key = 'key=AIzaSyBHjV6_j4YEFpfehXOtATLoDDFdZbjYCFA';
+        var key = 'key=GOOGLE-API-KEY';
         var sort = "popularity";
         var opt = 'sort=' + sort + '&';
         var req = url + opt + key;

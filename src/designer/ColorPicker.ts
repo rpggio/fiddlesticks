@@ -1,6 +1,79 @@
+namespace ColorPicker {
 
-class ColorPicker {
-    static setup(elem, onChange) {
+    const DEFAULT_PALETTE = [
+        [
+            "#000", "#666", "#ccc", "#eee", "#fff"
+        ],
+        [
+            // http://www.color-hex.com/color-palette/807
+            "#ee4035",
+            "#f37736",
+            "#fdf498",
+            "#7bc043",
+            "#0392cf",
+        ],
+        [
+            // http://www.color-hex.com/color-palette/894
+            "#edc951",
+            "#eb6841",
+            "#cc2a36",
+            "#4f372d",
+            "#00a0b0",
+        ],
+        [
+            // http://www.color-hex.com/color-palette/164
+            "#1b85b8",
+            "#5a5255",
+            "#559e83",
+            "#ae5a41",
+            "#c3cb71",
+        ],
+        [
+            // http://www.color-hex.com/color-palette/389
+            "#4b3832",
+            "#854442",
+            "#fff4e6",
+            "#3c2f2f",
+            "#be9b7b",
+        ],
+        [
+            // http://www.color-hex.com/color-palette/455
+            "#ff4e50",
+            "#fc913a",
+            "#f9d62e",
+            "#eae374",
+            "#e2f4c7",
+        ],
+        [
+            // http://www.color-hex.com/color-palette/700
+            "#d11141",
+            "#00b159",
+            "#00aedb",
+            "#f37735",
+            "#ffc425",
+        ],
+        [
+            // http://www.color-hex.com/color-palette/826
+            "#e8d174",
+            "#e39e54",
+            "#d64d4d",
+            "#4d7358",
+            "#9ed670",
+        ],
+        [
+            // http://www.color-hex.com/color-palette/1223
+            "#ffd4e5",
+            "#d4ffea",
+            "#eecbff",
+            "#feffa3",
+            "#dbdcff",
+        ]
+    ];
+
+    export function setup(elem, topColors: string[], onChange) {
+        const topColorsGrouped = _.chunk(topColors, 8);
+        const palette = topColorsGrouped.concat(DEFAULT_PALETTE);
+        
         let sel = <any>$(elem);
         (<any>$(elem)).spectrum({
             showInput: true,
@@ -9,27 +82,18 @@ class ColorPicker {
             showButtons: false,
             showAlpha: true,
             showPalette: true,
-            showSelectionPalette: true,
-            palette: [
-                ["#000", "#444", "#666", "#999", "#ccc", "#eee", "#f3f3f3", "#fff"],
-                ["#f00", "#f90", "#ff0", "#0f0", "#0ff", "#00f", "#90f", "#f0f"],
-                ["#f4cccc", "#fce5cd", "#fff2cc", "#d9ead3", "#d0e0e3", "#cfe2f3", "#d9d2e9", "#ead1dc"],
-                ["#ea9999", "#f9cb9c", "#ffe599", "#b6d7a8", "#a2c4c9", "#9fc5e8", "#b4a7d6", "#d5a6bd"],
-                ["#e06666", "#f6b26b", "#ffd966", "#93c47d", "#76a5af", "#6fa8dc", "#8e7cc3", "#c27ba0"],
-                ["#c00", "#e69138", "#f1c232", "#6aa84f", "#45818e", "#3d85c6", "#674ea7", "#a64d79"],
-                ["#900", "#b45f06", "#bf9000", "#38761d", "#134f5c", "#0b5394", "#351c75", "#741b47"],
-                ["#600", "#783f04", "#7f6000", "#274e13", "#0c343d", "#073763", "#20124d", "#4c1130"]
-            ],
+            showSelectionPalette: false,
+            palette: palette,
             localStorageKey: "sketchtext",
             change: onChange
         });
     };
-    
-    static set(elem: HTMLElement, value: string){
+
+    export function set(elem: HTMLElement, value: string) {
         (<any>$(elem)).spectrum("set", value);
     }
-    
-    static destroy(elem){
-       (<any>$(elem)).spectrum("destroy");
+
+    export function destroy(elem) {
+        (<any>$(elem)).spectrum("destroy");
     }
 }

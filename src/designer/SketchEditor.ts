@@ -1,12 +1,12 @@
 
 class SketchEditor extends Component<Sketch> {
 
-    _store: Store;
+    store: Store;
 
     constructor(container: HTMLElement, store: Store) {
         super();
 
-        this._store = store;
+        this.store = store;
 
         const sketchDom$ = store.events.merge(
             store.events.sketch.loaded,
@@ -25,7 +25,7 @@ class SketchEditor extends Component<Sketch> {
                         if (ev.which === 13 || ev.keyCode === 13) {
                             const text = ev.target && ev.target.value;
                             if (text.length) {
-                                this._store.actions.textBlock.add.dispatch({ text: text });
+                                this.store.actions.textBlock.add.dispatch({ text: text });
                                 ev.target.value = '';
                             }
                         }
@@ -69,8 +69,9 @@ class SketchEditor extends Component<Sketch> {
                         insert: (vnode) =>
                             ColorPicker.setup(
                                 vnode.elm,
+                                SketchHelpers.colorsInUse(this.store.state.retained.sketch),
                                 color => {
-                                    this._store.actions.sketch.attrUpdate.dispatch(
+                                    this.store.actions.sketch.attrUpdate.dispatch(
                                         { backgroundColor: color && color.toHexString() });
                                 }
                             ),
@@ -90,14 +91,14 @@ class SketchEditor extends Component<Sketch> {
                         attrs: {
                             title: "Create new sketch"
                         },
-                        onClick: () => this._store.actions.sketch.create.dispatch()
+                        onClick: () => this.store.actions.sketch.create.dispatch()
                     },
                     {
                         content: "Zoom to fit",
                         attrs: {
                             title: "Fit sketch contents in view"
                         },
-                        onClick: () => this._store.actions.designer.zoomToFit.dispatch()
+                        onClick: () => this.store.actions.designer.zoomToFit.dispatch()
                     }
                 ]
             })

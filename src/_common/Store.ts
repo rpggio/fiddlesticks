@@ -17,6 +17,7 @@ class Store {
     static ROBOTO_500_LOCAL = 'fonts/Roboto-500.ttf';
     static AUTOSAVE_KEY = "Fiddlesticks.retainedState";
     static DEFAULT_FONT_NAME = "Roboto";
+    static FONT_LIST_LIMIT = 100;
 
     state = {
         retained: <RetainedState>{
@@ -237,6 +238,7 @@ class Store {
     loadResources() {
         const loader = new FontFamiliesLoader();
         loader.loadListLocal(families => {
+            families.length = Store.FONT_LIST_LIMIT;
             const dict = this.resources.fontFamilies;
             for (const familyGroup of families) {
                 dict[familyGroup.family] = familyGroup;
