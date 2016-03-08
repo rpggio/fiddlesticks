@@ -38,6 +38,14 @@ class WorkspaceController {
             this.zoomToFit();
         });
 
+        store.events.designer.exportPNGRequested.subscribe(() => {
+            this.downloadPNG();
+        });
+
+        store.events.designer.exportSVGRequested.subscribe(() => {
+            this.downloadSVG();
+        });
+
         // ----- Sketch -----
 
         store.events.sketch.loaded.subscribe(
@@ -125,30 +133,32 @@ class WorkspaceController {
         this.viewZoom.zoomTo(bounds.scale(1.05));
     }
 
-    handleImageDownloadClick(clickElement: HTMLLinkElement) {
-        let background: paper.Shape;
-        if (this.store.state.retained.sketch.backgroundColor) {
-            const bounds = app.workspaceController.project.activeLayer.bounds;
-            background = paper.Shape.Rectangle(
-                bounds.topLeft.subtract(20),
-                bounds.bottomRight.add(20));
-            background.fillColor = this.store.state.retained.sketch.backgroundColor;
-            background.sendToBack();
-        }
-
+    private downloadPNG() {
+        const background = this.insertBackground();
         const raster = app.workspaceController.project.activeLayer.rasterize(300, false);
         const data = raster.toDataURL();
-        clickElement.href = data;
-        (<any>clickElement).download = this.getSketchFileName(30);
+        DomHelpers.downloadFile(data, this.getSketchFileName(40, "png"));
+        background.remove();
+    }
 
-        if (background) {
+    private downloadSVG() {
+        let background: paper.Item;
+        if(this.store.state.retained.sketch.backgroundColor){
+            background = this.insertBackground();
+        }
+        
+        var url = "data:image/svg+xml;utf8," + encodeURIComponent(
+            <string>this.project.exportSVG({ asString: true }));
+        DomHelpers.downloadFile(url, this.getSketchFileName(40, "svg"));
+        
+        if(background){
             background.remove();
         }
     }
 
-    private getSketchFileName(length: number): string {
+    private getSketchFileName(length: number, extension: string): string {
         let name = "";
-        outer: 
+        outer:
         for (const block of this.store.state.retained.sketch.textBlocks) {
             for (const word of block.text.split(/\s/)) {
                 const trim = word.replace(/\W/g, '').trim();
@@ -156,18 +166,32 @@ class WorkspaceController {
                     if (name.length) name += " ";
                     name += trim;
                 }
-                if (name.length > 40) {
+                if (name.length >= length) {
                     break outer;
                 }
             }
         }
-        if (!name.length){
-            return "fiddle.png";
+        if (!name.length) {
+            name = "fiddle";
         }
-        return name + ".png";
+        return name + "." + extension;
     }
 
-    addBlock(textBlock: TextBlock) {
+    /**
+     * Insert sketch background to provide background fill (if necessary)
+     *   and add margin around edges.
+     */
+    private insertBackground(): paper.Item {
+        const bounds = app.workspaceController.project.activeLayer.bounds;
+        const background = paper.Shape.Rectangle(
+            bounds.topLeft.subtract(20),
+            bounds.bottomRight.add(20));
+        background.fillColor = this.store.state.retained.sketch.backgroundColor;
+        background.sendToBack();
+        return background;
+    }
+
+    private addBlock(textBlock: TextBlock) {
         if (!textBlock) {
             return;
         }

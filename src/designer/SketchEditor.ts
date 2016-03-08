@@ -99,16 +99,20 @@ class SketchEditor extends Component<Sketch> {
                         options: {
                             attrs: {
                                 title: "Export Fiddle as PNG",
-                                href: "#",
-                                download: "fiddle.png"
                             },
-                            hook: {
-                                insert: (vnode) => {
-                                    vnode.elm.onclick = () => {
-                                        app.workspaceController.handleImageDownloadClick(vnode.elm);
-                                        self.store.actions.designer.exportingImage.dispatch(null);
-                                    }
-                                }
+                            on: {
+                                click: () => this.store.actions.designer.exportPNG.dispatch()
+                            }
+                        }
+                    },
+                    {
+                        content: "Export SVG",
+                        options: {
+                            attrs: {
+                                title: "Export Fiddle as vector graphics"
+                            },
+                            on: {
+                                click: () => this.store.actions.designer.exportSVG.dispatch()
                             }
                         }
                     },

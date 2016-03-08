@@ -91,7 +91,15 @@ class Store {
         // ----- Designer -----
 
         actions.designer.zoomToFit.subscribe(m => {
-            events.designer.zoomToFitRequested.dispatch(null);
+            events.designer.zoomToFitRequested.dispatch(m.data);
+        });
+
+        actions.designer.exportPNG.subscribe(m => {
+            events.designer.exportPNGRequested.dispatch(m.data);
+        });
+        
+        actions.designer.exportSVG.subscribe(m => {
+            events.designer.exportSVGRequested.dispatch(m.data);
         });
         
         // ----- Sketch -----

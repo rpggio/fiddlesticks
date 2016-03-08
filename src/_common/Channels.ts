@@ -16,8 +16,10 @@ class Actions extends TypedChannel.Channel {
     };
     
     designer = {
-        zoomToFit: this.topic<ItemSelection>("designer.zoomToFit"),
-        exportingImage: this.topic<void>("designer.exportImage")
+        zoomToFit: this.topic<void>("designer.zoomToFit"),
+        exportingImage: this.topic<void>("designer.exportImage"),
+        exportPNG: this.topic<void>("designer.exportPNG"),
+        exportSVG: this.topic<void>("designer.exportSVG")
     }
     
     sketch = {
@@ -47,6 +49,8 @@ class Events extends TypedChannel.Channel {
     
     designer = {
         zoomToFitRequested: this.topic<void>("designer.zoomToFitRequested"),
+        exportPNGRequested: this.topic<void>("designer.exportPNGRequested"),
+        exportSVGRequested: this.topic<void>("designer.exportSVGRequested")
     };
     
     sketch = {

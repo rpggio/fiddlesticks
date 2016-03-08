@@ -3351,7 +3351,7 @@ declare module paper {
          * @param options.precision - the amount of fractional digits in numbers used in SVG data.
          * @param options.matchShapes - whether path items should tried to be converted to shape items, if their geometries can be made to match
          */
-        exportSVG(options?: { asString?: boolean; precision?: number; matchShapes?: boolean }): SVGElement;
+        exportSVG(options?: { asString?: boolean; precision?: number; matchShapes?: boolean }): SVGElement|string;
 
         /**
          * Converts the provided SVG content into Paper.js items and adds them to the active layer of this project.
