@@ -44,7 +44,7 @@ class SketchEditor extends Component<Sketch> {
                 {
                     props: {
                         type: "text",
-                        value: sketch.attr.backgroundColor
+                        value: sketch.backgroundColor
                     },
                     hook: {
                         insert: (vnode) =>
@@ -56,7 +56,7 @@ class SketchEditor extends Component<Sketch> {
                                 }
                             ),
                         update: (oldVnode, vnode) => {
-                            ColorPicker.set(vnode.elm, sketch.attr.backgroundColor);
+                            ColorPicker.set(vnode.elm, sketch.backgroundColor);
                         },
                         destroy: (vnode) => ColorPicker.destroy(vnode.elm)
                     }

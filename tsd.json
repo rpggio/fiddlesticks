@@ -22,6 +22,9 @@
     },
     "react/react-dom.d.ts": {
       "commit": "85af69c91599a6c904618545f0613970e1ff3f64"
+    },
+    "webfontloader/webfontloader.d.ts": {
+      "commit": "9f0f926a12026287b5a4a229e5672c01e7549313"
     }
   }
 }

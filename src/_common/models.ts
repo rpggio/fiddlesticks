@@ -1,26 +1,36 @@
 
-interface AppState {
-    retained: RetainedState;
-    disposable: DisposableState;
-}
-
 interface RetainedState {
     sketch: Sketch;
 }
 
 interface DisposableState {
     editingItem?: PositionedItem;
-    fontsReady?: boolean;
     selection?: ItemSelection;
 }
 
 interface Sketch {
-    attr: SketchAttr;
-    textBlocks: TextBlock[];
+    backgroundColor?: string;
+    fontUrl?: string;
+    textBlocks?: TextBlock[];
 }
 
-interface SketchAttr {
-    backgroundColor?: string;
+interface FontFamily {
+    kind?: string;
+    family?: string;
+    category?: string;
+    variants?: string[];
+    subsets?: string[];
+    version?: string;
+    lastModified?: string;
+    files?: { [variant: string] : string; };
+}
+
+interface FontDescription {
+    family: string;
+    category: string;
+    variant: string;
+    subset: string;
+    url: string;
 }
 
 interface PositionedItem {
@@ -42,7 +52,7 @@ interface TextBlock extends BlockArrangement {
     text?: string;
     textColor?: string;
     backgroundColor?: string;
-    font?: string;
+    fontDesc?: FontDescription;
     fontSize?: number;
 }
 

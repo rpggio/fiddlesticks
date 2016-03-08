@@ -9,16 +9,16 @@ class WorkspaceController {
 
     canvas: HTMLCanvasElement;
     project: paper.Project;
-    font: opentype.Font;
+    fallbackFont: opentype.Font;
     viewZoom: ViewZoom;
 
-    private channels: Channels;
+    private _store: Store;
     private _sketch: Sketch;
     private _textBlockItems: { [textBlockId: string]: TextWarp } = {};
 
-    constructor(channels: Channels, font: opentype.Font) {
-        this.channels = channels;
-        this.font = font;
+    constructor(store: Store, fallbackFont: opentype.Font) {
+        this._store = store;
+        this.fallbackFont = fallbackFont;
         paper.settings.handleSize = 1;
 
         this.canvas = <HTMLCanvasElement>document.getElementById('mainCanvas');
@@ -27,12 +27,12 @@ class WorkspaceController {
 
         this.viewZoom = new ViewZoom(this.project);
         const clearSelection = (ev: paper.PaperMouseEvent) => {
-            this.channels.actions.sketch.setSelection.dispatch({});
+            store.actions.sketch.setSelection.dispatch({});
         }
         paper.view.on(paper.EventType.click, clearSelection);
         paper.view.on(PaperHelpers.EventType.smartDragStart, clearSelection);
 
-        channels.events.sketch.loaded.subscribe(
+        store.events.sketch.loaded.subscribe(
             ev => {
                 this._sketch = ev.data;
                 this.project.clear();
@@ -41,13 +41,13 @@ class WorkspaceController {
             }
         );
 
-        channels.events.mergeTyped(
-            channels.events.textblock.added,
-            channels.events.textblock.loaded
+        store.events.mergeTyped(
+            store.events.textblock.added,
+            store.events.textblock.loaded
         ).subscribe(
             ev => this.addBlock(ev.data));
 
-        channels.events.textblock.attrChanged
+        store.events.textblock.attrChanged
             .observe()
             .throttle(WorkspaceController.TEXT_CHANGE_RENDER_THROTTLE_MS)
             .subscribe(m => {
@@ -55,6 +55,11 @@ class WorkspaceController {
                 if (item) {
                     const textBlock = m.data;
                     item.text = textBlock.text;
+                    if (textBlock.fontDesc && textBlock.fontDesc.url) {
+                        // push in font when ready
+                        store.resources.parsedFonts.get(textBlock.fontDesc.url,
+                            (url, font) => item.font = font);
+                    }
                     item.customStyle = {
                         fontSize: textBlock.fontSize,
                         fillColor: textBlock.textColor,
@@ -63,7 +68,7 @@ class WorkspaceController {
                 }
             });
 
-        channels.events.textblock.removed.subscribe(m => {
+        store.events.textblock.removed.subscribe(m => {
             let item = this._textBlockItems[m.data._id];
             if (item) {
                 item.remove();
@@ -71,22 +76,22 @@ class WorkspaceController {
             }
         });
 
-        channels.events.sketch.selectionChanged.subscribe(m => {
+        store.events.sketch.selectionChanged.subscribe(m => {
             if (!m.data || !m.data.itemId) {
                 this.project.deselectAll();
-                this.channels.events.sketch.editingItemChanged.dispatch({});
+                store.events.sketch.editingItemChanged.dispatch({});
                 return;
             }
 
             let item = m.data.itemId && this._textBlockItems[m.data.itemId];
             if (item && !item.selected) {
                 this.project.deselectAll();
-                this.channels.events.sketch.editingItemChanged.dispatch({});
+                store.events.sketch.editingItemChanged.dispatch({});
                 item.selected = true;
             }
         });
 
-        channels.events.designer.zoomToFitRequested.subscribe(() => {
+        store.events.designer.zoomToFitRequested.subscribe(() => {
             this.zoomToFit();
         });
     }
@@ -143,7 +148,7 @@ class WorkspaceController {
         }
 
         item = new TextWarp(
-            this.font,
+            this.fallbackFont,
             textBlock.text,
             bounds,
             textBlock.fontSize, {
@@ -151,6 +156,12 @@ class WorkspaceController {
                 fillColor: textBlock.textColor || "red",    // textColor should have been set elsewhere 
                 backgroundColor: textBlock.backgroundColor
             });
+
+        if (textBlock.fontDesc && textBlock.fontDesc.url) {
+            // push in font when ready
+            this._store.resources.parsedFonts.get(textBlock.fontDesc.url,
+                (url, font) => item.font = font);
+        }
 
         if (!textBlock.outline && textBlock.position) {
             item.position = new paper.Point(textBlock.position);
@@ -162,7 +173,7 @@ class WorkspaceController {
                 // edit item
                 const editorAt = this.project.view.projectToView(
                     PaperHelpers.midpoint(item.bounds.topLeft, item.bounds.center));
-                this.channels.actions.sketch.setEditingItem.dispatch(
+                this._store.actions.sketch.setEditingItem.dispatch(
                     {
                         itemId: textBlock._id,
                         itemType: "TextBlock",
@@ -171,7 +182,7 @@ class WorkspaceController {
                     });
             } else {
                 // select item
-                this.channels.actions.sketch.setSelection.dispatch(
+                this._store.actions.sketch.setSelection.dispatch(
                     { itemId: textBlock._id, itemType: "TextBlock" });
             }
         });
@@ -179,7 +190,7 @@ class WorkspaceController {
         item.on(PaperHelpers.EventType.smartDragStart, ev => {
             item.bringToFront();
             if (!item.selected) {
-                this.channels.actions.sketch.setSelection.dispatch(
+                this._store.actions.sketch.setSelection.dispatch(
                     { itemId: textBlock._id, itemType: "TextBlock" });
             }
         });
@@ -187,7 +198,7 @@ class WorkspaceController {
         item.on(PaperHelpers.EventType.smartDragEnd, ev => {
             let block = <TextBlock>this.getBlockArrangement(item);
             block._id = textBlock._id;
-            this.channels.actions.textBlock.updateArrange.dispatch(block);
+            this._store.actions.textBlock.updateArrange.dispatch(block);
         });
 
         const itemChange$ = PaperNotify.observe(item, PaperNotify.ChangeFlag.GEOMETRY);
@@ -196,7 +207,7 @@ class WorkspaceController {
             .subscribe(() => {
                 let block = <TextBlock>this.getBlockArrangement(item);
                 block._id = textBlock._id;
-                this.channels.actions.textBlock.updateArrange.dispatch(block);
+                this._store.actions.textBlock.updateArrange.dispatch(block);
             });
 
         item.data = textBlock._id;

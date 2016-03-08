@@ -15,25 +15,36 @@
 class Store {
 
     static AUTOSAVE_KEY = "Fiddlesticks.retainedState";
+    static DEFAULT_FONT_NAME = "Open Sans";
 
-    state: AppState = {
-        retained: {
+    state = {
+        retained: <RetainedState>{
             sketch: this.createSketch()
         },
-        disposable: {}
+        disposable: <DisposableState>{}
     }
-    channels: Channels;
+    resources = {
+        fontFamilies: <Dictionary<FontFamily>>{},
+        parsedFonts: new ParsedFonts((url, font) => 
+            this.events.app.fontLoaded.dispatch(font))
+    }
+    actions = new Actions();
+    events = new Events();
 
-    constructor(channels: Channels) {
+    constructor() {
+        this.setupSubscriptions();
 
-        this.channels = channels;
-        const actions = channels.actions, events = channels.events;
+        this.loadResources();
+    }
+
+    setupSubscriptions() {
+        const actions = this.actions, events = this.events;
 
         // ----- App -----
 
         actions.app.loadRetainedState.subscribe(m => {
-            let success = false; 
-            
+            let success = false;
+
             if (!localStorage || !localStorage.getItem) {
                 // not supported
                 return;
@@ -55,7 +66,7 @@ class Store {
                     success = true;
                 }
             }
-            
+
             events.app.retainedStateLoadAttemptComplete.dispatch(success);
         });
 
@@ -68,44 +79,40 @@ class Store {
             localStorage.setItem(Store.AUTOSAVE_KEY, JSON.stringify(this.state.retained));
         });
 
-        actions.app.setFontsReady.subscribe(m => {
-            if (m.data !== this.state.disposable.fontsReady) {
-                this.state.disposable.fontsReady = m.data;
-                events.app.fontsReadyChanged.dispatchContext(this.state,
-                    this.state.disposable.fontsReady)
-            }
-
-        })
+        actions.app.loadFont.subscribe(m => 
+            this.resources.parsedFonts.get(m.data));
 
         // ----- Designer -----
-        
+
         actions.designer.zoomToFit.subscribe(m => {
             events.designer.zoomToFitRequested.dispatch(null);
         })
-        
+
         // ----- Sketch -----
 
         actions.sketch.create
             .subscribe((m) => {
                 this.state.retained.sketch = this.createSketch();
-                const attr = m.data || {};
-                attr.backgroundColor = attr.backgroundColor || '#f6f3eb';
-                this.state.retained.sketch.attr = attr;
-                
+                const patch = m.data || {};
+                patch.backgroundColor = patch.backgroundColor || '#f6f3eb';
+                this.assign(this.state.retained.sketch, patch);
+
                 events.sketch.loaded.dispatchContext(this.state, this.state.retained.sketch);
                 events.designer.zoomToFitRequested.dispatchContext(this.state);
 
+                this.resources.parsedFonts.get(this.state.retained.sketch.fontUrl);
+
                 this.state.disposable.editingItem = null;
                 this.state.disposable.selection = null;
-                
+
                 this.changedRetainedState();
             });
 
         actions.sketch.attrUpdate
             .subscribe(ev => {
-                this.assign(this.state.retained.sketch.attr, ev.data);
+                this.assign(this.state.retained.sketch, ev.data);
                 events.sketch.attrChanged.dispatchContext(this.state,
-                    this.state.retained.sketch.attr);
+                    this.state.retained.sketch);
                 this.changedRetainedState();
             });
 
@@ -145,7 +152,7 @@ class Store {
             events.sketch.selectionChanged.dispatchContext(
                 this.state, this.state.disposable.selection);
         });
-        
+
 
         // ----- TextBlock -----
 
@@ -176,7 +183,7 @@ class Store {
                         text: ev.data.text,
                         backgroundColor: ev.data.backgroundColor,
                         textColor: ev.data.textColor,
-                        font: ev.data.font,
+                        fontDesc: ev.data.fontDesc,
                         fontSize: ev.data.fontSize
                     };
                     this.assign(block, patch);
@@ -216,8 +223,26 @@ class Store {
             });
     }
 
+    loadResources() {
+        const loader = new FontFamiliesLoader();
+        loader.loadListLocal(families => {
+            const dict = this.resources.fontFamilies;
+            for (const familyGroup of families) {
+                dict[familyGroup.family] = familyGroup;
+            }
+                
+            // load fonts into browser for preview
+            loader.loadForPreview(families.map(f => f.family));
+        });
+    }
+
+    // loadFont(fontUrl: string) {
+    //     this.resources.parsedFonts.get(fontUrl,
+    //         font => this.events.app.fontLoaded.dispatch(font))
+    // }
+
     changedRetainedState() {
-        this.channels.events.app.retainedStateChanged.dispatch(this.state.retained);
+        this.events.app.retainedStateChanged.dispatch(this.state.retained);
     }
 
     assign<T>(dest: T, source: T) {
@@ -226,7 +251,6 @@ class Store {
 
     createSketch(): Sketch {
         return {
-            attr: {},
             textBlocks: <TextBlock[]>[]
         };
     }

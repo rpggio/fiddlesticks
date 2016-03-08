@@ -1,14 +1,11 @@
 
 class SelectedItemEditor {
 
-    channels: Channels;
+    constructor(container: HTMLElement, store: Store) {
 
-    constructor(container: HTMLElement, channels: Channels) {
-        this.channels = channels;
-
-        const dom$ = channels.events.mergeTyped<PositionedItem>( 
-                channels.events.sketch.editingItemChanged,
-                channels.events.sketch.loaded
+        const dom$ = store.events.mergeTyped<PositionedItem>( 
+                store.events.sketch.editingItemChanged,
+                store.events.sketch.loaded
             ).map(i => {
 
             if (!i.data || !i.data.itemId) {
@@ -35,7 +32,7 @@ class SelectedItemEditor {
                     }
                 },
                 [
-                    new TextBlockEditor(channels.actions).render(block)
+                    new TextBlockEditor(store).render(block)
                 ]);
 
         });

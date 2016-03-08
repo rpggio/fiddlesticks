@@ -20,7 +20,8 @@
     "rx": "^4.0.8",
     "rxmq": "^0.9.1",
     "seamless-immutable": "^5.0.1",
-    "snabbdom": "^0.3.2"
+    "snabbdom": "^0.3.2",
+    "webfontloader": "^1.6.22"
   },
   "devDependencies": {},
   "scripts": {

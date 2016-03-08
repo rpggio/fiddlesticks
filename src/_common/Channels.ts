@@ -12,7 +12,7 @@ class Actions extends TypedChannel.Channel<void> {
          */
         saveRetainedState: this.topic<void>("app.saveRetainedState"),
         
-        setFontsReady: this.topic<boolean>("app.setFontsReady")
+        loadFont: this.topic<string>("app.loadFont")
     };
     
     designer = {
@@ -20,8 +20,8 @@ class Actions extends TypedChannel.Channel<void> {
     }
     
     sketch = {
-        create: this.topic<SketchAttr>("sketch.create"),
-        attrUpdate: this.topic<SketchAttr>("sketch.attrupdate"),
+        create: this.topic<Sketch>("sketch.create"),
+        attrUpdate: this.topic<Sketch>("sketch.attrupdate"),
         setEditingItem: this.topic<PositionedItem>("sketch.seteditingitem"),
         setSelection: this.topic<ItemSelection>("sketch.setselection"),
     };
@@ -35,12 +35,12 @@ class Actions extends TypedChannel.Channel<void> {
     
 }
 
-class Events extends TypedChannel.Channel<AppState> {
+class Events extends TypedChannel.Channel<any> {
     
     app = {
         retainedStateLoadAttemptComplete: this.topic<boolean>("app.retainedStateLoadAttemptComplete"),
         retainedStateChanged: this.topic<RetainedState>("app.retainedStateChanged"),
-        fontsReadyChanged: this.topic<boolean>("app.fontsReadyChanged")
+        fontLoaded: this.topic<opentype.Font>("app.fontLoaded")
     }
     
     designer = {
@@ -49,7 +49,7 @@ class Events extends TypedChannel.Channel<AppState> {
     
     sketch = {
         loaded: this.topic<Sketch>("sketch.loaded"),
-        attrChanged: this.topic<SketchAttr>("sketch.attrChanged"),
+        attrChanged: this.topic<Sketch>("sketch.attrChanged"),
         editingItemChanged: this.topic<PositionedItem>("sketch.editingItemChanged"),
         selectionChanged: this.topic<ItemSelection>("sketch.selectionChanged"),
         saveLocalRequested: this.topic<ItemSelection>("sketch.savelocal.saveLocalRequested")

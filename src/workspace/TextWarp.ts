@@ -48,6 +48,13 @@ class TextWarp extends DualBoundsPathWarp {
         this.updateTextPath();
     }
 
+    set font(value: opentype.Font){
+        if(value !== this._font){
+            this._font = value;
+            this.updateTextPath();
+        }
+    }
+
     private updateTextPath() {
         const pathData = TextWarp.getPathData(
             this._font, this._text, this._fontSize);

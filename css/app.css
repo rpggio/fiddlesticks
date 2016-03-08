@@ -95,7 +95,9 @@ canvas[resize] {
 }
 
 .text-block-editor {
-    height: 50px;
+    max-width: 400px;
+    overflow-x: visible;
+    overflow-y: visible;
 }
 
 .text-block-editor > * {
@@ -104,12 +106,33 @@ canvas[resize] {
 
 .text-block-editor > input, 
 .text-block-editor > button,
-.text-block-editor > div 
+.text-block-editor > div, 
+.text-block-editor > textarea
 {
     display: inline-block;
     margin: 3px;
 }
 
+.text-block-editor .end-controls {
+    float: right;
+}
+
 .delete-textblock  {
     padding: 4px 6px;
 }
+
+.font-picker .font-family {
+    width: 350px;
+}
+
+.font-picker .font-variant {
+    width: 350px;
+}
+
+.font-picker .Select-control {
+    height: 60px;
+}
+
+/*div.fontOption {
+    font-size: 36px !important;
+}*/
