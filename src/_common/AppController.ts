@@ -1,11 +1,11 @@
-const AmaticUrl = 'http://fonts.gstatic.com/s/amaticsc/v8/IDnkRTPGcrSVo50UyYNK7y3USBnSvpkopQaUR-2r7iU.ttf';
-const Roboto100 = 'http://fonts.gstatic.com/s/roboto/v15/7MygqTe2zs9YkP0adA9QQQ.ttf';
-const Roboto500 = 'fonts/Roboto-500.ttf';
-const Roboto900 = "http://fonts.gstatic.com/s/roboto/v15/H1vB34nOKWXqzKotq25pcg.ttf";
-const OpenSansRegular = "fonts/OpenSans/OpenSans-Regular.ttf";
-const OpenSansExtraBold = "fonts/OpenSans/OpenSans-ExtraBold.ttf";
-const AquafinaScript = 'fonts/AguafinaScript-Regular/AguafinaScript-Regular.ttf'
-const Norican = "http://fonts.gstatic.com/s/norican/v4/SHnSqhYAWG5sZTWcPzEHig.ttf";
+// const AmaticUrl = 'http://fonts.gstatic.com/s/amaticsc/v8/IDnkRTPGcrSVo50UyYNK7y3USBnSvpkopQaUR-2r7iU.ttf';
+// const Roboto100 = 'http://fonts.gstatic.com/s/roboto/v15/7MygqTe2zs9YkP0adA9QQQ.ttf';
+// const Roboto500 = 'fonts/Roboto-500.ttf';
+// const Roboto900 = "http://fonts.gstatic.com/s/roboto/v15/H1vB34nOKWXqzKotq25pcg.ttf";
+// const OpenSansRegular = "fonts/OpenSans/OpenSans-Regular.ttf";
+// const OpenSansExtraBold = "fonts/OpenSans/OpenSans-ExtraBold.ttf";
+// const AquafinaScript = 'fonts/AguafinaScript-Regular/AguafinaScript-Regular.ttf'
+// const Norican = "http://fonts.gstatic.com/s/norican/v4/SHnSqhYAWG5sZTWcPzEHig.ttf";
 
 class AppController {
 
@@ -48,9 +48,6 @@ class AppController {
         events.sketch.attrChanged.subscribe(ev =>
             $("#mainCanvas").css("background-color", ev.data.backgroundColor)
         );
-
-        // Load default font
-        store.actions.app.loadFont.dispatch(Roboto500);
     }
 
 }

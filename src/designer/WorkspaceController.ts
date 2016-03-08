@@ -167,19 +167,22 @@ class WorkspaceController {
             item.position = new paper.Point(textBlock.position);
         }
 
+        const sendEditAction = () => {
+            const editorAt = this.project.view.projectToView(
+                PaperHelpers.midpoint(item.bounds.topLeft, item.bounds.center));
+            this._store.actions.sketch.setEditingItem.dispatch(
+                {
+                    itemId: textBlock._id,
+                    itemType: "TextBlock",
+                    clientX: editorAt.x,
+                    clientY: editorAt.y
+                });
+        };
+
         item.on(PaperHelpers.EventType.clickWithoutDrag, ev => {
             item.bringToFront();
             if (item.selected) {
-                // edit item
-                const editorAt = this.project.view.projectToView(
-                    PaperHelpers.midpoint(item.bounds.topLeft, item.bounds.center));
-                this._store.actions.sketch.setEditingItem.dispatch(
-                    {
-                        itemId: textBlock._id,
-                        itemType: "TextBlock",
-                        clientX: editorAt.x,
-                        clientY: editorAt.y
-                    });
+                sendEditAction();
             } else {
                 // select item
                 this._store.actions.sketch.setSelection.dispatch(
@@ -217,6 +220,12 @@ class WorkspaceController {
                     .add(50));
         }
         this._textBlockItems[textBlock._id] = item;
+        
+        if(!this._store.state.retained.sketch.loading
+            && this._store.state.retained.sketch.textBlocks.length <= 1) {
+            // open editor for newly added block
+            sendEditAction();
+        }
     }
 
     private getBlockArrangement(item: TextWarp): BlockArrangement {

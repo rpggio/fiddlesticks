@@ -10,8 +10,9 @@ interface DisposableState {
 
 interface Sketch {
     backgroundColor?: string;
-    fontUrl?: string;
+    defaultFontDesc?: FontDescription;
     textBlocks?: TextBlock[];
+    loading?: boolean;
 }
 
 interface FontFamily {
@@ -29,7 +30,6 @@ interface FontDescription {
     family: string;
     category: string;
     variant: string;
-    subset: string;
     url: string;
 }
 

@@ -96,17 +96,10 @@ class FontPicker extends React.Component<FontPickerProps, FontPickerState> {
 
     private sendSelectionChanged(){
         this.props.selectionChanged(
-            <FontDescription>{
-                family: this.state.familyObject.family,
-                variant: this.state.variant,
-                category: this.state.familyObject.category,
-                url: this.state.familyObject.files[this.state.variant]
-            }
-        );
+            FontHelpers.getDescription(this.state.familyObject, this.state.variant));
     }
     
     private getFamilyOptions(): { value: FontFamily, label: string}[] {
- 
         const options = _.values(this.props.store.resources.fontFamilies)
             .map((fontFamily: FontFamily) => 
                 { return { value: fontFamily.family, label: fontFamily.family }; });

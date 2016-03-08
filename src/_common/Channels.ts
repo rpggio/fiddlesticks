@@ -1,7 +1,7 @@
 
 class Actions extends TypedChannel.Channel {
     
-    app = {
+    app = {       
         /**
          * Instructs Store to load retained state from local storage, if it exists.
          */
@@ -22,7 +22,7 @@ class Actions extends TypedChannel.Channel {
     sketch = {
         create: this.topic<Sketch>("sketch.create"),
         attrUpdate: this.topic<Sketch>("sketch.attrupdate"),
-        setEditingItem: this.topic<PositionedItem>("sketch.seteditingitem"),
+        setEditingItem: this.topic<PositionedItem>("sketch.setEditingItem"),
         setSelection: this.topic<ItemSelection>("sketch.setselection"),
     };
     
@@ -38,6 +38,7 @@ class Actions extends TypedChannel.Channel {
 class Events extends TypedChannel.Channel {
     
     app = {
+        resourcesReady: this.topic<boolean>("app.resourcesReady"),
         retainedStateLoadAttemptComplete: this.topic<boolean>("app.retainedStateLoadAttemptComplete"),
         retainedStateChanged: this.topic<RetainedState>("app.retainedStateChanged"),
         fontLoaded: this.topic<opentype.Font>("app.fontLoaded")

@@ -1,11 +1,12 @@
 
 class SketchEditor extends Component<Sketch> {
-    actions: Actions;
+
+    _store: Store;
 
     constructor(container: HTMLElement, store: Store) {
         super();
 
-        this.actions = store.actions;
+        this._store = store;
 
         const sketchDom$ = store.events.merge(
             store.events.sketch.loaded,
@@ -24,7 +25,7 @@ class SketchEditor extends Component<Sketch> {
                         if (ev.which === 13 || ev.keyCode === 13) {
                             const text = ev.target && ev.target.value;
                             if (text.length) {
-                                this.actions.textBlock.add.dispatch({ text: text });
+                                this._store.actions.textBlock.add.dispatch({ text: text });
                                 ev.target.value = '';
                             }
                         }
@@ -39,6 +40,24 @@ class SketchEditor extends Component<Sketch> {
                 style: {
                 }
             }),
+            
+            // h("div.font-picker-container",
+            //     {
+            //         hook: {
+            //             insert: (vnode) => {
+            //                 const props: FontPickerProps = {
+            //                     store: this._store,
+            //                     selection: sketch.defaultFontDesc,
+            //                     selectionChanged: (defaultFontDesc) => {
+            //                         this._store.actions.sketch.attrUpdate.dispatch({ defaultFontDesc });
+            //                     }
+            //                 };
+            //                 ReactDOM.render(rh(FontPicker, props), vnode.elm);
+            //             },
+            //         }
+            //     }
+            // ),            
+            
             h("label", "Background: "),
             h("input.background-color",
                 {
@@ -51,7 +70,7 @@ class SketchEditor extends Component<Sketch> {
                             ColorPicker.setup(
                                 vnode.elm,
                                 color => {
-                                    this.actions.sketch.attrUpdate.dispatch(
+                                    this._store.actions.sketch.attrUpdate.dispatch(
                                         { backgroundColor: color && color.toHexString() });
                                 }
                             ),
@@ -71,14 +90,14 @@ class SketchEditor extends Component<Sketch> {
                         attrs: {
                             title: "Create new sketch"
                         },
-                        onClick: () => this.actions.sketch.create.dispatch()
+                        onClick: () => this._store.actions.sketch.create.dispatch()
                     },
                     {
                         content: "Zoom to fit",
                         attrs: {
                             title: "Fit sketch contents in view"
                         },
-                        onClick: () => this.actions.designer.zoomToFit.dispatch()
+                        onClick: () => this._store.actions.designer.zoomToFit.dispatch()
                     }
                 ]
             })

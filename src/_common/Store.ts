@@ -14,8 +14,9 @@
  */
 class Store {
 
+    static ROBOTO_500_LOCAL = 'fonts/Roboto-500.ttf';
     static AUTOSAVE_KEY = "Fiddlesticks.retainedState";
-    static DEFAULT_FONT_NAME = "Open Sans";
+    static DEFAULT_FONT_NAME = "Roboto";
 
     state = {
         retained: <RetainedState>{
@@ -42,7 +43,11 @@ class Store {
 
         // ----- App -----
 
-        actions.app.loadRetainedState.subscribe(m => {
+        actions.app.loadRetainedState.observe()
+            // Warning: subscribing to event within Store - crazy or not??
+            // wait to load until resources are ready
+            .pausableBuffered(events.app.resourcesReady.observe().map(m => m.data))
+            .subscribe(m => {
             let success = false;
 
             if (!localStorage || !localStorage.getItem) {
@@ -56,12 +61,13 @@ class Store {
                 if (loaded && loaded.sketch && loaded.sketch.textBlocks) {
                     // data seems legit
                     this.state.retained = loaded;
-                    events.sketch.loaded.dispatch(
-                        this.state.retained.sketch);
+                    this.state.retained.sketch.loading = true;
+                    events.sketch.loaded.dispatch(this.state.retained.sketch);
                     for (const tb of this.state.retained.sketch.textBlocks) {
                         events.textblock.loaded.dispatch(tb);
                     }
                     events.designer.zoomToFitRequested.dispatch();
+                    this.state.retained.sketch.loading = false;
                     success = true;
                 }
             }
@@ -99,7 +105,7 @@ class Store {
                 events.sketch.loaded.dispatch(this.state.retained.sketch);
                 events.designer.zoomToFitRequested.dispatch();
 
-                this.resources.parsedFonts.get(this.state.retained.sketch.fontUrl);
+                this.resources.parsedFonts.get(this.state.retained.sketch.defaultFontDesc.url);
 
                 this.state.disposable.editingItem = null;
                 this.state.disposable.selection = null;
@@ -116,9 +122,6 @@ class Store {
             });
 
         actions.sketch.setEditingItem.subscribe(m => {
-            if (m.data.itemType !== "TextBlock") {
-                throw `Unhandled type ${m.type}`;
-            }
             const item = this.getBlock(m.data.itemId);
             this.state.disposable.editingItem = {
                 itemId: m.data.itemId,
@@ -169,6 +172,12 @@ class Store {
                 if (!block.textColor) {
                     block.textColor = "gray"
                 }
+                if (block.fontDesc) {
+                    this.state.retained.sketch.defaultFontDesc = block.fontDesc;
+                } else {
+                    block.fontDesc = this.state.retained.sketch.defaultFontDesc;
+                }              
+                
                 this.state.retained.sketch.textBlocks.push(block);
                 events.textblock.added.dispatch(block);
                 this.changedRetainedState();
@@ -186,6 +195,9 @@ class Store {
                         fontSize: ev.data.fontSize
                     };
                     this.assign(block, patch);
+                    if(block.fontDesc){
+                        this.state.retained.sketch.defaultFontDesc = block.fontDesc;
+                    }
                     events.textblock.attrChanged.dispatch(block);
                     this.changedRetainedState();
                 }
@@ -232,13 +244,12 @@ class Store {
                 
             // load fonts into browser for preview
             loader.loadForPreview(families.map(f => f.family));
+           
+            this.resources.parsedFonts.get(Store.ROBOTO_500_LOCAL);
+            
+            this.events.app.resourcesReady.dispatch(true);
         });
     }
-
-    // loadFont(fontUrl: string) {
-    //     this.resources.parsedFonts.get(fontUrl,
-    //         font => this.events.app.fontLoaded.dispatch(font))
-    // }
 
     changedRetainedState() {
         this.events.app.retainedStateChanged.dispatch(this.state.retained);
@@ -250,6 +261,12 @@ class Store {
 
     createSketch(): Sketch {
         return {
+            defaultFontDesc: {
+                family: "Roboto",
+                variant: null,
+                category: null,
+                url: Store.ROBOTO_500_LOCAL 
+            },
             textBlocks: <TextBlock[]>[]
         };
     }
