@@ -62,6 +62,7 @@ class Events extends TypedChannel.Channel {
         arrangeChanged: this.topic<TextBlock>("textblock.arrangechanged"),
         removed: this.topic<TextBlock>("textblock.removed"),
         loaded: this.topic<TextBlock>("textblock.loaded"),
+        editorClosed: this.topic<TextBlock>("textblock.editorClosed"),
     };
     
 }

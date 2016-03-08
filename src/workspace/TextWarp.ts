@@ -55,7 +55,7 @@ class TextWarp extends DualBoundsPathWarp {
         }
     }
 
-    private updateTextPath() {
+    updateTextPath() {
         const pathData = TextWarp.getPathData(
             this._font, this._text, this._fontSize);
         this.source = new paper.CompoundPath(pathData);

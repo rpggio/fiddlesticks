@@ -94,6 +94,13 @@ class WorkspaceController {
         store.events.designer.zoomToFitRequested.subscribe(() => {
             this.zoomToFit();
         });
+        
+        store.events.textblock.editorClosed.subscribe(m => {
+            let item = this._textBlockItems[m.data._id];
+            if (item) {
+                item.updateTextPath();
+            }
+        })
     }
 
     zoomToFit() {

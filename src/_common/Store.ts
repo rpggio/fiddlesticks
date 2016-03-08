@@ -123,11 +123,18 @@ class Store {
             });
 
         actions.sketch.setEditingItem.subscribe(m => {
-            const item = this.getBlock(m.data.itemId);
+            const block = this.getBlock(m.data.itemId);
+            
+            if(this.state.disposable.editingItem 
+                && this.state.disposable.editingItem.itemId){
+                // signal block on editor close
+                this.events.textblock.editorClosed.dispatch(block);
+            }
+            
             this.state.disposable.editingItem = {
                 itemId: m.data.itemId,
                 itemType: "TextBlock",
-                item: item,
+                item: block,
                 clientX: m.data.clientX,
                 clientY: m.data.clientY
             };
