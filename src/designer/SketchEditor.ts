@@ -25,7 +25,7 @@ class SketchEditor extends Component<Sketch> {
             h("input.add-text", {
                 on: {
                     keypress: (ev) => {
-                        if (ev.which === 13 || ev.keyCode === 13) {
+                        if ((ev.which || ev.keyCode) === DomHelpers.KeyCodes.Enter) {
                             const text = ev.target && ev.target.value;
                             if (text.length) {
                                 this.store.actions.textBlock.add.dispatch({ text: text });
