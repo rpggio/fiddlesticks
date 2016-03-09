@@ -4,8 +4,8 @@ interface RetainedState {
 }
 
 interface DisposableState {
-    editingItem?: PositionedItem;
-    selection?: ItemSelection;
+    editingItem?: PositionedObjectRef;
+    selection?: WorkspaceObjectRef;
 }
 
 interface Sketch {
@@ -33,17 +33,14 @@ interface FontDescription {
     url: string;
 }
 
-interface PositionedItem {
+interface WorkspaceObjectRef {
     itemId: string;
     itemType?: string;
-    clientX?: number;
-    clientY?: number;
 }
 
-interface ItemSelection {
-    itemId: string;
-    itemType: string;
-    priorSelectionItemId?: string;
+interface PositionedObjectRef extends WorkspaceObjectRef {
+    clientX?: number;
+    clientY?: number;
 }
 
 interface TextBlock extends BlockArrangement {

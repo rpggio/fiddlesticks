@@ -29,8 +29,12 @@ class WorkspaceController {
         this.viewZoom.viewChanged.subscribe(bounds => {
            store.actions.designer.viewChanged.dispatch(bounds); 
         });
+        
         const clearSelection = (ev: paper.PaperMouseEvent) => {
-            if(store.state.disposable.selection){
+            if(store.state.disposable.editingItem){
+                store.actions.sketch.setEditingItem.dispatch(null);
+            }
+            else if(store.state.disposable.selection){
                 store.actions.sketch.setSelection.dispatch(null);
             }
         }
@@ -67,18 +71,13 @@ class WorkspaceController {
         );
 
         store.events.sketch.selectionChanged.subscribe(m => {
-            if (!m.data || !m.data.itemId) {
-                this.project.deselectAll();
-                store.events.sketch.editingItemChanged.dispatch(null);
-                return;
-            }
-
-            let item = m.data.itemId && this._textBlockItems[m.data.itemId];
-            if (item && !item.selected) {
-                this.project.deselectAll();
-                store.events.sketch.editingItemChanged.dispatch(null);
-                item.selected = true;
-            }
+            this.project.deselectAll();
+            if(m.data){
+                let block = m.data.itemId && this._textBlockItems[m.data.itemId];
+                if (block && !block.selected) {
+                    block.selected = true;
+                }
+            }   
         });
 
         // ----- TextBlock -----

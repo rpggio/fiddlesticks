@@ -2,9 +2,6 @@ namespace ColorPicker {
 
     const DEFAULT_PALETTE = [
         [
-            "#000", "#666", "#ccc", "#eee", "#fff"
-        ],
-        [
             // http://www.color-hex.com/color-palette/807
             "#ee4035",
             "#f37736",
@@ -67,11 +64,14 @@ namespace ColorPicker {
             "#eecbff",
             "#feffa3",
             "#dbdcff",
-        ]
+        ],
+        [
+            "#000", "#666", "#ccc", "#eee", "#fff"
+        ],
     ];
 
     export function setup(elem, topColors: string[], onChange) {
-        const topColorsGrouped = _.chunk(topColors, 8);
+        const topColorsGrouped = _.chunk(topColors, 5);
         const palette = topColorsGrouped.concat(DEFAULT_PALETTE);
         
         let sel = <any>$(elem);

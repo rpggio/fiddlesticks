@@ -119,8 +119,7 @@ class Store {
 
                 this.resources.parsedFonts.get(this.state.retained.sketch.defaultFontDesc.url);
 
-                this.state.disposable.editingItem = null;
-                this.state.disposable.selection = null;
+                this.setEditingItem(null);
 
                 this.changedRetainedState();
             });
@@ -138,31 +137,7 @@ class Store {
         });
 
         actions.sketch.setSelection.subscribe(m => {
-            if(m.data){
-                if (m.data.itemType && m.data.itemType !== "TextBlock") {
-                    throw `Unhandled type ${m.type}`;
-                }
-
-                if (this.state.disposable.selection 
-                    && this.state.disposable.selection.itemId === m.data.itemId) {
-                    return;
-                }
-
-                this.state.disposable.selection = <ItemSelection>{
-                    itemId: m.data.itemId,
-                    itemType: m.data.itemType,
-                    priorSelectionItemId: this.state.disposable.selection
-                        && this.state.disposable.selection.itemId
-                };
-            }
-            else {
-                if(!this.state.disposable.selection){
-                    return;
-                }
-                this.state.disposable.selection = m.data;
-            }
-            events.sketch.selectionChanged.dispatch(
-                this.state.disposable.selection);
+            this.setSelection(m.data);
         });
 
 
@@ -226,13 +201,9 @@ class Store {
                 });
                 if (didDelete) {
                     events.textblock.removed.dispatch({ _id: ev.data._id });
-                    if (this.state.disposable.editingItem.itemId == ev.data._id) {
-                        this.state.disposable.editingItem = null;
-                        events.sketch.editingItemChanged.dispatch(this.state.disposable.editingItem);
-                    }
                     this.changedRetainedState();
+                    this.setEditingItem(null);
                 }
-                this.setEditingItem(null);
             });
 
         actions.textBlock.updateArrange
@@ -285,9 +256,34 @@ class Store {
         };
     }
 
-    private setEditingItem(item: PositionedItem) {
-        if(this.state.disposable.editingItem === item){
-            return;
+    private setSelection(item: WorkspaceObjectRef) {
+        // early exit on no change
+        if(item){
+            if(this.state.disposable.selection 
+                && this.state.disposable.selection.itemId === item.itemId){
+                return;
+            }
+        } else {
+            if(!this.state.disposable.selection) {
+                return;
+            }
+        }
+
+        this.state.disposable.selection = item;
+        this.events.sketch.selectionChanged.dispatch(item);
+    }
+
+    private setEditingItem(item: PositionedObjectRef) {
+        // early exit on no change
+        if(item){
+            if(this.state.disposable.editingItem 
+                && this.state.disposable.editingItem.itemId === item.itemId){
+                return;
+            }
+        } else {
+            if(!this.state.disposable.editingItem) {
+                return;
+            }
         }
         
         if (this.state.disposable.editingItem) {
@@ -299,6 +295,11 @@ class Store {
                     this.events.textblock.editorClosed.dispatch(currentEditingBlock);
                 }
             }
+        }
+        
+        if(item){
+            // editing item should be selected item
+            this.setSelection(item);
         }
         
         this.state.disposable.editingItem = item;

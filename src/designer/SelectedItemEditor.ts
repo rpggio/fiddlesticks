@@ -8,7 +8,7 @@ class SelectedItemEditor {
                 store.events.sketch.loaded
             ).map(i => {
 
-            const posItem = <PositionedItem>i.data;
+            const posItem = <PositionedObjectRef>i.data;
 
             const block = posItem
                 && posItem.itemType === 'TextBlock'

@@ -26,8 +26,8 @@ class Actions extends TypedChannel.Channel {
     sketch = {
         create: this.topic<Sketch>("sketch.create"),
         attrUpdate: this.topic<Sketch>("sketch.attrUpdate"),
-        setEditingItem: this.topic<PositionedItem>("sketch.setEditingItem"),
-        setSelection: this.topic<ItemSelection>("sketch.setSelection"),
+        setEditingItem: this.topic<PositionedObjectRef>("sketch.setEditingItem"),
+        setSelection: this.topic<WorkspaceObjectRef>("sketch.setSelection"),
     };
     
     textBlock = {
@@ -58,9 +58,9 @@ class Events extends TypedChannel.Channel {
     sketch = {
         loaded: this.topic<Sketch>("sketch.loaded"),
         attrChanged: this.topic<Sketch>("sketch.attrChanged"),
-        editingItemChanged: this.topic<PositionedItem>("sketch.editingItemChanged"),
-        selectionChanged: this.topic<ItemSelection>("sketch.selectionChanged"),
-        saveLocalRequested: this.topic<ItemSelection>("sketch.savelocal.saveLocalRequested")
+        editingItemChanged: this.topic<PositionedObjectRef>("sketch.editingItemChanged"),
+        selectionChanged: this.topic<WorkspaceObjectRef>("sketch.selectionChanged"),
+        saveLocalRequested: this.topic<void>("sketch.savelocal.saveLocalRequested")
     };
     
     textblock = {

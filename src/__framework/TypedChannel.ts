@@ -10,7 +10,6 @@ namespace TypedChannel {
     export interface Message<TData extends Serializable> {
         type: string;
         data?: TData;
-        meta?: Object;
     }
 
     type ISubject<T> = Rx.Observer<T> & Rx.Observable<T>;
