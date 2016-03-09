@@ -19,14 +19,15 @@ class Actions extends TypedChannel.Channel {
         zoomToFit: this.topic<void>("designer.zoomToFit"),
         exportingImage: this.topic<void>("designer.exportImage"),
         exportPNG: this.topic<void>("designer.exportPNG"),
-        exportSVG: this.topic<void>("designer.exportSVG")
+        exportSVG: this.topic<void>("designer.exportSVG"),
+        viewChanged: this.topic<paper.Rectangle>("designer.viewChanged")
     }
     
     sketch = {
         create: this.topic<Sketch>("sketch.create"),
-        attrUpdate: this.topic<Sketch>("sketch.attrupdate"),
+        attrUpdate: this.topic<Sketch>("sketch.attrUpdate"),
         setEditingItem: this.topic<PositionedItem>("sketch.setEditingItem"),
-        setSelection: this.topic<ItemSelection>("sketch.setselection"),
+        setSelection: this.topic<ItemSelection>("sketch.setSelection"),
     };
     
     textBlock = {
@@ -50,7 +51,8 @@ class Events extends TypedChannel.Channel {
     designer = {
         zoomToFitRequested: this.topic<void>("designer.zoomToFitRequested"),
         exportPNGRequested: this.topic<void>("designer.exportPNGRequested"),
-        exportSVGRequested: this.topic<void>("designer.exportSVGRequested")
+        exportSVGRequested: this.topic<void>("designer.exportSVGRequested"),
+        viewChanged: this.topic<paper.Rectangle>("designer.viewChanged")
     };
     
     sketch = {
@@ -63,8 +65,8 @@ class Events extends TypedChannel.Channel {
     
     textblock = {
         added: this.topic<TextBlock>("textblock.added"),
-        attrChanged: this.topic<TextBlock>("textblock.attrchanged"),
-        arrangeChanged: this.topic<TextBlock>("textblock.arrangechanged"),
+        attrChanged: this.topic<TextBlock>("textblock.attrChanged"),
+        arrangeChanged: this.topic<TextBlock>("textblock.arrangeChanged"),
         removed: this.topic<TextBlock>("textblock.removed"),
         loaded: this.topic<TextBlock>("textblock.loaded"),
         editorClosed: this.topic<TextBlock>("textblock.editorClosed"),

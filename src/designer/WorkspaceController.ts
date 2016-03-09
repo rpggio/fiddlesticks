@@ -26,11 +26,20 @@ class WorkspaceController {
         this.project = paper.project;
 
         this.viewZoom = new ViewZoom(this.project);
+        this.viewZoom.viewChanged.subscribe(bounds => {
+           store.actions.designer.viewChanged.dispatch(bounds); 
+        });
         const clearSelection = (ev: paper.PaperMouseEvent) => {
-            store.actions.sketch.setSelection.dispatch({});
+            if(store.state.disposable.selection){
+                store.actions.sketch.setSelection.dispatch(null);
+            }
         }
         paper.view.on(paper.EventType.click, clearSelection);
         paper.view.on(PaperHelpers.EventType.smartDragStart, clearSelection);
+        // paper.view.on("keyup", (ev: paper.KeyEvent) => {
+        // }); 
+
+        const keyHandler = new DocumentKeyHandler(store);
 
         // ----- Designer -----
 
@@ -60,14 +69,14 @@ class WorkspaceController {
         store.events.sketch.selectionChanged.subscribe(m => {
             if (!m.data || !m.data.itemId) {
                 this.project.deselectAll();
-                store.events.sketch.editingItemChanged.dispatch({});
+                store.events.sketch.editingItemChanged.dispatch(null);
                 return;
             }
 
             let item = m.data.itemId && this._textBlockItems[m.data.itemId];
             if (item && !item.selected) {
                 this.project.deselectAll();
-                store.events.sketch.editingItemChanged.dispatch({});
+                store.events.sketch.editingItemChanged.dispatch(null);
                 item.selected = true;
             }
         });

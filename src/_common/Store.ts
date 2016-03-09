@@ -27,7 +27,7 @@ class Store {
     }
     resources = {
         fontFamilies: <Dictionary<FontFamily>>{},
-        parsedFonts: new ParsedFonts((url, font) => 
+        parsedFonts: new ParsedFonts((url, font) =>
             this.events.app.fontLoaded.dispatch(font))
     }
     actions = new Actions();
@@ -49,32 +49,32 @@ class Store {
             // wait to load until resources are ready
             .pausableBuffered(events.app.resourcesReady.observe().map(m => m.data))
             .subscribe(m => {
-            let success = false;
+                let success = false;
 
-            if (!localStorage || !localStorage.getItem) {
-                // not supported
-                return;
-            }
-
-            const saved = localStorage.getItem(Store.AUTOSAVE_KEY);
-            if (saved) {
-                const loaded = <RetainedState>JSON.parse(saved);
-                if (loaded && loaded.sketch && loaded.sketch.textBlocks) {
-                    // data seems legit
-                    this.state.retained = loaded;
-                    this.state.retained.sketch.loading = true;
-                    events.sketch.loaded.dispatch(this.state.retained.sketch);
-                    for (const tb of this.state.retained.sketch.textBlocks) {
-                        events.textblock.loaded.dispatch(tb);
-                    }
-                    events.designer.zoomToFitRequested.dispatch();
-                    this.state.retained.sketch.loading = false;
-                    success = true;
+                if (!localStorage || !localStorage.getItem) {
+                    // not supported
+                    return;
                 }
-            }
 
-            events.app.retainedStateLoadAttemptComplete.dispatch(success);
-        });
+                const saved = localStorage.getItem(Store.AUTOSAVE_KEY);
+                if (saved) {
+                    const loaded = <RetainedState>JSON.parse(saved);
+                    if (loaded && loaded.sketch && loaded.sketch.textBlocks) {
+                        // data seems legit
+                        this.state.retained = loaded;
+                        this.state.retained.sketch.loading = true;
+                        events.sketch.loaded.dispatch(this.state.retained.sketch);
+                        for (const tb of this.state.retained.sketch.textBlocks) {
+                            events.textblock.loaded.dispatch(tb);
+                        }
+                        events.designer.zoomToFitRequested.dispatch();
+                        this.state.retained.sketch.loading = false;
+                        success = true;
+                    }
+                }
+
+                events.app.retainedStateLoadAttemptComplete.dispatch(success);
+            });
 
         actions.app.saveRetainedState.subscribe(m => {
             if (!localStorage || !localStorage.getItem) {
@@ -85,23 +85,26 @@ class Store {
             localStorage.setItem(Store.AUTOSAVE_KEY, JSON.stringify(this.state.retained));
         });
 
-        actions.app.loadFont.subscribe(m => 
+        actions.app.loadFont.subscribe(m =>
             this.resources.parsedFonts.get(m.data));
 
         // ----- Designer -----
 
-        actions.designer.zoomToFit.subscribe(m => {
-            events.designer.zoomToFitRequested.dispatch(m.data);
+        actions.designer.zoomToFit.forward(
+            events.designer.zoomToFitRequested);
+
+        actions.designer.exportPNG.forward(
+            events.designer.exportPNGRequested);
+
+        actions.designer.exportSVG.forward(
+            events.designer.exportSVGRequested);
+
+        actions.designer.viewChanged.subscribe(m => {
+            // Can't do this, due to chance of accidental closing   
+            // this.setEditingItem(null);
+            events.designer.viewChanged.dispatch(m.data);
         });
 
-        actions.designer.exportPNG.subscribe(m => {
-            events.designer.exportPNGRequested.dispatch(m.data);
-        });
-        
-        actions.designer.exportSVG.subscribe(m => {
-            events.designer.exportSVGRequested.dispatch(m.data);
-        });
-        
         // ----- Sketch -----
 
         actions.sketch.create
@@ -131,42 +134,33 @@ class Store {
             });
 
         actions.sketch.setEditingItem.subscribe(m => {
-            const block = this.getBlock(m.data.itemId);
-            
-            if(this.state.disposable.editingItem 
-                && this.state.disposable.editingItem.itemId){
-                // signal block on editor close
-                this.events.textblock.editorClosed.dispatch(block);
-            }
-            
-            this.state.disposable.editingItem = {
-                itemId: m.data.itemId,
-                itemType: "TextBlock",
-                item: block,
-                clientX: m.data.clientX,
-                clientY: m.data.clientY
-            };
-            events.sketch.editingItemChanged.dispatch(
-                this.state.disposable.editingItem);
+            this.setEditingItem(m.data);
         });
 
         actions.sketch.setSelection.subscribe(m => {
-            if (m.data.itemType && m.data.itemType !== "TextBlock") {
-                throw `Unhandled type ${m.type}`;
-            }
+            if(m.data){
+                if (m.data.itemType && m.data.itemType !== "TextBlock") {
+                    throw `Unhandled type ${m.type}`;
+                }
 
-            if ((m.data && m.data.itemId)
-                === (this.state.disposable.selection && this.state.disposable.selection.itemId)) {
-                // nothing to do
-                return;
-            }
+                if (this.state.disposable.selection 
+                    && this.state.disposable.selection.itemId === m.data.itemId) {
+                    return;
+                }
 
-            this.state.disposable.selection = <ItemSelection>{
-                itemId: m.data.itemId,
-                itemType: m.data.itemType,
-                priorSelectionItemId: this.state.disposable.selection
-                && this.state.disposable.selection.itemId
-            };
+                this.state.disposable.selection = <ItemSelection>{
+                    itemId: m.data.itemId,
+                    itemType: m.data.itemType,
+                    priorSelectionItemId: this.state.disposable.selection
+                        && this.state.disposable.selection.itemId
+                };
+            }
+            else {
+                if(!this.state.disposable.selection){
+                    return;
+                }
+                this.state.disposable.selection = m.data;
+            }
             events.sketch.selectionChanged.dispatch(
                 this.state.disposable.selection);
         });
@@ -176,6 +170,8 @@ class Store {
 
         actions.textBlock.add
             .subscribe(ev => {
+                this.setEditingItem(null);
+
                 let patch = ev.data;
                 if (!patch.text || !patch.text.length) {
                     return;
@@ -192,8 +188,8 @@ class Store {
                     this.state.retained.sketch.defaultFontDesc = block.fontDesc;
                 } else {
                     block.fontDesc = this.state.retained.sketch.defaultFontDesc;
-                }              
-                
+                }
+
                 this.state.retained.sketch.textBlocks.push(block);
                 events.textblock.added.dispatch(block);
                 this.changedRetainedState();
@@ -211,7 +207,7 @@ class Store {
                         fontSize: ev.data.fontSize
                     };
                     this.assign(block, patch);
-                    if(block.fontDesc){
+                    if (block.fontDesc) {
                         this.state.retained.sketch.defaultFontDesc = block.fontDesc;
                     }
                     events.textblock.attrChanged.dispatch(block);
@@ -231,11 +227,12 @@ class Store {
                 if (didDelete) {
                     events.textblock.removed.dispatch({ _id: ev.data._id });
                     if (this.state.disposable.editingItem.itemId == ev.data._id) {
-                        this.state.disposable.editingItem = {};
+                        this.state.disposable.editingItem = null;
                         events.sketch.editingItemChanged.dispatch(this.state.disposable.editingItem);
                     }
                     this.changedRetainedState();
                 }
+                this.setEditingItem(null);
             });
 
         actions.textBlock.updateArrange
@@ -258,12 +255,12 @@ class Store {
             for (const familyGroup of families) {
                 dict[familyGroup.family] = familyGroup;
             }
-                
+
             // load fonts into browser for preview
             loader.loadForPreview(families.map(f => f.family));
-           
+
             this.resources.parsedFonts.get(Store.ROBOTO_500_LOCAL);
-            
+
             this.events.app.resourcesReady.dispatch(true);
         });
     }
@@ -282,10 +279,30 @@ class Store {
                 family: "Roboto",
                 variant: null,
                 category: null,
-                url: Store.ROBOTO_500_LOCAL 
+                url: Store.ROBOTO_500_LOCAL
             },
             textBlocks: <TextBlock[]>[]
         };
+    }
+
+    private setEditingItem(item: PositionedItem) {
+        if(this.state.disposable.editingItem === item){
+            return;
+        }
+        
+        if (this.state.disposable.editingItem) {
+            // signal closing editor for item
+            
+            if(this.state.disposable.editingItem.itemType === "TextBlock"){
+                const currentEditingBlock = this.getBlock(this.state.disposable.editingItem.itemId);
+                if(currentEditingBlock){
+                    this.events.textblock.editorClosed.dispatch(currentEditingBlock);
+                }
+            }
+        }
+        
+        this.state.disposable.editingItem = item;
+        this.events.sketch.editingItemChanged.dispatch(item);
     }
 
     private getBlock(id: string) {

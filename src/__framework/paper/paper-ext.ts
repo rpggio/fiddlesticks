@@ -10,7 +10,9 @@ module paper {
         doubleClick: "doubleclick",
         mouseMove: "mousemove",
         mouseEnter: "mouseenter",
-        mouseLeave: "mouseleave"
+        mouseLeave: "mouseleave",
+        keyup: "keyup",
+        keydown: "keydown"
     }
 
 }

@@ -19,8 +19,8 @@ class AppController {
 
         const actions = store.actions, events = store.events;
 
-        actions.subscribe(x => console.log(x));
-        events.subscribe(x => console.log(x));
+        events.subscribe(m => console.log("event", m));
+        actions.subscribe(m => console.log("action", m));
 
         events.app.fontLoaded.observe().first().subscribe(m => {
             

@@ -3,12 +3,19 @@ class SelectedItemEditor {
 
     constructor(container: HTMLElement, store: Store) {
 
-        const dom$ = store.events.mergeTyped<PositionedItem>( 
+        const dom$ = store.events.mergeTyped<any>( 
                 store.events.sketch.editingItemChanged,
                 store.events.sketch.loaded
             ).map(i => {
 
-            if (!i.data || !i.data.itemId) {
+            const posItem = <PositionedItem>i.data;
+
+            const block = posItem
+                && posItem.itemType === 'TextBlock'
+                && _.find(store.state.retained.sketch.textBlocks, 
+                    b => b._id === posItem.itemId);
+
+            if (!block) {
                 return h('div#editorOverlay',
                     {
                         style: {
@@ -17,17 +24,11 @@ class SelectedItemEditor {
                     });
             }
 
-            if (i.data.itemType !== 'TextBlock') {
-                return;
-            }
-
-            let block = i.data.item as TextBlock;
-
             return h('div#editorOverlay',
                 {
                     style: {
-                        left: i.data.clientX + "px",
-                        top: i.data.clientY + "px",
+                        left: posItem.clientX + "px",
+                        top: posItem.clientY + "px",
                         "z-index": 1
                     }
                 },

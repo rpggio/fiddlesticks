@@ -8,6 +8,7 @@ class ViewZoom {
     private _maxZoom: number;
     private _mouseNativeStart: paper.Point;
     private _viewCenterStart: paper.Point;
+    private _viewChanged = new ObservableEvent<paper.Rectangle>();
 
     constructor(project: paper.Project) {
         this.project = project;
@@ -18,6 +19,8 @@ class ViewZoom {
             const mousePosition = new paper.Point(event.offsetX, event.offsetY);
             this.changeZoomCentered(event.deltaY, mousePosition);
         });
+        
+        let didDrag = false;
         
         view.on("mousedrag", ev => {
             if(!this._viewCenterStart){
@@ -38,6 +41,7 @@ class ViewZoom {
                     view.projectToView(this._viewCenterStart)
                     .subtract(nativeDelta));
                 view.emit(PaperHelpers.EventType.smartDragMove, ev);
+                didDrag = true;
             }
         });
         
@@ -46,8 +50,16 @@ class ViewZoom {
                 this._mouseNativeStart = null;
                 this._viewCenterStart = null;
                 view.emit(PaperHelpers.EventType.smartDragEnd, ev);
+                if(didDrag) {
+                    this._viewChanged.notify(view.bounds);
+                    didDrag = false;
+                }
             }
         });
+    }
+
+    get viewChanged() : ObservableEvent<paper.Rectangle> {
+        return this._viewChanged;
     }
 
     get zoom(): number{
@@ -56,25 +68,6 @@ class ViewZoom {
 
     get zoomRange(): number[] {
         return [this._minZoom, this._maxZoom];
-    }
-
-    /**
-     * Set zoom level.
-     * @returns zoom level that was set, or null if it was not changed
-     */
-    setZoomConstrained(zoom: number): number {
-        if(this._minZoom) {
-            zoom = Math.max(zoom, this._minZoom);
-        }
-        if(this._maxZoom){
-            zoom = Math.min(zoom, this._maxZoom);
-        }
-        const view = this.project.view;
-        if(zoom != view.zoom){
-            view.zoom = zoom;
-            return zoom;
-        }
-        return null;
     }
 
     setZoomRange(range: paper.Size[]): number[] {
@@ -96,6 +89,15 @@ class ViewZoom {
             this._maxZoom = max;
         }
         return [this._minZoom, this._maxZoom];
+    }
+
+    zoomTo(rect: paper.Rectangle){
+        const view = this.project.view;
+        view.center = rect.center;
+        view.zoom = Math.min( 
+            view.viewSize.height / rect.height, 
+            view.viewSize.width / rect.width);
+        this._viewChanged.notify(view.bounds);
     }
 
     changeZoomCentered(delta: number, mousePos: paper.Point) {
@@ -122,13 +124,26 @@ class ViewZoom {
             .subtract(oldCenter);
 
         view.center = view.center.add(offset);
+        
+        this._viewChanged.notify(view.bounds);
     };
     
-    zoomTo(rect: paper.Rectangle){
+    /**
+     * Set zoom level.
+     * @returns zoom level that was set, or null if it was not changed
+     */
+    private setZoomConstrained(zoom: number): number {
+        if(this._minZoom) {
+            zoom = Math.max(zoom, this._minZoom);
+        }
+        if(this._maxZoom){
+            zoom = Math.min(zoom, this._maxZoom);
+        }
         const view = this.project.view;
-        view.center = rect.center;
-        view.zoom = Math.min( 
-            view.viewSize.height / rect.height, 
-            view.viewSize.width / rect.width);
+        if(zoom != view.zoom){
+            view.zoom = zoom;
+            return zoom;
+        }
+        return null;
     }
 }

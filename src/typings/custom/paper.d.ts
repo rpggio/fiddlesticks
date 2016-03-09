@@ -956,6 +956,7 @@ declare module paper {
          * @param function - The function to be called when the event occurs
          */
         on(type: string, callback: (event: PaperMouseEvent) => void): Item;
+        on(type: string, callback: (event: KeyEvent) => void): Item;
 
         /**
          * Attach one or more event handlers to the view.
