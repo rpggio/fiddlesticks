@@ -2,6 +2,7 @@
 class DualBoundsPathWarp extends paper.Group {
 
     static POINTS_PER_PATH = 200;
+    static UPDATE_DEBOUNCE = 150;
 
     private _source: paper.CompoundPath;
     private _upper: StretchPath;
@@ -18,7 +19,7 @@ class DualBoundsPathWarp extends paper.Group {
         super();
 
         // -- build children --
-        
+
         this._source = source;
         this._source.visible = false;
 
@@ -61,13 +62,15 @@ class DualBoundsPathWarp extends paper.Group {
 
         // -- set up observers --
 
-        const handlePathChange = (path: paper.Path) => {
-            this.updateOutlineShape();
-            this.updateWarped();
-            this._changed(PaperNotify.ChangeFlag.GEOMETRY);
-        };
-        this._upper.pathChanged.subscribe(handlePathChange);
-        this._lower.pathChanged.subscribe(handlePathChange);
+        Rx.Observable.merge(
+            this._upper.pathChanged.observe(),
+            this._lower.pathChanged.observe())
+            .debounce(DualBoundsPathWarp.UPDATE_DEBOUNCE)
+            .subscribe(path => {
+                this.updateOutlineShape();
+                this.updateWarped();
+                this._changed(PaperNotify.ChangeFlag.GEOMETRY);
+            });
 
         this.subscribe(flags => {
             if (flags & PaperNotify.ChangeFlag.ATTRIBUTE) {
@@ -113,7 +116,7 @@ class DualBoundsPathWarp extends paper.Group {
         }
     }
 
-    set controlBoundsOpacity(value: number){
+    set controlBoundsOpacity(value: number) {
         this._upper.opacity = this._lower.opacity = value;
     }
 
