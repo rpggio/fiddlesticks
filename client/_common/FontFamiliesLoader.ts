@@ -13,6 +13,7 @@ class FontFamiliesLoader {
                             fam.files[key] = val.replace("http:", "https:");
                         }
                     });
+console.log(fam.family, fam.files);
                 }
                 callback(response.items);
             },
