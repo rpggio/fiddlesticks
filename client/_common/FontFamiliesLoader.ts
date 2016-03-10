@@ -7,6 +7,13 @@ class FontFamiliesLoader {
             dataType: 'json',
             cache: true,
             success: (response: { kind: string, items: FontFamily[] }) => {
+                for(const fam of response.items) {
+                    _.forOwn(fam.files, (val: string, key:string) => {
+                        if(_.startsWith(val, "http:")){
+                            fam.files[key] = val.replace("http:", "https:");
+                        }
+                    });
+                }
                 callback(response.items);
             },
             error: (xhr, status, err) => {
