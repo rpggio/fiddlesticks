@@ -27,7 +27,7 @@
   "devDependencies": {},
   "scripts": {
     "bundle-client": "browserify client/deps-init.js -o site/lib/client-deps.js",
-    "start": "http-server site -p 7701"
+    "start": "node server/index.js"
   },
   "repository": {
     "type": "git",
