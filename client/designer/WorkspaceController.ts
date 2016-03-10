@@ -138,14 +138,16 @@ class WorkspaceController {
                 this.defaultSize.multiply(this.defaultScale));
         }
 
-        this.viewZoom.zoomTo(bounds.scale(1.05));
+        this.viewZoom.zoomTo(bounds.scale(1.2));
     }
 
     private downloadPNG() {
         const background = this.insertBackground();
         const raster = app.workspaceController.project.activeLayer.rasterize(300, false);
+        const fileName = this.getSketchFileName(40, "png");
         const data = raster.toDataURL();
-        DomHelpers.downloadFile(data, this.getSketchFileName(40, "png"));
+       
+        DomHelpers.downloadFile(data, fileName);
         background.remove();
     }
 

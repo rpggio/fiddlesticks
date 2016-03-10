@@ -93,11 +93,17 @@ class Store {
         actions.designer.zoomToFit.forward(
             events.designer.zoomToFitRequested);
 
-        actions.designer.exportPNG.forward(
-            events.designer.exportPNGRequested);
+        actions.designer.exportPNG.subscribe(m => {
+            this.setSelection(null);
+            this.setEditingItem(null);
+            events.designer.exportPNGRequested.dispatch(m.data);
+        });
 
-        actions.designer.exportSVG.forward(
-            events.designer.exportSVGRequested);
+        actions.designer.exportSVG.subscribe(m => {
+            this.setSelection(null);
+            this.setEditingItem(null);
+            events.designer.exportSVGRequested.dispatch(m.data);
+        });
 
         actions.designer.viewChanged.subscribe(m => {
             // Can't do this, due to chance of accidental closing   

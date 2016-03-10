@@ -4,6 +4,7 @@
   "description": "word-art",
   "main": "dist/main.js",
   "dependencies": {
+    "aws-sdk": "^2.2.42",
     "express": "^4.13.4",
     "hyperscript-helpers": "^2.1.0",
     "inversify": "^1.3.1",

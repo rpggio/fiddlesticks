@@ -7,14 +7,15 @@ class FontFamiliesLoader {
             dataType: 'json',
             cache: true,
             success: (response: { kind: string, items: FontFamily[] }) => {
+                // make files htts
                 for(const fam of response.items) {
                     _.forOwn(fam.files, (val: string, key:string) => {
                         if(_.startsWith(val, "http:")){
                             fam.files[key] = val.replace("http:", "https:");
                         }
                     });
-console.log(fam.family, fam.files);
                 }
+                
                 callback(response.items);
             },
             error: (xhr, status, err) => {
