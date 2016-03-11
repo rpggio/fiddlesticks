@@ -252,6 +252,7 @@ class Store {
 
     createSketch(): Sketch {
         return {
+            _id: newid(),
             defaultFontDesc: {
                 family: "Roboto",
                 variant: null,

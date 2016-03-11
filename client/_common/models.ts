@@ -8,10 +8,14 @@ interface DisposableState {
     selection?: WorkspaceObjectRef;
 }
 
-interface Sketch {
+interface Sketch extends SketchAttr {
+    _id: string;
+    textBlocks?: TextBlock[];
+}
+
+interface SketchAttr {
     backgroundColor?: string;
     defaultFontDesc?: FontDescription;
-    textBlocks?: TextBlock[];
     loading?: boolean;
 }
 
