@@ -50,7 +50,7 @@ class TextBlockEditor extends Component<TextBlock> {
                                     insert: (vnode) =>
                                         ColorPicker.setup(
                                             vnode.elm,
-                                            SketchHelpers.colorsInUse(this.store.state.retained.sketch),
+                                            SketchHelpers.colorsInUse(this.store.state.sketch),
                                             color => update({ textColor: color && color.toHexString() })
                                         ),
                                     destroy: (vnode) => ColorPicker.destroy(vnode.elm)
@@ -75,7 +75,7 @@ class TextBlockEditor extends Component<TextBlock> {
                                     insert: (vnode) =>
                                         ColorPicker.setup(
                                             vnode.elm,
-                                            SketchHelpers.colorsInUse(this.store.state.retained.sketch),
+                                            SketchHelpers.colorsInUse(this.store.state.sketch),
                                             color => update({ backgroundColor: color && color.toHexString() })
                                         ),
                                     destroy: (vnode) => ColorPicker.destroy(vnode.elm)

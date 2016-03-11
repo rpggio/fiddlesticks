@@ -1,11 +1,9 @@
 
-interface RetainedState {
-    sketch: Sketch;
-}
-
-interface DisposableState {
+interface AppState {
     editingItem?: PositionedObjectRef;
     selection?: WorkspaceObjectRef;
+    loadingSketch?: boolean;
+    sketch?: Sketch;
 }
 
 interface Sketch extends SketchAttr {
@@ -16,7 +14,6 @@ interface Sketch extends SketchAttr {
 interface SketchAttr {
     backgroundColor?: string;
     defaultFontDesc?: FontDescription;
-    loading?: boolean;
 }
 
 interface FontFamily {

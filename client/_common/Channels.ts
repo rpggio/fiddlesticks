@@ -5,12 +5,7 @@ class Actions extends TypedChannel.Channel {
         /**
          * Instructs Store to load retained state from local storage, if it exists.
          */
-        loadRetainedState: this.topic<void>("app.loadRetainedState"),
-        
-        /**
-         * Instructs Store to save retained state to local storage.
-         */
-        saveRetainedState: this.topic<void>("app.saveRetainedState"),
+        initWorkspace: this.topic<void>("app.initWorkspace"),
         
         loadFont: this.topic<string>("app.loadFont")
     };
@@ -43,8 +38,7 @@ class Events extends TypedChannel.Channel {
     
     app = {
         resourcesReady: this.topic<boolean>("app.resourcesReady"),
-        retainedStateLoadAttemptComplete: this.topic<boolean>("app.retainedStateLoadAttemptComplete"),
-        retainedStateChanged: this.topic<RetainedState>("app.retainedStateChanged"),
+        workspaceInitialized: this.topic<Sketch>("app.workspaceInitialized"),
         fontLoaded: this.topic<opentype.Font>("app.fontLoaded")
     }
     
@@ -58,6 +52,7 @@ class Events extends TypedChannel.Channel {
     sketch = {
         loaded: this.topic<Sketch>("sketch.loaded"),
         attrChanged: this.topic<Sketch>("sketch.attrChanged"),
+        contentChanged: this.topic<Sketch>("sketch.contentChanged"),
         editingItemChanged: this.topic<PositionedObjectRef>("sketch.editingItemChanged"),
         selectionChanged: this.topic<WorkspaceObjectRef>("sketch.selectionChanged"),
         saveLocalRequested: this.topic<void>("sketch.savelocal.saveLocalRequested")

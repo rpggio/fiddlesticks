@@ -4,5 +4,6 @@ function logtap<T>(message: string, stream: Rx.Observable<T>): Rx.Observable<T>{
 }
 
 function newid(): string {
-    return (new Date().getTime()+Math.random()).toString(36);
+    return (new Date().getTime() + Math.random())
+        .toString(36).replace('.', '');
 }

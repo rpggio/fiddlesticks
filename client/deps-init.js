@@ -24,4 +24,11 @@ window.ReactSelect = require("react-select");
 
 window.WebFont = require("webfontloader");
 
+var router5 = require("router5");
+window.Router5 = router5.Router5;
+window.RouteNode = router5.RouteNode;
+window.loggerPlugin = router5.loggerPlugin;
+window.listenersPlugin = require('router5-listeners');
+window.historyPlugin = require('router5-history');
+
 //window.inversify = require("inversify"); // IoC

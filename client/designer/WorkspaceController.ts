@@ -31,10 +31,10 @@ class WorkspaceController {
         });
         
         const clearSelection = (ev: paper.PaperMouseEvent) => {
-            if(store.state.disposable.editingItem){
+            if(store.state.editingItem){
                 store.actions.sketch.setEditingItem.dispatch(null);
             }
-            else if(store.state.disposable.selection){
+            else if(store.state.selection){
                 store.actions.sketch.setSelection.dispatch(null);
             }
         }
@@ -153,7 +153,7 @@ class WorkspaceController {
 
     private downloadSVG() {
         let background: paper.Item;
-        if(this.store.state.retained.sketch.backgroundColor){
+        if(this.store.state.sketch.backgroundColor){
             background = this.insertBackground();
         }
         
@@ -169,7 +169,7 @@ class WorkspaceController {
     private getSketchFileName(length: number, extension: string): string {
         let name = "";
         outer:
-        for (const block of this.store.state.retained.sketch.textBlocks) {
+        for (const block of this.store.state.sketch.textBlocks) {
             for (const word of block.text.split(/\s/)) {
                 const trim = word.replace(/\W/g, '').trim();
                 if (trim.length) {
@@ -196,7 +196,7 @@ class WorkspaceController {
         const background = paper.Shape.Rectangle(
             bounds.topLeft.subtract(20),
             bounds.bottomRight.add(20));
-        background.fillColor = this.store.state.retained.sketch.backgroundColor;
+        background.fillColor = this.store.state.sketch.backgroundColor;
         background.sendToBack();
         return background;
     }
@@ -310,9 +310,9 @@ class WorkspaceController {
         }
         this._textBlockItems[textBlock._id] = item;
 
-        if (!this.store.state.retained.sketch.loading
-            && this.store.state.retained.sketch.textBlocks.length <= 1) {
-            // open editor for newly added block
+        if (!this.store.state.loadingSketch
+            && this.store.state.sketch.textBlocks.length <= 1) {
+            // open editor for newly added block (and not loading sketch)
             sendEditAction();
         }
     }

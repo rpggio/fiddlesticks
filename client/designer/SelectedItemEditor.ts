@@ -12,7 +12,7 @@ class SelectedItemEditor {
 
             const block = posItem
                 && posItem.itemType === 'TextBlock'
-                && _.find(store.state.retained.sketch.textBlocks, 
+                && _.find(store.state.sketch.textBlocks, 
                     b => b._id === posItem.itemId);
 
             if (!block) {

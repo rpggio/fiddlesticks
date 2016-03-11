@@ -4,8 +4,8 @@ namespace S3Access {
     /**
      * Upload file to application S3 bucket
      */
-    export function upload(fileName: string, fileType: string, data: Blob) {
-        const signUrl = `/sign_s3?file_name=${fileName}&file_type=${fileType}`;
+    export function putFile(fileName: string, fileType: string, data: Blob|string) {
+        const signUrl = `/api/storage/access?fileName=${fileName}&fileType=${fileType}`;
         // get signed URL
         $.getJSON(signUrl)
             .done(signResponse => {
@@ -13,9 +13,9 @@ namespace S3Access {
                 // PUT file
                 const putRequest = {
                     method: "PUT",
-                    url: signResponse.signed_request,
+                    url: signResponse.signedRequest,
                     headers: {
-                        'x-amz-acl': 'public-read'
+                        "x-amz-acl": "public-read"
                     },
                     data: data,
                     processData: false,
@@ -31,7 +31,18 @@ namespace S3Access {
                 
             })
             .fail(err => {
-                console.error("error on sign_s3", err);
+                console.error("error on /api/storage/access", err);
+            });
+    }
+    
+    /**
+     * Download file from bucket
+     */
+    export function getFile(fileName: string): JQueryPromise<any> {
+        return $.getJSON(`/api/storage/url?fileName=${fileName}`)
+            .then(response => {
+                console.log("downloading", response.url);
+                return $.getJSON(response.url);
             });
     }
     

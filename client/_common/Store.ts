@@ -15,25 +15,27 @@
 class Store {
 
     static ROBOTO_500_LOCAL = 'fonts/Roboto-500.ttf';
-    static AUTOSAVE_KEY = "Fiddlesticks.retainedState";
     static DEFAULT_FONT_NAME = "Roboto";
     static FONT_LIST_LIMIT = 100;
+    static SKETCH_LOCAL_CACHE_KEY = "fiddlesticks.io.lastSketch";
+    static LOCAL_CACHE_DELAY_MS = 1000;
+    static SERVER_SAVE_DELAY_MS = 5000;
 
-    state = {
-        retained: <RetainedState>{
-            sketch: this.createSketch()
-        },
-        disposable: <DisposableState>{}
-    }
+    state: AppState = {};
     resources = {
         fontFamilies: <Dictionary<FontFamily>>{},
         parsedFonts: new ParsedFonts((url, font) =>
             this.events.app.fontLoaded.dispatch(font))
-    }
+    };
+    router: AppRouter;
     actions = new Actions();
     events = new Events();
 
-    constructor() {
+    private _sketchContent$ = new Rx.Subject<Sketch>();
+
+    constructor(router: AppRouter) {
+        this.router = router;
+        
         this.setupSubscriptions();
 
         this.loadResources();
@@ -44,46 +46,49 @@ class Store {
 
         // ----- App -----
 
-        actions.app.loadRetainedState.observe()
+        actions.app.initWorkspace.observe()
             // Warning: subscribing to event within Store - crazy or not??
             // wait to load until resources are ready
             .pausableBuffered(events.app.resourcesReady.observe().map(m => m.data))
             .subscribe(m => {
-                let success = false;
-
-                if (!localStorage || !localStorage.getItem) {
-                    // not supported
-                    return;
+                const sketchIdParam = this.sketchIdUrlParam;
+                if(sketchIdParam){
+                    S3Access.getFile(sketchIdParam + ".json")
+                        .done(sketch => {
+                            this.loadSketch(sketch);
+                            events.app.workspaceInitialized.dispatch(this.state.sketch);
+                        })
+                        .fail(err => {
+                           console.warn("error getting remote sketch", err);
+                           this.loadSketch(this.createSketch()); 
+                           events.app.workspaceInitialized.dispatch(this.state.sketch);
+                        });
+                } else {
+                    this.loadSketch(this.createSketch());
                 }
+                
+                /* --- Set up sketch state watched --- */
 
-                const saved = localStorage.getItem(Store.AUTOSAVE_KEY);
-                if (saved) {
-                    const loaded = <RetainedState>JSON.parse(saved);
-                    if (loaded && loaded.sketch && loaded.sketch.textBlocks) {
-                        // data seems legit
-                        this.state.retained = loaded;
-                        this.state.retained.sketch.loading = true;
-                        events.sketch.loaded.dispatch(this.state.retained.sketch);
-                        for (const tb of this.state.retained.sketch.textBlocks) {
-                            events.textblock.loaded.dispatch(tb);
+                // this._sketchContent$
+                //     .debounce(Store.LOCAL_CACHE_DELAY_MS)
+                //     .subscribe(rs => {
+                //         if (!localStorage || !localStorage.getItem) {
+                //             // not supported
+                //             return;
+                //         }
+                //         localStorage.setItem(
+                //             Store.SKETCH_LOCAL_CACHE_KEY,
+                //             JSON.stringify(this.state.sketch));
+                //     });
+
+                this._sketchContent$.debounce(Store.SERVER_SAVE_DELAY_MS)
+                    .subscribe(sketch => {
+                        if (sketch && sketch._id && sketch.textBlocks.length) {
+                            S3Access.putFile(sketch._id + ".json",
+                                "application/json", JSON.stringify(sketch));
                         }
-                        events.designer.zoomToFitRequested.dispatch();
-                        this.state.retained.sketch.loading = false;
-                        success = true;
-                    }
-                }
-
-                events.app.retainedStateLoadAttemptComplete.dispatch(success);
+                    });
             });
-
-        actions.app.saveRetainedState.subscribe(m => {
-            if (!localStorage || !localStorage.getItem) {
-                // not supported
-                return;
-            }
-
-            localStorage.setItem(Store.AUTOSAVE_KEY, JSON.stringify(this.state.retained));
-        });
 
         actions.app.loadFont.subscribe(m =>
             this.resources.parsedFonts.get(m.data));
@@ -115,27 +120,27 @@ class Store {
 
         actions.sketch.create
             .subscribe((m) => {
-                this.state.retained.sketch = this.createSketch();
+                const sketch = this.createSketch();
+
                 const patch = m.data || {};
                 patch.backgroundColor = patch.backgroundColor || '#f6f3eb';
-                this.assign(this.state.retained.sketch, patch);
+                this.assign(sketch, patch);
 
-                events.sketch.loaded.dispatch(this.state.retained.sketch);
-                events.designer.zoomToFitRequested.dispatch();
+                this.loadSketch(sketch)
 
-                this.resources.parsedFonts.get(this.state.retained.sketch.defaultFontDesc.url);
+                this.resources.parsedFonts.get(this.state.sketch.defaultFontDesc.url);
 
                 this.setEditingItem(null);
 
-                this.changedRetainedState();
+                this.changedSketch();
             });
 
         actions.sketch.attrUpdate
             .subscribe(ev => {
-                this.assign(this.state.retained.sketch, ev.data);
+                this.assign(this.state.sketch, ev.data);
                 events.sketch.attrChanged.dispatch(
-                    this.state.retained.sketch);
-                this.changedRetainedState();
+                    this.state.sketch);
+                this.changedSketch();
             });
 
         actions.sketch.setEditingItem.subscribe(m => {
@@ -166,14 +171,14 @@ class Store {
                     block.textColor = "gray"
                 }
                 if (block.fontDesc) {
-                    this.state.retained.sketch.defaultFontDesc = block.fontDesc;
+                    this.state.sketch.defaultFontDesc = block.fontDesc;
                 } else {
-                    block.fontDesc = this.state.retained.sketch.defaultFontDesc;
+                    block.fontDesc = this.state.sketch.defaultFontDesc;
                 }
 
-                this.state.retained.sketch.textBlocks.push(block);
+                this.state.sketch.textBlocks.push(block);
                 events.textblock.added.dispatch(block);
-                this.changedRetainedState();
+                this.changedSketch();
             });
 
         actions.textBlock.updateAttr
@@ -189,17 +194,17 @@ class Store {
                     };
                     this.assign(block, patch);
                     if (block.fontDesc) {
-                        this.state.retained.sketch.defaultFontDesc = block.fontDesc;
+                        this.state.sketch.defaultFontDesc = block.fontDesc;
                     }
                     events.textblock.attrChanged.dispatch(block);
-                    this.changedRetainedState();
+                    this.changedSketch();
                 }
             });
 
         actions.textBlock.remove
             .subscribe(ev => {
                 let didDelete = false;
-                _.remove(this.state.retained.sketch.textBlocks, tb => {
+                _.remove(this.state.sketch.textBlocks, tb => {
                     if (tb._id === ev.data._id) {
                         didDelete = true;
                         return true;
@@ -207,7 +212,7 @@ class Store {
                 });
                 if (didDelete) {
                     events.textblock.removed.dispatch({ _id: ev.data._id });
-                    this.changedRetainedState();
+                    this.changedSketch();
                     this.setEditingItem(null);
                 }
             });
@@ -219,9 +224,21 @@ class Store {
                     block.position = ev.data.position;
                     block.outline = ev.data.outline;
                     events.textblock.arrangeChanged.dispatch(block);
-                    this.changedRetainedState();
+                    this.changedSketch();
                 }
             });
+    }
+
+    loadSketch(sketch: Sketch) {
+        this.state.loadingSketch = true;
+        this.state.sketch = sketch;
+        this.sketchIdUrlParam = sketch._id;
+        this.events.sketch.loaded.dispatch(this.state.sketch);
+        for (const tb of this.state.sketch.textBlocks) {
+            this.events.textblock.loaded.dispatch(tb);
+        }
+        this.events.designer.zoomToFitRequested.dispatch();
+        this.state.loadingSketch = false;
     }
 
     loadResources() {
@@ -242,8 +259,9 @@ class Store {
         });
     }
 
-    changedRetainedState() {
-        this.events.app.retainedStateChanged.dispatch(this.state.retained);
+    changedSketch() {
+        this.events.sketch.contentChanged.dispatch(this.state.sketch);
+        this._sketchContent$.onNext(this.state.sketch);
     }
 
     assign<T>(dest: T, source: T) {
@@ -263,57 +281,66 @@ class Store {
         };
     }
 
+    private get sketchIdUrlParam(): string {
+        const routeState = <RouteState>this.router.getState();
+        return routeState.params.sketchId;
+    }
+
+    private set sketchIdUrlParam(value: string) {
+        this.router.navigate("sketch", {sketchId: value});
+    }
+
     private setSelection(item: WorkspaceObjectRef) {
         // early exit on no change
-        if(item){
-            if(this.state.disposable.selection 
-                && this.state.disposable.selection.itemId === item.itemId){
+        if (item) {
+            if (this.state.selection
+                && this.state.selection.itemId === item.itemId) {
                 return;
             }
         } else {
-            if(!this.state.disposable.selection) {
+            if (!this.state.selection) {
                 return;
             }
         }
 
-        this.state.disposable.selection = item;
+        this.state.selection = item;
         this.events.sketch.selectionChanged.dispatch(item);
     }
 
     private setEditingItem(item: PositionedObjectRef) {
         // early exit on no change
-        if(item){
-            if(this.state.disposable.editingItem 
-                && this.state.disposable.editingItem.itemId === item.itemId){
+        if (item) {
+            if (this.state.editingItem
+                && this.state.editingItem.itemId === item.itemId) {
                 return;
             }
         } else {
-            if(!this.state.disposable.editingItem) {
+            if (!this.state.editingItem) {
                 return;
             }
         }
-        
-        if (this.state.disposable.editingItem) {
+
+        if (this.state.editingItem) {
             // signal closing editor for item
-            
-            if(this.state.disposable.editingItem.itemType === "TextBlock"){
-                const currentEditingBlock = this.getBlock(this.state.disposable.editingItem.itemId);
-                if(currentEditingBlock){
+
+            if (this.state.editingItem.itemType === "TextBlock") {
+                const currentEditingBlock = this.getBlock(this.state.editingItem.itemId);
+                if (currentEditingBlock) {
                     this.events.textblock.editorClosed.dispatch(currentEditingBlock);
                 }
             }
         }
-        
-        if(item){
+
+        if (item) {
             // editing item should be selected item
             this.setSelection(item);
         }
-        
-        this.state.disposable.editingItem = item;
+
+        this.state.editingItem = item;
         this.events.sketch.editingItemChanged.dispatch(item);
     }
 
     private getBlock(id: string) {
-        return _.find(this.state.retained.sketch.textBlocks, tb => tb._id === id);
+        return _.find(this.state.sketch.textBlocks, tb => tb._id === id);
     }
 }

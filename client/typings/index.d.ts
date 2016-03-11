@@ -1,6 +1,7 @@
 /*--- CUSTOM ---*/
 
 /// <reference path="custom/paper.d.ts" />
+/// <reference path="custom/router5.d.ts" />
 
 
 /*--- TSD ---*/

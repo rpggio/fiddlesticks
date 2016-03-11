@@ -11,13 +11,12 @@ class SketchEditor extends Component<Sketch> {
         const sketchDom$ = store.events.merge(
             store.events.sketch.loaded,
             store.events.sketch.attrChanged)
-            .map(m => this.render(store.state.retained.sketch));
+            .map(m => this.render(store.state.sketch));
         ReactiveDom.renderStream(sketchDom$, container);
 
     }
 
     render(sketch: Sketch) {
-
         const self = this;
 
         return h("div", [
@@ -55,7 +54,7 @@ class SketchEditor extends Component<Sketch> {
                         insert: (vnode) =>
                             ColorPicker.setup(
                                 vnode.elm,
-                                SketchHelpers.colorsInUse(this.store.state.retained.sketch),
+                                SketchHelpers.colorsInUse(this.store.state.sketch),
                                 color => {
                                     this.store.actions.sketch.attrUpdate.dispatch(
                                         { backgroundColor: color && color.toHexString() });

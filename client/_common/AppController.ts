@@ -10,12 +10,17 @@
 class AppController {
 
     store: Store;
+    router: AppRouter;
     workspaceController: WorkspaceController;
 
     constructor(
         store: Store,
+        router: AppRouter,
         sketchEditor: SketchEditor,
         selectedItemEditor: SelectedItemEditor) {
+
+        this.store = store;
+        this.router = router;
 
         const actions = store.actions, events = store.events;
 
@@ -26,21 +31,14 @@ class AppController {
             
             this.workspaceController = new WorkspaceController(store, m.data);
             
-            events.app.retainedStateLoadAttemptComplete.subscribe(m => {
-                if (!m.data) {
-                    // no autosave data loaded
-                    actions.sketch.create.dispatch();
+            events.app.workspaceInitialized.subscribe(m => {
+                if (store.state.sketch.textBlocks.length == 0) {
                     actions.textBlock.add.dispatch(
-                        { text: "FIDDLESTICKS", textColor: "lightblue", fontSize: 128 });
+                        { text: "FIDDLESTICKS", textColor: "#ae5a41", fontSize: 128 });
                 }
-                    
-                // Auto-save in one line: gotta love it.
-                events.app.retainedStateChanged.observe().debounce(800).subscribe(state => {
-                    actions.app.saveRetainedState.dispatch();
-                });
             });
 
-            actions.app.loadRetainedState.dispatch();
+            actions.app.initWorkspace.dispatch();
         });
 
         events.sketch.loaded.subscribe(ev =>
