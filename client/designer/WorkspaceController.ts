@@ -27,21 +27,19 @@ class WorkspaceController {
 
         this.viewZoom = new ViewZoom(this.project);
         this.viewZoom.viewChanged.subscribe(bounds => {
-           store.actions.designer.viewChanged.dispatch(bounds); 
+            store.actions.designer.viewChanged.dispatch(bounds);
         });
-        
+
         const clearSelection = (ev: paper.PaperMouseEvent) => {
-            if(store.state.editingItem){
+            if (store.state.editingItem) {
                 store.actions.sketch.setEditingItem.dispatch(null);
             }
-            else if(store.state.selection){
+            else if (store.state.selection) {
                 store.actions.sketch.setSelection.dispatch(null);
             }
         }
         paper.view.on(paper.EventType.click, clearSelection);
         paper.view.on(PaperHelpers.EventType.smartDragStart, clearSelection);
-        // paper.view.on("keyup", (ev: paper.KeyEvent) => {
-        // }); 
 
         const keyHandler = new DocumentKeyHandler(store);
 
@@ -60,12 +58,12 @@ class WorkspaceController {
         store.events.designer.exportSVGRequested.subscribe(() => {
             this.downloadSVG();
         });
-        
+
         store.events.designer.snapshotExpired.subscribe((m) => {
-           const dataUrl = this.getSnapshotPNG();
-           store.actions.designer.updateSnapshot.dispatch({
-               sketch: m.data, pngDataUrl: dataUrl
-           });
+            const dataUrl = this.getSnapshotPNG();
+            store.actions.designer.updateSnapshot.dispatch({
+                sketch: m.data, pngDataUrl: dataUrl
+            });
         });
 
         // ----- Sketch -----
@@ -81,12 +79,12 @@ class WorkspaceController {
 
         store.events.sketch.selectionChanged.subscribe(m => {
             this.project.deselectAll();
-            if(m.data){
+            if (m.data) {
                 let block = m.data.itemId && this._textBlockItems[m.data.itemId];
                 if (block && !block.selected) {
                     block.selected = true;
                 }
-            }   
+            }
         });
 
         // ----- TextBlock -----
@@ -135,19 +133,22 @@ class WorkspaceController {
     }
 
     zoomToFit() {
+        const bounds = this.getViewableBounds();
+        this.viewZoom.zoomTo(bounds.scale(1.2));
+    }
+
+    private getViewableBounds(): paper.Rectangle {
         let bounds: paper.Rectangle;
         _.forOwn(this._textBlockItems, (item) => {
             bounds = bounds
                 ? bounds.unite(item.bounds)
                 : item.bounds;
         });
-
         if (!bounds) {
             bounds = new paper.Rectangle(new paper.Point(0, 0),
                 this.defaultSize.multiply(this.defaultScale));
         }
-
-        this.viewZoom.zoomTo(bounds.scale(1.2));
+        return bounds;
     }
 
     private getSnapshotPNG(): string {
@@ -160,15 +161,15 @@ class WorkspaceController {
 
     private downloadSVG() {
         let background: paper.Item;
-        if(this.store.state.sketch.backgroundColor){
+        if (this.store.state.sketch.backgroundColor) {
             background = this.insertBackground();
         }
-        
+
         var url = "data:image/svg+xml;utf8," + encodeURIComponent(
             <string>this.project.exportSVG({ asString: true }));
         DomHelpers.downloadFile(url, this.getSketchFileName(40, "svg"));
-        
-        if(background){
+
+        if (background) {
             background.remove();
         }
     }
@@ -199,10 +200,11 @@ class WorkspaceController {
      *   and add margin around edges.
      */
     private insertBackground(): paper.Item {
-        const bounds = app.workspaceController.project.activeLayer.bounds;
+        const bounds = this.getViewableBounds();
+        const margin = Math.max(bounds.width, bounds.height) * 0.02;
         const background = paper.Shape.Rectangle(
-            bounds.topLeft.subtract(20),
-            bounds.bottomRight.add(20));
+            bounds.topLeft.subtract(margin),
+            bounds.bottomRight.add(margin));
         background.fillColor = this.store.state.sketch.backgroundColor;
         background.sendToBack();
         return background;

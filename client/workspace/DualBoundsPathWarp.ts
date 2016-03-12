@@ -21,7 +21,7 @@ class DualBoundsPathWarp extends paper.Group {
         // -- build children --
 
         this._source = source;
-        this._source.visible = false;
+        this._source.remove();
 
         if (bounds) {
             this._upper = new StretchPath(bounds.upper);
@@ -80,7 +80,6 @@ class DualBoundsPathWarp extends paper.Group {
                 }
             }
         });
-
     }
 
     get upper(): paper.Path {
@@ -91,13 +90,12 @@ class DualBoundsPathWarp extends paper.Group {
         return this._lower.path;
     }
 
-    get source(): paper.CompoundPath {
-        return <paper.CompoundPath>this._source.clone();
-    }
-
     set source(value: paper.CompoundPath) {
-        this._source = value;
-        this.updateWarped();
+        if(value){
+            this._source && this._source.remove();
+            this._source = value;
+            this.updateWarped();
+        }
     }
 
     get customStyle(): SketchItemStyle {
