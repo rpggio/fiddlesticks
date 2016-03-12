@@ -15,7 +15,8 @@ class Actions extends TypedChannel.Channel {
         exportingImage: this.topic<void>("designer.exportImage"),
         exportPNG: this.topic<void>("designer.exportPNG"),
         exportSVG: this.topic<void>("designer.exportSVG"),
-        viewChanged: this.topic<paper.Rectangle>("designer.viewChanged")
+        viewChanged: this.topic<paper.Rectangle>("designer.viewChanged"),
+        updateSnapshot: this.topic<{sketch: Sketch, pngDataUrl: string}>("designer.updateSnapshot"),
     }
     
     sketch = {
@@ -46,7 +47,8 @@ class Events extends TypedChannel.Channel {
         zoomToFitRequested: this.topic<void>("designer.zoomToFitRequested"),
         exportPNGRequested: this.topic<void>("designer.exportPNGRequested"),
         exportSVGRequested: this.topic<void>("designer.exportSVGRequested"),
-        viewChanged: this.topic<paper.Rectangle>("designer.viewChanged")
+        viewChanged: this.topic<paper.Rectangle>("designer.viewChanged"),
+        snapshotExpired: this.topic<Sketch>("designer.snapshotExpired")
     };
     
     sketch = {

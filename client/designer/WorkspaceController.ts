@@ -52,11 +52,20 @@ class WorkspaceController {
         });
 
         store.events.designer.exportPNGRequested.subscribe(() => {
-            this.downloadPNG();
+            const fileName = this.getSketchFileName(40, "png");
+            const data = this.getSnapshotPNG();
+            DomHelpers.downloadFile(data, fileName);
         });
 
         store.events.designer.exportSVGRequested.subscribe(() => {
             this.downloadSVG();
+        });
+        
+        store.events.designer.snapshotExpired.subscribe((m) => {
+           const dataUrl = this.getSnapshotPNG();
+           store.actions.designer.updateSnapshot.dispatch({
+               sketch: m.data, pngDataUrl: dataUrl
+           });
         });
 
         // ----- Sketch -----
@@ -141,14 +150,12 @@ class WorkspaceController {
         this.viewZoom.zoomTo(bounds.scale(1.2));
     }
 
-    private downloadPNG() {
+    private getSnapshotPNG(): string {
         const background = this.insertBackground();
-        const raster = app.workspaceController.project.activeLayer.rasterize(300, false);
-        const fileName = this.getSketchFileName(40, "png");
+        const raster = this.project.activeLayer.rasterize(300, false);
         const data = raster.toDataURL();
-       
-        DomHelpers.downloadFile(data, fileName);
         background.remove();
+        return data;
     }
 
     private downloadSVG() {

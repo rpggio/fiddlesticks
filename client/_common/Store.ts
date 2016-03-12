@@ -19,7 +19,7 @@ class Store {
     static FONT_LIST_LIMIT = 100;
     static SKETCH_LOCAL_CACHE_KEY = "fiddlesticks.io.lastSketch";
     static LOCAL_CACHE_DELAY_MS = 1000;
-    static SERVER_SAVE_DELAY_MS = 5000;
+    static SERVER_SAVE_DELAY_MS = 10000;
 
     state: AppState = {};
     resources = {
@@ -35,7 +35,7 @@ class Store {
 
     constructor(router: AppRouter) {
         this.router = router;
-        
+
         this.setupSubscriptions();
 
         this.loadResources();
@@ -52,21 +52,21 @@ class Store {
             .pausableBuffered(events.app.resourcesReady.observe().map(m => m.data))
             .subscribe(m => {
                 const sketchIdParam = this.sketchIdUrlParam;
-                if(sketchIdParam){
+                if (sketchIdParam) {
                     S3Access.getFile(sketchIdParam + ".json")
                         .done(sketch => {
                             this.loadSketch(sketch);
                             events.app.workspaceInitialized.dispatch(this.state.sketch);
                         })
                         .fail(err => {
-                           console.warn("error getting remote sketch", err);
-                           this.loadSketch(this.createSketch()); 
-                           events.app.workspaceInitialized.dispatch(this.state.sketch);
+                            console.warn("error getting remote sketch", err);
+                            this.loadSketch(this.createSketch());
+                            events.app.workspaceInitialized.dispatch(this.state.sketch);
                         });
                 } else {
                     this.loadSketch(this.createSketch());
                 }
-                
+
                 /* --- Set up sketch state watched --- */
 
                 // this._sketchContent$
@@ -84,8 +84,7 @@ class Store {
                 this._sketchContent$.debounce(Store.SERVER_SAVE_DELAY_MS)
                     .subscribe(sketch => {
                         if (sketch && sketch._id && sketch.textBlocks.length) {
-                            S3Access.putFile(sketch._id + ".json",
-                                "application/json", JSON.stringify(sketch));
+                            this.saveSketch(sketch);
                         }
                     });
             });
@@ -114,6 +113,14 @@ class Store {
             // Can't do this, due to chance of accidental closing   
             // this.setEditingItem(null);
             events.designer.viewChanged.dispatch(m.data);
+        });
+
+        actions.designer.updateSnapshot.subscribe(m => {
+            if (m.data.sketch._id) {
+                const filename = m.data.sketch._id + ".png";
+                const blob = DomHelpers.dataURLToBlob(m.data.pngDataUrl);
+                S3Access.putFile(filename, "image/png", blob);
+            }
         });
 
         // ----- Sketch -----
@@ -287,7 +294,13 @@ class Store {
     }
 
     private set sketchIdUrlParam(value: string) {
-        this.router.navigate("sketch", {sketchId: value});
+        this.router.navigate("sketch", { sketchId: value });
+    }
+
+    private saveSketch(sketch: Sketch) {
+        S3Access.putFile(sketch._id + ".json",
+            "application/json", JSON.stringify(sketch));
+        this.events.designer.snapshotExpired.dispatch(sketch);
     }
 
     private setSelection(item: WorkspaceObjectRef) {
