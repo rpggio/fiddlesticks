@@ -136,7 +136,7 @@ class Store {
 
                 this.loadSketch(sketch)
 
-                this.resources.parsedFonts.get(this.state.sketch.defaultFontStyle.fontFamily);
+                this.resources.parsedFonts.get(this.state.sketch.defaultTextBlockAttr.fontFamily);
 
                 this.setEditingItem(null);
 
@@ -174,19 +174,19 @@ class Store {
                 this.assign(block, patch);
 
                 if (!block.textColor) {
-                    block.textColor = "lightgray"
+                    block.textColor = this.state.sketch.defaultTextBlockAttr.textColor;
                 }
                 
                 if(!block.fontFamily){
-                    block.fontFamily = this.state.sketch.defaultFontStyle.fontFamily;    
-                    block.fontVariant = this.state.sketch.defaultFontStyle.fontVariant;    
+                    block.fontFamily = this.state.sketch.defaultTextBlockAttr.fontFamily;    
+                    block.fontVariant = this.state.sketch.defaultTextBlockAttr.fontVariant;    
                 }
-                
-                this.loadTextBlockFont(block);
-                
+                                
                 this.state.sketch.textBlocks.push(block);
                 events.textblock.added.dispatch(block);
                 this.changedSketch();
+                
+                this.loadTextBlockFont(block);
             });
 
         actions.textBlock.updateAttr
@@ -212,19 +212,14 @@ class Store {
                         }
                     }
                     
-                    if (block.fontFamily) {
-                        this.state.sketch.defaultFontStyle = {
-                            fontFamily: block.fontFamily,
-                            fontVariant: block.fontVariant
-                        };
-                    }
+                    this.state.sketch.defaultTextBlockAttr = _.clone(block);
+                                       
+                    events.textblock.attrChanged.dispatch(block);
+                    this.changedSketch();
                     
                     if(fontChanged){
                         this.loadTextBlockFont(block);
                     }
-                    
-                    events.textblock.attrChanged.dispatch(block);
-                    this.changedSketch();
                 }
             });
 
@@ -289,21 +284,22 @@ class Store {
         );
     }
 
-    changedSketch() {
+    private changedSketch() {
         this.events.sketch.contentChanged.dispatch(this.state.sketch);
         this._sketchContent$.onNext(this.state.sketch);
     }
 
-    assign<T>(dest: T, source: T) {
+    private assign<T>(dest: T, source: T) {
         _.merge(dest, source);
     }
 
     private createSketch(): Sketch {
         return {
             _id: newid(),
-            defaultFontStyle: {
+            defaultTextBlockAttr: {
                 fontFamily: "Roboto",
-                fontVariant: "regular"
+                fontVariant: "regular",
+                textColor: "lightgray"
             },
             textBlocks: <TextBlock[]>[]
         };

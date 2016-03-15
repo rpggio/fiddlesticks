@@ -18,6 +18,7 @@ var sitePath = path.join(__dirname, "/../site");
 app.use("/css", express.static(path.join(sitePath, "css")));
 app.use("/fonts", express.static(path.join(sitePath, "fonts")));
 app.use("/lib", express.static(path.join(sitePath, "lib")));
+app.use("/img", express.static(path.join(sitePath, "img")));
 
 var indexPath = path.join(sitePath, "index.html");
 app.get("/", function(req, res) {

@@ -13,7 +13,7 @@ interface Sketch extends SketchAttr {
 
 interface SketchAttr {
     backgroundColor?: string;
-    defaultFontStyle?: { fontFamily: string, fontVariant?: string }
+    defaultTextBlockAttr?: TextBlock;
 }
 
 interface FontFamily {
