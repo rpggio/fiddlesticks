@@ -103,18 +103,19 @@ class WorkspaceController {
                 if (item) {
                     const textBlock = m.data;
                     item.text = textBlock.text;
-                    if (textBlock.fontDesc && textBlock.fontDesc.url) {
-                        // push in font when ready
-                        store.resources.parsedFonts.get(textBlock.fontDesc.url,
-                            (url, font) => item.font = font);
-                    }
                     item.customStyle = {
-                        fontSize: textBlock.fontSize,
                         fillColor: textBlock.textColor,
                         backgroundColor: textBlock.backgroundColor
                     }
                 }
             });
+
+        store.events.textblock.fontReady.subscribeData(data => {
+            const item = this._textBlockItems[data.textBlockId];
+            if(item){
+                item.font = data.font;
+            }
+        })
 
         store.events.textblock.removed.subscribe(m => {
             let item = this._textBlockItems[m.data._id];
@@ -249,17 +250,10 @@ class WorkspaceController {
             this.fallbackFont,
             textBlock.text,
             bounds,
-            textBlock.fontSize, {
-                fontSize: textBlock.fontSize,
+            null, {
                 fillColor: textBlock.textColor || "red",    // textColor should have been set elsewhere 
                 backgroundColor: textBlock.backgroundColor
             });
-
-        if (textBlock.fontDesc && textBlock.fontDesc.url) {
-            // push in font when ready
-            this.store.resources.parsedFonts.get(textBlock.fontDesc.url,
-                (url, font) => item.font = font);
-        }
 
         if (!textBlock.outline && textBlock.position) {
             item.position = new paper.Point(textBlock.position);

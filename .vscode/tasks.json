@@ -21,7 +21,7 @@
 	"showOutput": "always",
 
 	// args is the HelloWorld program to compile.
-	"args": [""],
+	"args": ["-p", "client"],
     
 	// use the standard tsc problem matcher to find compile problems
 	// in the output.

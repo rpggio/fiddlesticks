@@ -63,6 +63,7 @@ class Events extends TypedChannel.Channel {
     textblock = {
         added: this.topic<TextBlock>("textblock.added"),
         attrChanged: this.topic<TextBlock>("textblock.attrChanged"),
+        fontReady: this.topic<{textBlockId: string, font: opentype.Font}>("textblock.fontReady"),
         arrangeChanged: this.topic<TextBlock>("textblock.arrangeChanged"),
         removed: this.topic<TextBlock>("textblock.removed"),
         loaded: this.topic<TextBlock>("textblock.loaded"),

@@ -14,7 +14,7 @@
  */
 class Store {
 
-    static ROBOTO_500_LOCAL = 'fonts/Roboto-500.ttf';
+    static FALLBACK_FONT_URL = 'fonts/Roboto-500.ttf';
     static DEFAULT_FONT_NAME = "Roboto";
     static FONT_LIST_LIMIT = 100;
     static SKETCH_LOCAL_CACHE_KEY = "fiddlesticks.io.lastSketch";
@@ -23,7 +23,8 @@ class Store {
 
     state: AppState = {};
     resources = {
-        fontFamilies: <Dictionary<FontFamily>>{},
+        fallbackFont: opentype.Font,
+        fontFamilies: new FontFamilies(),
         parsedFonts: new ParsedFonts((url, font) =>
             this.events.app.fontLoaded.dispatch(font))
     };
@@ -129,13 +130,13 @@ class Store {
             .subscribe((m) => {
                 const sketch = this.createSketch();
 
-                const patch = m.data || {};
+                const patch: SketchAttr = m.data || {};
                 patch.backgroundColor = patch.backgroundColor || '#f6f3eb';
                 this.assign(sketch, patch);
 
                 this.loadSketch(sketch)
 
-                this.resources.parsedFonts.get(this.state.sketch.defaultFontDesc.url);
+                this.resources.parsedFonts.get(this.state.sketch.defaultFontStyle.fontFamily);
 
                 this.setEditingItem(null);
 
@@ -171,18 +172,18 @@ class Store {
                 }
                 let block = { _id: newid() } as TextBlock;
                 this.assign(block, patch);
-                if (!block.fontSize) {
-                    block.fontSize = 128;
-                }
-                if (!block.textColor) {
-                    block.textColor = "gray"
-                }
-                if (block.fontDesc) {
-                    this.state.sketch.defaultFontDesc = block.fontDesc;
-                } else {
-                    block.fontDesc = this.state.sketch.defaultFontDesc;
-                }
 
+                if (!block.textColor) {
+                    block.textColor = "lightgray"
+                }
+                
+                if(!block.fontFamily){
+                    block.fontFamily = this.state.sketch.defaultFontStyle.fontFamily;    
+                    block.fontVariant = this.state.sketch.defaultFontStyle.fontVariant;    
+                }
+                
+                this.loadTextBlockFont(block);
+                
                 this.state.sketch.textBlocks.push(block);
                 events.textblock.added.dispatch(block);
                 this.changedSketch();
@@ -196,13 +197,32 @@ class Store {
                         text: ev.data.text,
                         backgroundColor: ev.data.backgroundColor,
                         textColor: ev.data.textColor,
-                        fontDesc: ev.data.fontDesc,
-                        fontSize: ev.data.fontSize
+                        fontFamily: ev.data.fontFamily,
+                        fontVariant: ev.data.fontVariant
                     };
+                    const fontChanged = patch.fontFamily !== block.fontFamily
+                        || patch.fontVariant !== block.fontVariant;
                     this.assign(block, patch);
-                    if (block.fontDesc) {
-                        this.state.sketch.defaultFontDesc = block.fontDesc;
+                                       
+                    if(block.fontFamily && !block.fontVariant){
+                        const famDef = this.resources.fontFamilies.get(block.fontFamily);
+                        if(famDef){
+                            // regular or else first variant
+                            block.fontVariant = this.resources.fontFamilies.defaultVariant(famDef);
+                        }
                     }
+                    
+                    if (block.fontFamily) {
+                        this.state.sketch.defaultFontStyle = {
+                            fontFamily: block.fontFamily,
+                            fontVariant: block.fontVariant
+                        };
+                    }
+                    
+                    if(fontChanged){
+                        this.loadTextBlockFont(block);
+                    }
+                    
                     events.textblock.attrChanged.dispatch(block);
                     this.changedSketch();
                 }
@@ -249,21 +269,24 @@ class Store {
     }
 
     loadResources() {
-        const loader = new FontFamiliesLoader();
-        loader.loadListLocal(families => {
-            families.length = Store.FONT_LIST_LIMIT;
-            const dict = this.resources.fontFamilies;
-            for (const familyGroup of families) {
-                dict[familyGroup.family] = familyGroup;
-            }
-
+        this.resources.fontFamilies.loadCatalogLocal(families => {
             // load fonts into browser for preview
-            loader.loadForPreview(families.map(f => f.family));
+            this.resources.fontFamilies.loadPreviewSubsets(families.map(f => f.family));
 
-            this.resources.parsedFonts.get(Store.ROBOTO_500_LOCAL);
+            this.resources.parsedFonts.get(
+                Store.FALLBACK_FONT_URL, 
+                (url, font) => this.resources.fallbackFont = font);
 
             this.events.app.resourcesReady.dispatch(true);
         });
+    }
+
+    private loadTextBlockFont(block: TextBlock){
+        this.resources.parsedFonts.get(
+            this.resources.fontFamilies.getUrl(block.fontFamily, block.fontVariant),
+            (url, font) => this.events.textblock.fontReady.dispatch(
+                {textBlockId: block._id, font: font})
+        );
     }
 
     changedSketch() {
@@ -275,14 +298,12 @@ class Store {
         _.merge(dest, source);
     }
 
-    createSketch(): Sketch {
+    private createSketch(): Sketch {
         return {
             _id: newid(),
-            defaultFontDesc: {
-                family: "Roboto",
-                variant: null,
-                category: null,
-                url: Store.ROBOTO_500_LOCAL
+            defaultFontStyle: {
+                fontFamily: "Roboto",
+                fontVariant: "regular"
             },
             textBlocks: <TextBlock[]>[]
         };

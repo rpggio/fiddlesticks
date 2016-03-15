@@ -33,8 +33,7 @@ class AppController {
             
             events.app.workspaceInitialized.subscribe(m => {
                 if (store.state.sketch.textBlocks.length == 0) {
-                    actions.textBlock.add.dispatch(
-                        { text: "FIDDLESTICKS", textColor: "#ae5a41", fontSize: 128 });
+                    actions.textBlock.add.dispatch({ text: "PLAY WITH TYPE" });
                 }
             });
 

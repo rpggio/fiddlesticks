@@ -27,10 +27,13 @@ namespace TypedChannel {
             this.observe().subscribe(observer);
         }
 
+        subscribeData(observer: (data: TData) => void) {
+            this.observe().subscribe(m => observer(m.data));
+        }
         dispatch(data?: TData) {
             this.channel.onNext({
                 type: this.type,
-                data: _.clone(data)
+                data: data
             });
         }
 

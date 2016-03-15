@@ -1,108 +1,123 @@
-
-declare var ReactSelect;
-
-interface FontPickerProps {
-    store: Store;    
-    selection?: FontDescription;
-    selectionChanged: (selection: FontDescription) => void;
+interface JQuery {
+    selectpicker(...args: any[]);
+    //replaceOptions(options: Array<{value: string, text?: string}>);
 }
 
-interface FontPickerState {
-    familyObject?: FontFamily;
-    variant?: string;
-}
+class FontPicker {
 
-class FontPicker extends React.Component<FontPickerProps, FontPickerState> {
-    
+    defaultFontFamily = "Roboto";
     previewFontSize = "28px";
-    
-    constructor(props: FontPickerProps){
-        super(props);
-        
-        this.state = {};
-        
-        if(this.props.selection){
-            this.state.familyObject = this.props.store.resources.fontFamilies[this.props.selection.family];
-            this.state.variant = this.props.selection.variant;
-        }
-    }
-    
-    render() {
-        const familyOptionRender = (option) => {
-            const fontFamily = option.value;
-            return rh("div", {
-                style: {
-                    fontFamily,
-                    fontSize: this.previewFontSize
-                }
-            }, [fontFamily]);
-        };
-        const variantOptionRender = (option) => {
-            const fontVariant = option.value;
-            const style = <any>FontHelpers.getCssStyle(this.state.familyObject.family, fontVariant);
-            style.fontSize = this.previewFontSize;
-            return rh("div", { style }, 
-               [`${this.state.familyObject.family} ${option.value}`]);
-        };
-        
-        return rh("div",
-        {
-            className: "font-picker"
-        },
-        [
-            rh(ReactSelect, { 
-                name: "font-family", 
-                key: "font-family",
-                className: "font-family", 
-                value: this.state.familyObject && this.state.familyObject.family,
-                clearable: false,
-                options: this.getFamilyOptions(), 
-                optionRenderer: familyOptionRender,
-                valueRenderer: familyOptionRender,
-                onChange: (f) => {
-                    const familyObject = this.props.store.resources.fontFamilies[f];
-                    const variant = _.last(familyObject.variants
-                        .filter(v => v.indexOf("italic") < 0)); 
-                    this.setState({ 
-                        familyObject,
-                        variant
-                    },
-                    () => this.sendSelectionChanged());
-                }
-            }),
-            // only show for multiple variants
-            this.state.familyObject && this.state.familyObject.variants.length > 1 &&
-            rh(ReactSelect, { 
-                name: "font-variant", 
-                key: "font-variant",
-                className: "font-variant", 
-                clearable: false,
-                value: this.state.variant,
-                options: this.state.familyObject && this.state.familyObject.variants.map(v => {
-                    return { value: v, label: v };
-                }), 
-                optionRenderer: variantOptionRender,
-                valueRenderer: variantOptionRender,
-                onChange: (value) => {
-                    this.setState({ 
-                        familyObject: this.state.familyObject,
-                        variant: value 
-                    }, 
-                        () => this.sendSelectionChanged() );
-                }
-            }),
-        ]);
+
+    private store: Store;
+
+    constructor(container: HTMLElement, store: Store, block: TextBlock) {
+        this.store = store;
+        const dom$ = Rx.Observable.just(block)
+            .merge(
+            store.events.textblock.attrChanged.observe()
+                .filter(m => m.data._id === block._id)
+                .map(m => m.data)
+            )
+            .map(tb => this.render(tb));
+        ReactiveDom.renderStream(dom$, container);
     }
 
-    private sendSelectionChanged(){
-        this.props.selectionChanged(
-            FontHelpers.getDescription(this.state.familyObject, this.state.variant));
+    render(block: TextBlock): VNode {
+        let update = patch => {
+            patch._id = block._id;
+            this.store.actions.textBlock.updateAttr.dispatch(patch);
+        };
+        const elements: VNode[] = [];
+        elements.push(
+            h("select",
+                {
+                    key: "selectPicker",
+                    class: {
+                        "family-picker": true
+                    },
+                    attrs: {
+                    },
+                    hook: {
+                        insert: vnode => {
+                            $(vnode.elm).selectpicker();
+                        },
+                        destroy: vnode => {
+                            $(vnode.elm).selectpicker("destroy");
+                        }
+                    },
+                    on: {
+                        change: ev => update({ 
+                            fontFamily: ev.target.value,
+                            fontVariant: this.store.resources.fontFamilies.defaultVariant(
+                                this.store.resources.fontFamilies.get(ev.target.value))
+                        })
+                    }
+                },
+                this.store.resources.fontFamilies.catalog
+                    .map((ff: FontFamily) => h("option",
+                        {
+                            attrs: {
+                                selected: ff.family === block.fontFamily,
+                                "data-content": `<span style="${FontHelpers.getStyleString(ff.family, null, this.previewFontSize)}">${ff.family}</span>`
+                            },
+                        },
+                        [ff.family])
+                    )
+            )
+        );
+        const selectedFamily = this.store.resources.fontFamilies.get(block.fontFamily);
+        if (selectedFamily && selectedFamily.variants 
+            && selectedFamily.variants.length > 1) {
+            elements.push(h("select",
+                {
+                    key: "variantPicker",
+                    class: {
+                        "variant-picker": true
+                    },
+                    attrs: {
+                    },
+                    hook: {
+                        insert: vnode => {
+                            $(vnode.elm).selectpicker();
+                        },
+                        destroy: vnode => {
+                            $(vnode.elm).selectpicker("destroy")
+                        },
+                        postpatch: (oldVnode, vnode) => {
+                            setTimeout(() => {
+                                // Q: why can't we just do selectpicker(refresh) here?
+                                // A: selectpicker has mental problems
+                                $(vnode.elm).selectpicker("destroy"); 
+                                $(vnode.elm).selectpicker();
+                            });
+                            
+                        }
+                    },
+                    on: {
+                        change: ev => update({ fontVariant: ev.target.value })
+                    }
+                },
+                selectedFamily.variants.map(v => {
+                    return h("option",
+                        {
+                            attrs: {
+                                selected: v === block.fontVariant,
+                                value: v,
+                                "data-container": "body",
+                                "data-content": `<span style="${FontHelpers.getStyleString(selectedFamily.family, v, this.previewFontSize)}">${v}</span>`
+                            }
+                        },
+                        [v])
+                }
+                )
+            ));
+        }
+        return h("div",
+            {
+                class: { "font-picker": true }
+            },
+            elements
+        );
     }
-    
-    private getFamilyOptions(): { value: FontFamily, label: string}[] {
-        const options = _.values(this.props.store.resources.fontFamilies)
-            .map((fontFamily: FontFamily) => 
-                { return { value: fontFamily.family, label: fontFamily.family }; });
-        return options;
-    }
+
 }

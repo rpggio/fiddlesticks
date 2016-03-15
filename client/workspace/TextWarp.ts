@@ -1,7 +1,7 @@
 
 class TextWarp extends DualBoundsPathWarp {
 
-    static DEFAULT_FONT_SIZE = 64;
+    static DEFAULT_FONT_SIZE = 128;
 
     private _font: opentype.Font;
     private _text: string;

@@ -11,6 +11,7 @@ class TextBlockEditor extends Component<TextBlock> {
             tb._id = textBlock._id;
             this.store.actions.textBlock.updateAttr.dispatch(tb);
         };
+
         return h("div.text-block-editor",
             {},
             [
@@ -22,11 +23,11 @@ class TextBlockEditor extends Component<TextBlock> {
                             value: textBlock.text
                         },
                         on: {
-                            keypress: (ev:KeyboardEvent) => {
+                            keypress: (ev: KeyboardEvent) => {
                                 if ((ev.which || ev.keyCode) === DomHelpers.KeyCodes.Enter) {
                                     ev.preventDefault();
                                     update({ text: (<HTMLTextAreaElement>ev.target).value });
-                                    this.store.actions.sketch.setEditingItem.dispatch(null);                                    
+                                    this.store.actions.sketch.setEditingItem.dispatch(null);
                                 }
                             },
                             change: ev => update({ text: ev.target.value })
@@ -101,23 +102,27 @@ class TextBlockEditor extends Component<TextBlock> {
                 h("div.font-picker-container",
                     {
                         hook: {
-                            insert: (vnode) => {
-                                const props: FontPickerProps = {
-                                    store: this.store,
-                                    selection: textBlock.fontDesc,
-                                    selectionChanged: (fontDesc) => {
-                                        update({ fontDesc });
-                                    }
-                                };
-                                ReactDOM.render(rh(FontPicker, props), vnode.elm);
-                            },
+                            insert: (vnode) =>
+                                new FontPicker(vnode.elm, this.store, textBlock)
                         }
-                    }
+
+                        // hook: {
+                        //     insert: (vnode) => {
+                        //         const props: FontPickerProps = {
+                        //             store: this.store,
+                        //             selection: textBlock.fontDesc,
+                        //             selectionChanged: (fontDesc) => {
+                        //                 update({ fontDesc });
+                        //             }
+                        //         };
+                        //         ReactDOM.render(rh(FontPicker, props), vnode.elm);
+                        //     },
+                        // }
+                    },
+                    [
+                    ]
                 ),
 
-                h("div.end-controls", {},
-                    [
-                    ])
             ]);
     }
 

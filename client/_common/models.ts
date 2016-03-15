@@ -13,7 +13,7 @@ interface Sketch extends SketchAttr {
 
 interface SketchAttr {
     backgroundColor?: string;
-    defaultFontDesc?: FontDescription;
+    defaultFontStyle?: { fontFamily: string, fontVariant?: string }
 }
 
 interface FontFamily {
@@ -49,8 +49,8 @@ interface TextBlock extends BlockArrangement {
     text?: string;
     textColor?: string;
     backgroundColor?: string;
-    fontDesc?: FontDescription;
-    fontSize?: number;
+    fontFamily?: string;
+    fontVariant?: string;
 }
 
 interface BlockArrangement {

@@ -1,22 +1,44 @@
 
 namespace FontHelpers {
     
-    export interface VariantStyle {
+    export interface ElementFontStyle {
         fontFamily?: string;
         fontWeight?: string;
-        fontStyle?: string;  
+        fontStyle?: string; 
+        fontSize?: string; 
     }
     
-    export function getCssStyle(family: string, variant: string){
-        let style = <VariantStyle>{ fontFamily: family };
-        if(variant.indexOf("italic") >= 0){
+    export function getCssStyle(family: string, variant: string, size?: string){
+        let style = <ElementFontStyle>{ fontFamily: family };
+        if(variant && variant.indexOf("italic") >= 0){
             style.fontStyle = "italic";
         }
-        let numeric = variant.replace(/[^\d]/g, "");
-        if(numeric.length){
+        let numeric = variant && variant.replace(/[^\d]/g, "");
+        if(numeric && numeric.length){
             style.fontWeight = numeric.toString();
         }
+        if(size){
+            style.fontSize = size;
+        }
         return style;
+    }
+    
+    export function getStyleString(family: string, variant: string, size?: string) {
+        let styleObj = getCssStyle(family, variant, size);
+        let parts = [];
+        if(styleObj.fontFamily){
+            parts.push(`font-family:'${styleObj.fontFamily}'`);
+        }
+        if(styleObj.fontWeight){
+            parts.push(`font-weight:${styleObj.fontWeight}`);
+        }
+        if(styleObj.fontStyle){
+            parts.push(`font-style:${styleObj.fontStyle}`);
+        }
+        if(styleObj.fontSize){
+            parts.push(`font-size:${styleObj.fontSize}`);
+        }
+        return parts.join("; ");
     }
     
     export function getDescription(family: FontFamily, variant?: string): FontDescription {

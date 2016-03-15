@@ -12,6 +12,10 @@ class ParsedFonts {
     }
 
     get(fontUrl: string, onReady: ParsedFontLoaded = null) {
+        if(!fontUrl){
+            return;
+        }
+        
         let font = this.fonts[fontUrl];
 
         if (font) {

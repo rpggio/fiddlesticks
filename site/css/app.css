@@ -121,6 +121,11 @@ canvas[resize] {
     padding: 4px 6px;
 }
 
+.font-picker > div.family-picker,
+.font-picker > div.variant-picker {
+    width: 350px !important;
+}
+
 .font-picker .font-family {
     width: 350px;
 }
@@ -132,7 +137,3 @@ canvas[resize] {
 .font-picker .Select-control {
     height: 60px;
 }
-
-/*div.fontOption {
-    font-size: 36px !important;
-}*/
