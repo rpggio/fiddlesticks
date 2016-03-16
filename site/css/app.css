@@ -64,6 +64,15 @@ ul.dropdown-menu > li {
     margin-right: 10px;
 }
 
+#designer > #rightSide {
+    float: right;
+    margin: 6px;
+}
+
+#designer #user-message {
+    color: lightgray;
+}
+
 /* Scale canvas with resize attribute to full size */
 canvas[resize] {
     width: 100%;

@@ -264,7 +264,6 @@ class WorkspaceController {
                     .filter(i => i.id !== item.id && i.contains(ev.point));
                 const otherItem = _.sortBy(otherHits, i => i.index)[0];
                 if (otherItem) {
-console.warn("otherItem", otherItem);
                     otherItem.bringToFront();
                     const otherId = _.findKey(this._textBlockItems, i => i === otherItem);
                     if (otherId) {

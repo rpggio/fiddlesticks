@@ -273,6 +273,15 @@ class Store {
         });
     }
 
+    private showUserMessage(message: string){
+        this.state.userMessage = message;
+        this.events.designer.userMessageChanged.dispatch(message);
+        setTimeout(() => {
+            this.state.userMessage = null;
+            this.events.designer.userMessageChanged.dispatch(null);
+        }, 3000)
+    }
+
     private loadTextBlockFont(block: TextBlock){
         this.resources.parsedFonts.get(
             this.resources.fontFamilies.getUrl(block.fontFamily, block.fontVariant),
@@ -314,6 +323,7 @@ class Store {
     private saveSketch(sketch: Sketch) {
         S3Access.putFile(sketch._id + ".json",
             "application/json", JSON.stringify(sketch));
+        this.showUserMessage("Saved");
         this.events.designer.snapshotExpired.dispatch(sketch);
     }
 

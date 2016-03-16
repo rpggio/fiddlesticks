@@ -22,8 +22,6 @@ class SelectedItemEditor {
                     });
             }
 
-console.warn("editor render", block);
-
             return h('div#editorOverlay',
                 {
                     style: {

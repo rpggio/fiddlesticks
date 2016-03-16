@@ -47,7 +47,8 @@ class Events extends TypedChannel.Channel {
         exportPNGRequested: this.topic<void>("designer.exportPNGRequested"),
         exportSVGRequested: this.topic<void>("designer.exportSVGRequested"),
         viewChanged: this.topic<paper.Rectangle>("designer.viewChanged"),
-        snapshotExpired: this.topic<Sketch>("designer.snapshotExpired")
+        snapshotExpired: this.topic<Sketch>("designer.snapshotExpired"),
+        userMessageChanged: this.topic<string>("designer.userMessageChanged")
     };
     
     sketch = {

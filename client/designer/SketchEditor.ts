@@ -1,5 +1,5 @@
 
-class SketchEditor extends Component<Sketch> {
+class SketchEditor extends Component<AppState> {
 
     store: Store;
 
@@ -10,13 +10,15 @@ class SketchEditor extends Component<Sketch> {
 
         const sketchDom$ = store.events.merge(
             store.events.sketch.loaded,
-            store.events.sketch.attrChanged)
-            .map(m => this.render(store.state.sketch));
+            store.events.sketch.attrChanged,
+            store.events.designer.userMessageChanged)
+            .map(m => this.render(store.state));
         ReactiveDom.renderStream(sketchDom$, container);
 
     }
 
-    render(sketch: Sketch) {
+    render(state: AppState) {
+        const sketch = state.sketch;
         const self = this;
 
         return h("div", [
@@ -116,7 +118,13 @@ class SketchEditor extends Component<Sketch> {
                         }
                     },
                 ]
-            })
+            }),
+
+            h("div#rightSide",
+            {},
+            [
+                h("span#user-message", {}, [state.userMessage || ""])
+            ])
 
         ]
         );

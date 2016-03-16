@@ -3,6 +3,7 @@ interface AppState {
     editingItem?: PositionedObjectRef;
     selection?: WorkspaceObjectRef;
     loadingSketch?: boolean;
+    userMessage?: string;
     sketch?: Sketch;
 }
 
