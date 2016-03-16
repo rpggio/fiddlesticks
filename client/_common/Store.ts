@@ -47,7 +47,7 @@ class Store {
 
     setupState() {
         this.state.browserId = Cookies.get(Store.BROWSER_ID_KEY);
-        if(!this.state.browserId){
+        if (!this.state.browserId) {
             this.state.browserId = newid();
             Cookies.set(Store.BROWSER_ID_KEY, this.state.browserId, { expires: 2 * 365 });
         }
@@ -66,9 +66,9 @@ class Store {
                     S3Access.getFile(sketchIdParam + ".json")
                         .done(sketch => {
                             this.loadSketch(sketch);
-                            
-                            console.log("Retrieved sketch", sketch._id); 
-                            if(sketch.browserId === this.state.browserId) {
+
+                            console.log("Retrieved sketch", sketch._id);
+                            if (sketch.browserId === this.state.browserId) {
                                 console.log('Sketch was created in this browser');
                             }
                             else {
@@ -142,30 +142,34 @@ class Store {
 
         // ----- Sketch -----
 
-        actions.sketch.create
-            .subscribe((m) => {
-                const sketch = this.createSketch();
+        actions.sketch.create.subscribe((m) => {
+            const sketch = this.createSketch();
 
-                const patch: SketchAttr = m.data || {};
-                patch.backgroundColor = patch.backgroundColor || '#f6f3eb';
-                this.assign(sketch, patch);
+            const patch: SketchAttr = m.data || {};
+            patch.backgroundColor = patch.backgroundColor || '#f6f3eb';
+            this.assign(sketch, patch);
 
-                this.loadSketch(sketch)
+            this.loadSketch(sketch)
 
-                this.resources.parsedFonts.get(this.state.sketch.defaultTextBlockAttr.fontFamily);
+            this.resources.parsedFonts.get(this.state.sketch.defaultTextBlockAttr.fontFamily);
 
-                this.setEditingItem(null);
+            this.setEditingItem(null);
 
-                this.changedSketch();
-            });
+            this.changedSketch();
+        });
 
-        actions.sketch.attrUpdate
-            .subscribe(ev => {
-                this.assign(this.state.sketch, ev.data);
-                events.sketch.attrChanged.dispatch(
-                    this.state.sketch);
-                this.changedSketch();
-            });
+        actions.sketch.clone.subscribe(() => {
+            const newSketch = _.clone(this.state.sketch);
+            newSketch._id = newid();
+            this.loadSketch(newSketch);
+        });
+
+        actions.sketch.attrUpdate.subscribe(ev => {
+            this.assign(this.state.sketch, ev.data);
+            events.sketch.attrChanged.dispatch(
+                this.state.sketch);
+            this.changedSketch();
+        });
 
         actions.sketch.setSelection.subscribe(m => {
             this.setSelection(m.data);
@@ -189,16 +193,16 @@ class Store {
                 if (!block.textColor) {
                     block.textColor = this.state.sketch.defaultTextBlockAttr.textColor;
                 }
-                
-                if(!block.fontFamily){
-                    block.fontFamily = this.state.sketch.defaultTextBlockAttr.fontFamily;    
-                    block.fontVariant = this.state.sketch.defaultTextBlockAttr.fontVariant;    
+
+                if (!block.fontFamily) {
+                    block.fontFamily = this.state.sketch.defaultTextBlockAttr.fontFamily;
+                    block.fontVariant = this.state.sketch.defaultTextBlockAttr.fontVariant;
                 }
-                                
+
                 this.state.sketch.textBlocks.push(block);
                 events.textblock.added.dispatch(block);
                 this.changedSketch();
-                
+
                 this.loadTextBlockFont(block);
             });
 
@@ -216,21 +220,21 @@ class Store {
                     const fontChanged = patch.fontFamily !== block.fontFamily
                         || patch.fontVariant !== block.fontVariant;
                     this.assign(block, patch);
-                                       
-                    if(block.fontFamily && !block.fontVariant){
+
+                    if (block.fontFamily && !block.fontVariant) {
                         const famDef = this.resources.fontFamilies.get(block.fontFamily);
-                        if(famDef){
+                        if (famDef) {
                             // regular or else first variant
                             block.fontVariant = this.resources.fontFamilies.defaultVariant(famDef);
                         }
                     }
-                    
+
                     this.state.sketch.defaultTextBlockAttr = _.clone(block);
-                                       
+
                     events.textblock.attrChanged.dispatch(block);
                     this.changedSketch();
-                    
-                    if(fontChanged){
+
+                    if (fontChanged) {
                         this.loadTextBlockFont(block);
                     }
                 }
@@ -271,6 +275,7 @@ class Store {
         this.events.sketch.loaded.dispatch(this.state.sketch);
         for (const tb of this.state.sketch.textBlocks) {
             this.events.textblock.loaded.dispatch(tb);
+            this.loadTextBlockFont(tb);
         }
         this.events.designer.zoomToFitRequested.dispatch();
         this.state.loadingSketch = false;
@@ -282,14 +287,14 @@ class Store {
             this.resources.fontFamilies.loadPreviewSubsets(families.map(f => f.family));
 
             this.resources.parsedFonts.get(
-                Store.FALLBACK_FONT_URL, 
+                Store.FALLBACK_FONT_URL,
                 (url, font) => this.resources.fallbackFont = font);
 
             this.events.app.resourcesReady.dispatch(true);
         });
     }
 
-    private showUserMessage(message: string){
+    private showUserMessage(message: string) {
         this.state.userMessage = message;
         this.events.designer.userMessageChanged.dispatch(message);
         setTimeout(() => {
@@ -298,11 +303,11 @@ class Store {
         }, 3000)
     }
 
-    private loadTextBlockFont(block: TextBlock){
+    private loadTextBlockFont(block: TextBlock) {
         this.resources.parsedFonts.get(
             this.resources.fontFamilies.getUrl(block.fontFamily, block.fontVariant),
             (url, font) => this.events.textblock.fontReady.dispatch(
-                {textBlockId: block._id, font: font})
+                { textBlockId: block._id, font: font })
         );
     }
 

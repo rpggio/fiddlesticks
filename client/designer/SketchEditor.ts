@@ -117,6 +117,17 @@ class SketchEditor extends Component<AppState> {
                             }
                         }
                     },
+                   {
+                        content: "Copy into new",
+                        options: {
+                            attrs: {
+                                title: "Copy contents into new sketch"
+                            },
+                            on: {
+                                click: () => this.store.actions.sketch.clone.dispatch()
+                            }
+                        }
+                    },
                 ]
             }),
 
