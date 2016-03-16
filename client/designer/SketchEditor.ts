@@ -118,7 +118,7 @@ class SketchEditor extends Component<AppState> {
                         }
                     },
                    {
-                        content: "Copy into new",
+                        content: "Duplicate sketch",
                         options: {
                             attrs: {
                                 title: "Copy contents into new sketch"
