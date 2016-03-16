@@ -20,6 +20,7 @@ namespace S3Access {
                 // PUT file
                 const putRequest = {
                     method: "PUT",
+                    cache: false,
                     url: signResponse.signedRequest,
                     headers: {
                         "x-amz-acl": "public-read"
@@ -49,7 +50,8 @@ namespace S3Access {
     export function getFile(fileName: string): JQueryPromise<any> {
         return $.ajax({
             url: `/api/storage/url?fileName=${fileName}`,
-            dataType: "json"
+            dataType: "json",
+            cache: false
         })
             .then(response => {
                 console.log("downloading", response.url);

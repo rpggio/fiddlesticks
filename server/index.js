@@ -36,7 +36,7 @@ app.get("/api/storage/access", function(req, res) {
     var s3params = {
         Bucket: S3_BUCKET,
         Key: req.query.fileName,
-        Expires: 60,
+        Expires: 4000, // over 1 hour
         ContentType: req.query.fileType,
         ACL: "public-read"
     };
