@@ -10,6 +10,6 @@ function bootstrap() {
     return new AppController(store, router, sketchEditor, selectedItemEditor);
 }
 
-PaperHelpers.shouldLogInfo = true;
+PaperHelpers.shouldLogInfo = false;
 
 const app = bootstrap();

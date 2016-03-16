@@ -14,6 +14,7 @@
  */
 class Store {
 
+    static BROWSER_ID_KEY = "browserId";
     static FALLBACK_FONT_URL = 'fonts/Roboto-500.ttf';
     static DEFAULT_FONT_NAME = "Roboto";
     static FONT_LIST_LIMIT = 100;
@@ -37,9 +38,19 @@ class Store {
     constructor(router: AppRouter) {
         this.router = router;
 
+        this.setupState();
+
         this.setupSubscriptions();
 
         this.loadResources();
+    }
+
+    setupState() {
+        this.state.browserId = Cookies.get(Store.BROWSER_ID_KEY);
+        if(!this.state.browserId){
+            this.state.browserId = newid();
+            Cookies.set(Store.BROWSER_ID_KEY, this.state.browserId, { expires: 2 * 365 });
+        }
     }
 
     setupSubscriptions() {
@@ -48,8 +59,6 @@ class Store {
         // ----- App -----
 
         actions.app.initWorkspace.observe()
-            // Warning: subscribing to event within Store - crazy or not??
-            // wait to load until resources are ready
             .pausableBuffered(events.app.resourcesReady.observe().map(m => m.data))
             .subscribe(m => {
                 const sketchIdParam = this.sketchIdUrlParam;
@@ -57,6 +66,15 @@ class Store {
                     S3Access.getFile(sketchIdParam + ".json")
                         .done(sketch => {
                             this.loadSketch(sketch);
+                            
+                            console.log("Retrieved sketch", sketch._id); 
+                            if(sketch.browserId === this.state.browserId) {
+                                console.log('Sketch was created in this browser');
+                            }
+                            else {
+                                console.log('Sketch was created in a different browser');
+                            }
+
                             events.app.workspaceInitialized.dispatch(this.state.sketch);
                         })
                         .fail(err => {
@@ -111,8 +129,6 @@ class Store {
         });
 
         actions.designer.viewChanged.subscribe(m => {
-            // Can't do this, due to chance of accidental closing   
-            // this.setEditingItem(null);
             events.designer.viewChanged.dispatch(m.data);
         });
 
@@ -248,7 +264,7 @@ class Store {
             });
     }
 
-    loadSketch(sketch: Sketch) {
+    private loadSketch(sketch: Sketch) {
         this.state.loadingSketch = true;
         this.state.sketch = sketch;
         this.sketchIdUrlParam = sketch._id;
@@ -260,7 +276,7 @@ class Store {
         this.state.loadingSketch = false;
     }
 
-    loadResources() {
+    private loadResources() {
         this.resources.fontFamilies.loadCatalogLocal(families => {
             // load fonts into browser for preview
             this.resources.fontFamilies.loadPreviewSubsets(families.map(f => f.family));
@@ -302,6 +318,7 @@ class Store {
     private createSketch(): Sketch {
         return {
             _id: newid(),
+            browserId: this.state.browserId,
             defaultTextBlockAttr: {
                 fontFamily: "Roboto",
                 fontVariant: "regular",

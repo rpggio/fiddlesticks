@@ -25,7 +25,7 @@ class ParsedFonts {
 
         opentype.load(fontUrl, (err, font) => {
             if (err) {
-                console.error(err);
+                console.error(err, {fontUrl});
             } else {
                 this.fonts[fontUrl] = font;
                 onReady && onReady(fontUrl, font);

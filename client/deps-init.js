@@ -31,4 +31,6 @@ window.loggerPlugin = router5.loggerPlugin;
 window.listenersPlugin = require('router5-listeners');
 window.historyPlugin = require('router5-history');
 
+window.Cookies = require("js-cookie");
+
 //window.inversify = require("inversify"); // IoC

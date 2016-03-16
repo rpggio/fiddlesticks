@@ -6,6 +6,9 @@
 
 /*--- TSD ---*/
 
+// todo: re-add tsd refs so they will all be in tsd.d.ts 
+/// <reference path="tsd.d.ts" />
+
 /// <reference path="lodash/lodash.d.ts" />
 /// <reference path="react-redux/react-redux.d.ts" />
 /// <reference path="react/react.d.ts" />

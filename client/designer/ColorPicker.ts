@@ -73,7 +73,6 @@ namespace ColorPicker {
                 .map(c => {
                     const c2 = c.clone();
                     c2.lightness = 0.85;
-console.warn("lightening", c.toCSS(true) , "to", c2.toCSS(true));
                     return c2;
                 });
             parsedGroup = parsedGroup.concat(addColors);

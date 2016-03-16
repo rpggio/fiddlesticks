@@ -1,5 +1,6 @@
 
 interface AppState {
+    browserId?: string;
     editingItem?: PositionedObjectRef;
     selection?: WorkspaceObjectRef;
     loadingSketch?: boolean;
@@ -9,6 +10,7 @@ interface AppState {
 
 interface Sketch extends SketchAttr {
     _id: string;
+    browserId?: string;
     textBlocks?: TextBlock[];
 }
 
