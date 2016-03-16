@@ -3,10 +3,8 @@ class SelectedItemEditor {
 
     constructor(container: HTMLElement, store: Store) {
 
-        const dom$ = store.events.mergeTyped<any>( 
-                store.events.sketch.editingItemChanged,
-                store.events.sketch.loaded
-            ).map(i => {
+        const dom$ = store.events.sketch.editingItemChanged.observe()
+            .map(i => {
 
             const posItem = <PositionedObjectRef>i.data;
 
@@ -24,11 +22,13 @@ class SelectedItemEditor {
                     });
             }
 
+console.warn("editor render", block);
+
             return h('div#editorOverlay',
                 {
                     style: {
-                        left: posItem.clientX + "px",
-                        top: posItem.clientY + "px",
+                        // left: posItem.clientX + "px",
+                        // top: posItem.clientY + "px",
                         "z-index": 1
                     }
                 },

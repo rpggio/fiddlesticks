@@ -22,7 +22,6 @@ class Actions extends TypedChannel.Channel {
     sketch = {
         create: this.topic<SketchAttr>("sketch.create"),
         attrUpdate: this.topic<SketchAttr>("sketch.attrUpdate"),
-        setEditingItem: this.topic<PositionedObjectRef>("sketch.setEditingItem"),
         setSelection: this.topic<WorkspaceObjectRef>("sketch.setSelection"),
     };
     

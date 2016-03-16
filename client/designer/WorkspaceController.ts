@@ -31,10 +31,7 @@ class WorkspaceController {
         });
 
         const clearSelection = (ev: paper.PaperMouseEvent) => {
-            if (store.state.editingItem) {
-                store.actions.sketch.setEditingItem.dispatch(null);
-            }
-            else if (store.state.selection) {
+            if (store.state.selection) {
                 store.actions.sketch.setSelection.dispatch(null);
             }
         }
@@ -112,7 +109,7 @@ class WorkspaceController {
 
         store.events.textblock.fontReady.subscribeData(data => {
             const item = this._textBlockItems[data.textBlockId];
-            if(item){
+            if (item) {
                 item.font = data.font;
             }
         })
@@ -259,26 +256,28 @@ class WorkspaceController {
             item.position = new paper.Point(textBlock.position);
         }
 
-        const sendEditAction = () => {
-            const editorAt = this.project.view.projectToView(
-                PaperHelpers.midpoint(item.bounds.topLeft, item.bounds.center));
-            this.store.actions.sketch.setEditingItem.dispatch(
-                {
-                    itemId: textBlock._id,
-                    itemType: "TextBlock",
-                    clientX: editorAt.x,
-                    clientY: editorAt.y
-                });
-        };
-
         item.on(PaperHelpers.EventType.clickWithoutDrag, ev => {
-            item.bringToFront();
+
             if (item.selected) {
-                sendEditAction();
+                // select next item behind
+                let otherHits = (<TextWarp[]>_.values(this._textBlockItems))
+                    .filter(i => i.id !== item.id && i.contains(ev.point));
+                const otherItem = _.sortBy(otherHits, i => i.index)[0];
+                if (otherItem) {
+console.warn("otherItem", otherItem);
+                    otherItem.bringToFront();
+                    const otherId = _.findKey(this._textBlockItems, i => i === otherItem);
+                    if (otherId) {
+                        this.store.actions.sketch.setSelection.dispatch(
+                            { itemId: otherId, itemType: "TextBlock" });
+                    }
+                }
             } else {
-                // select item
-                this.store.actions.sketch.setSelection.dispatch(
-                    { itemId: textBlock._id, itemType: "TextBlock" });
+                item.bringToFront();
+                if(!item.selected){
+                    this.store.actions.sketch.setSelection.dispatch(
+                        { itemId: textBlock._id, itemType: "TextBlock" });                    
+                }
             }
         });
 
@@ -312,12 +311,6 @@ class WorkspaceController {
                     .add(50));
         }
         this._textBlockItems[textBlock._id] = item;
-
-        if (!this.store.state.loadingSketch
-            && this.store.state.sketch.textBlocks.length <= 1) {
-            // open editor for newly added block (and not loading sketch)
-            sendEditAction();
-        }
     }
 
     private getBlockArrangement(item: TextWarp): BlockArrangement {

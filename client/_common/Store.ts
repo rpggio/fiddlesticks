@@ -151,12 +151,9 @@ class Store {
                 this.changedSketch();
             });
 
-        actions.sketch.setEditingItem.subscribe(m => {
-            this.setEditingItem(m.data);
-        });
-
         actions.sketch.setSelection.subscribe(m => {
             this.setSelection(m.data);
+            this.setEditingItem(m.data);
         });
 
 

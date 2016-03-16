@@ -197,22 +197,39 @@ namespace PaperHelpers {
 
         item.on(paper.EventType.mouseUp, ev => {
             log("smartDrag.onMouseUp", item, ev);
-            if (ev.smartDragItem) {
-                console.warn("Will not assign smartDragItem: value was already " + ev.smartDragItem);
-            } else {
-                ev.smartDragItem = item;
-            }
+
+            // if (ev.smartDragItem) {
+            //     console.warn("Will not assign smartDragItem: value was already " + ev.smartDragItem);
+            // } else {
+            //     ev.smartDragItem = item;
+            // }
 
             if (item.isSmartDragging) {
                 item.isSmartDragging = false;
                 log("emitting smartDrag.smartDragEnd");
-                item.emit(EventType.smartDragEnd, ev);
+                if(item.responds(EventType.smartDragEnd)) {
+                    item.emit(EventType.smartDragEnd, ev);
+                    ev.stop();
+                }
             } else {
-                log("emitting smartDrag.clickWithoutDrag");
-                item.emit(EventType.clickWithoutDrag, ev);
+                if(item.responds(EventType.clickWithoutDrag)){
+                    log("emitting smartDrag.clickWithoutDrag");
+                    item.emit(EventType.clickWithoutDrag, ev);
+                    ev.stop();
+                }
             }
-
-            ev.stop();
+            
+            //ev.preventDefault();
+            //ev.stopPropagation();
+            //ev.stop();
+        });
+        
+        let lastClick: number; 
+        item.on(EventType.clickWithoutDrag, ev => {
+            if(lastClick && (new Date()).getTime() - lastClick < 700){
+                item.emit(EventType.doubleClickWithoutDrag, ev);
+            }    
+            lastClick = (new Date()).getTime();
         });
     }
     
@@ -237,7 +254,9 @@ namespace PaperHelpers {
          * The normal click event will fire even at the end of a drag.
          * This click event does not. 
          */
-        clickWithoutDrag: "clickWithoutDrag"
+        clickWithoutDrag: "clickWithoutDrag",
+
+        doubleClickWithoutDrag: "doubleClickWithoutDrag"
     }
 }
 

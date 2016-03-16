@@ -13,7 +13,9 @@ class TextBlockEditor extends Component<TextBlock> {
         };
 
         return h("div.text-block-editor",
-            {},
+            {
+                key: textBlock._id
+            },
             [
                 h("textarea",
                     {
@@ -27,7 +29,6 @@ class TextBlockEditor extends Component<TextBlock> {
                                 if ((ev.which || ev.keyCode) === DomHelpers.KeyCodes.Enter) {
                                     ev.preventDefault();
                                     update({ text: (<HTMLTextAreaElement>ev.target).value });
-                                    this.store.actions.sketch.setEditingItem.dispatch(null);
                                 }
                             },
                             change: ev => update({ text: ev.target.value })

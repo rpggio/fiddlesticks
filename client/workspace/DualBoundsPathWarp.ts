@@ -118,6 +118,10 @@ class DualBoundsPathWarp extends paper.Group {
         this._upper.opacity = this._lower.opacity = value;
     }
 
+    outlineContains(point: paper.Point){
+        return this._outline.contains(point);
+    }
+
     private updateWarped() {
         let orthOrigin = this._source.bounds.topLeft;
         let orthWidth = this._source.bounds.width;

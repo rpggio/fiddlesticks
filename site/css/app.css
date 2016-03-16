@@ -82,6 +82,8 @@ canvas[resize] {
 
 #editorOverlay  {
   position: absolute;
+  top: 5px;
+  right: 5px;
   opacity: 0.9;
   background-color: #eeeeee;
   padding: 1px;
