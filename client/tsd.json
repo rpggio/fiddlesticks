@@ -28,6 +28,12 @@
     },
     "js-cookie/js-cookie.d.ts": {
       "commit": "2f47c75835b837777a85287611703d683b0aaa83"
+    },
+    "stacktrace-js/stacktrace-js.d.ts": {
+      "commit": "2f47c75835b837777a85287611703d683b0aaa83"
+    },
+    "es6-promise/es6-promise.d.ts": {
+      "commit": "2f47c75835b837777a85287611703d683b0aaa83"
     }
   }
 }

@@ -33,4 +33,6 @@ window.historyPlugin = require('router5-history');
 
 window.Cookies = require("js-cookie");
 
+window.StackTrace = require("stacktrace-js");
+
 //window.inversify = require("inversify"); // IoC

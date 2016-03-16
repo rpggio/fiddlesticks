@@ -1,6 +1,6 @@
 
 var express = require("express");
-//var body_parser = require("body-parser")
+var bodyParser = require("body-parser")
 var aws = require("aws-sdk");
 var http = require("http");
 var path = require("path");
@@ -10,6 +10,8 @@ var app = express();
 var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
 var AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
 var S3_BUCKET = process.env.S3_BUCKET;
+
+app.use(bodyParser.json());
 
 app.set("port", (process.env.PORT || 7702));
 
@@ -58,6 +60,11 @@ app.get("/api/storage/url", function(req, res) {
         url: "https://" + S3_BUCKET + ".s3.amazonaws.com/" + req.query.fileName
     };
     res.write(JSON.stringify(returnData));
+    res.end();
+});
+
+app.post('/api/client-errors', function(req, res) {
+    console.error("[client]", req.body);
     res.end();
 });
 
