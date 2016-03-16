@@ -1,6 +1,6 @@
 namespace ColorPicker {
 
-    const DEFAULT_PALETTE = [
+    const DEFAULT_PALETTE_GROUPS = [
         [
             // http://www.color-hex.com/color-palette/807
             "#ee4035",
@@ -57,23 +57,33 @@ namespace ColorPicker {
             "#4d7358",
             "#9ed670",
         ],
-        [
-            // http://www.color-hex.com/color-palette/1223
-            "#ffd4e5",
-            "#d4ffea",
-            "#eecbff",
-            "#feffa3",
-            "#dbdcff",
-        ],
-        [
-            "#000", "#666", "#ccc", "#eee", "#fff"
-        ],
     ];
 
-    export function setup(elem, topColors: string[], onChange) {
-        const topColorsGrouped = _.chunk(topColors, 5);
-        const palette = topColorsGrouped.concat(DEFAULT_PALETTE);
-        
+    const MONO_PALETTE = ["#000","#444","#666","#999","#ccc","#eee","#f3f3f3","#fff"];
+
+    export function setup(elem, featuredColors: string[], onChange) {
+        const featuredGroups = _.chunk(featuredColors, 5);
+
+        // for each palette group
+        const defaultPaletteGroups = DEFAULT_PALETTE_GROUPS.map(group => {
+            let parsedGroup = group.map(c => new paper.Color(c));
+            // create light variants of darkest three
+            const addColors = _.sortBy(parsedGroup, c => c.lightness)
+                .slice(0, 3)
+                .map(c => {
+                    const c2 = c.clone();
+                    c2.lightness = 0.85;
+console.warn("lightening", c.toCSS(true) , "to", c2.toCSS(true));
+                    return c2;
+                });
+            parsedGroup = parsedGroup.concat(addColors);
+            parsedGroup = _.sortBy(parsedGroup, c => c.lightness);
+            return parsedGroup.map(c => c.toCSS(true));
+        });
+
+        const palette = featuredGroups.concat(defaultPaletteGroups);
+        palette.push(MONO_PALETTE);
+
         let sel = <any>$(elem);
         (<any>$(elem)).spectrum({
             showInput: true,
