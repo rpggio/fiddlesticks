@@ -19,9 +19,6 @@ class AppRouter extends Router5 {
                 console.warn("router error", err);
                 this.navigate("home");
             }
-            if (state) {
-                console.log("router state", state);
-            }
         });
     }
 

@@ -1,7 +1,8 @@
 
 class PathHandle extends paper.Group {
 
-    static MARKER_RADIUS = 8;
+    static SEGMENT_MARKER_RADIUS = 10;
+    static CURVE_MARKER_RADIUS = 6;
     static DRAG_THRESHOLD = 3;
 
     private _marker: paper.Shape;
@@ -29,9 +30,10 @@ class PathHandle extends paper.Group {
             throw "attach must be Segment or Curve";
         }
 
-        this._marker = paper.Shape.Circle(position, PathHandle.MARKER_RADIUS);
+        this._marker = paper.Shape.Circle(position, PathHandle.SEGMENT_MARKER_RADIUS);
         this._marker.strokeColor = "blue";
         this._marker.fillColor = "white";
+        this._marker.selectedColor = new paper.Color(0, 0);
         this.addChild(this._marker);
 
         if (this._segment) {
@@ -112,10 +114,14 @@ class PathHandle extends paper.Group {
 
     private styleAsSegment() {
         this._marker.opacity = 0.8;
+        this._marker.dashArray = null;
+        this._marker.radius = PathHandle.SEGMENT_MARKER_RADIUS;
     }
 
     private styleAsCurve() {
-        this._marker.opacity = 0.3;
+        this._marker.opacity = 0.4;
+        this._marker.dashArray = [2, 2];
+        this._marker.radius = PathHandle.CURVE_MARKER_RADIUS;
     }
 
 }
