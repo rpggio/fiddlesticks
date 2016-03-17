@@ -3,6 +3,14 @@ interface ReactiveDomComponent {
     dom$: Rx.Observable<VNode>;
 }
 
+namespace VDomHelpers {
+    export function renderAsChild(container: HTMLElement, dom: VNode){
+        const child = document.createElement("div");
+        const patched = patch(child, dom);
+        container.appendChild(patched.elm);
+    }
+}
+
 class ReactiveDom {
 
     /**

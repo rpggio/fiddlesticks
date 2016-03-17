@@ -117,7 +117,7 @@ class SketchEditor extends Component<AppState> {
                             }
                         }
                     },
-                   {
+                    {
                         content: "Duplicate sketch",
                         options: {
                             attrs: {
@@ -131,11 +131,22 @@ class SketchEditor extends Component<AppState> {
                 ]
             }),
 
+
+
             h("div#rightSide",
-            {},
-            [
-                h("span#user-message", {}, [state.userMessage || ""])
-            ])
+                {},
+                [
+                    h("div#user-message", {}, [state.userMessage || ""]),
+
+                    h("div#show-help.glyphicon.glyphicon-question-sign",
+                        {
+                            on: {
+                                click: () => {
+                                    this.store.actions.designer.toggleHelp.dispatch();
+                                }
+                            }
+                        }),
+                ])
 
         ]
         );

@@ -20,7 +20,7 @@ class Store {
     static FONT_LIST_LIMIT = 100;
     static SKETCH_LOCAL_CACHE_KEY = "fiddlesticks.io.lastSketch";
     static LOCAL_CACHE_DELAY_MS = 1000;
-    static SERVER_SAVE_DELAY_MS = 10000;
+    static SERVER_SAVE_DELAY_MS = 6000;
 
     state: AppState = {};
     resources = {
@@ -61,6 +61,9 @@ class Store {
         actions.app.initWorkspace.observe()
             .pausableBuffered(events.app.resourcesReady.observe().map(m => m.data))
             .subscribe(m => {
+                this.setSelection(null, true);
+                this.setEditingItem(null, true);
+
                 const sketchIdParam = this.sketchIdUrlParam;
                 if (sketchIdParam) {
                     S3Access.getFile(sketchIdParam + ".json")
@@ -138,6 +141,11 @@ class Store {
                 const blob = DomHelpers.dataURLToBlob(m.data.pngDataUrl);
                 S3Access.putFile(filename, "image/png", blob);
             }
+        });
+
+        actions.designer.toggleHelp.subscribe(() => {
+            this.state.showHelp = !this.state.showHelp;
+            events.designer.showHelpChanged.dispatch(this.state.showHelp);
         });
 
         // ----- Sketch -----
@@ -305,7 +313,7 @@ class Store {
         setTimeout(() => {
             this.state.userMessage = null;
             this.events.designer.userMessageChanged.dispatch(null);
-        }, 3000)
+        }, 1500)
     }
 
     private loadTextBlockFont(block: TextBlock) {
@@ -354,16 +362,18 @@ class Store {
         this.events.designer.snapshotExpired.dispatch(sketch);
     }
 
-    private setSelection(item: WorkspaceObjectRef) {
-        // early exit on no change
-        if (item) {
-            if (this.state.selection
-                && this.state.selection.itemId === item.itemId) {
-                return;
-            }
-        } else {
-            if (!this.state.selection) {
-                return;
+    private setSelection(item: WorkspaceObjectRef, force?: boolean) {
+        if (!force) {
+            // early exit on no change
+            if (item) {
+                if (this.state.selection
+                    && this.state.selection.itemId === item.itemId) {
+                    return;
+                }
+            } else {
+                if (!this.state.selection) {
+                    return;
+                }
             }
         }
 
@@ -371,16 +381,18 @@ class Store {
         this.events.sketch.selectionChanged.dispatch(item);
     }
 
-    private setEditingItem(item: PositionedObjectRef) {
-        // early exit on no change
-        if (item) {
-            if (this.state.editingItem
-                && this.state.editingItem.itemId === item.itemId) {
-                return;
-            }
-        } else {
-            if (!this.state.editingItem) {
-                return;
+    private setEditingItem(item: PositionedObjectRef, force?: boolean) {
+        if (!force) {
+            // early exit on no change
+            if (item) {
+                if (this.state.editingItem
+                    && this.state.editingItem.itemId === item.itemId) {
+                    return;
+                }
+            } else {
+                if (!this.state.editingItem) {
+                    return;
+                }
             }
         }
 

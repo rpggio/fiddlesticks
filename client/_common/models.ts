@@ -6,6 +6,7 @@ interface AppState {
     loadingSketch?: boolean;
     userMessage?: string;
     sketch?: Sketch;
+    showHelp?: boolean;
 }
 
 interface Sketch extends SketchAttr {

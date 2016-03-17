@@ -17,6 +17,7 @@ class Actions extends TypedChannel.Channel {
         exportSVG: this.topic<void>("designer.exportSVG"),
         viewChanged: this.topic<paper.Rectangle>("designer.viewChanged"),
         updateSnapshot: this.topic<{sketch: Sketch, pngDataUrl: string}>("designer.updateSnapshot"),
+        toggleHelp: this.topic<void>("designer.toggleHelp"),
     }
     
     sketch = {
@@ -49,7 +50,8 @@ class Events extends TypedChannel.Channel {
         exportSVGRequested: this.topic<void>("designer.exportSVGRequested"),
         viewChanged: this.topic<paper.Rectangle>("designer.viewChanged"),
         snapshotExpired: this.topic<Sketch>("designer.snapshotExpired"),
-        userMessageChanged: this.topic<string>("designer.userMessageChanged")
+        userMessageChanged: this.topic<string>("designer.userMessageChanged"),
+        showHelpChanged: this.topic<boolean>("designer.showHelpChanged")
     };
     
     sketch = {

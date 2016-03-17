@@ -119,7 +119,7 @@ class PathHandle extends paper.Group {
     }
 
     private styleAsCurve() {
-        this._marker.opacity = 0.4;
+        this._marker.opacity = 0.8;
         this._marker.dashArray = [2, 2];
         this._marker.radius = PathHandle.CURVE_MARKER_RADIUS;
     }
