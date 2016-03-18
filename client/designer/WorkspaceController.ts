@@ -25,6 +25,14 @@ class WorkspaceController {
         paper.setup(this.canvas);
         this.project = paper.project;
 
+        const canvasSel = $(this.canvas);
+        store.events.mergeTyped(
+            store.events.sketch.loaded,
+            store.events.sketch.attrChanged    
+        ).subscribe(ev =>
+            canvasSel.css("background-color", ev.data.backgroundColor)
+        );
+
         this.viewZoom = new ViewZoom(this.project);
         this.viewZoom.viewChanged.subscribe(bounds => {
             store.actions.designer.viewChanged.dispatch(bounds);
