@@ -1,4 +1,7 @@
+namespace SketchEditor {
 
-interface SketchItemStyle extends paper.IStyle {
-    backgroundColor?: string;
+    export interface SketchItemStyle extends paper.IStyle {
+        backgroundColor?: string;
+    }
+
 }

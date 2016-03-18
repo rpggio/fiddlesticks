@@ -3,7 +3,7 @@ type ItemChangeHandler = (flags: PaperNotify.ChangeFlag) => void;
 type Callback = () => void;
 
 declare module paper {
-    interface Item {
+    export interface Item {
         /**
          * Subscribe to all changes in item. Returns un-subscribe function.
          */

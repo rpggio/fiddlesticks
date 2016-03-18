@@ -1,9 +1,11 @@
 
+interface Window {
+    app: App.AppModule;
+}
+
 PaperHelpers.shouldLogInfo = false;       
 
-const app = new App();
-
-// events.subscribe(m => console.log("event", m.type, m.data));
-// actions.subscribe(m => console.log("action", m.type, m.data));
+const app = new App.AppModule();
+window.app = app; 
 
 app.start();

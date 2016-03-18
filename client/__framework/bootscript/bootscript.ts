@@ -1,7 +1,7 @@
 
 namespace BootScript {
 
-    interface MenuItem {
+    export interface MenuItem {
         content: any,
         options?: Object
         //onClick?: () => void

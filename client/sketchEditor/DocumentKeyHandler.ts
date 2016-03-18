@@ -1,14 +1,17 @@
+namespace SketchEditor {
 
-class DocumentKeyHandler {
+    export class DocumentKeyHandler {
 
-    constructor(store: Store) {
+        constructor(store: Store) {
 
-        // note: undisposed event subscription
-        $(document).keyup(function(e) {
-            if (e.keyCode == DomHelpers.KeyCodes.Esc) {
-                store.actions.sketch.setSelection.dispatch(null);
-            }
-        });
+            // note: undisposed event subscription
+            $(document).keyup(function(e) {
+                if (e.keyCode == DomHelpers.KeyCodes.Esc) {
+                    store.actions.sketch.setSelection.dispatch(null);
+                }
+            });
+
+        }
 
     }
 
