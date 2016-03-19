@@ -6,7 +6,7 @@ namespace SketchEditor {
             /**
              * Instructs Store to load retained state from local storage, if it exists.
              */
-            initWorkspace: this.topic<void>("app.initWorkspace"),
+            initWorkspace: this.topic<{sketchId?: string}>("app.initWorkspace"),
 
             loadFont: this.topic<string>("app.loadFont")
         };
@@ -24,6 +24,7 @@ namespace SketchEditor {
         sketch = {
             create: this.topic<SketchAttr>("sketch.create"),
             clone: this.topic<SketchAttr>("sketch.clone"),
+            open: this.topic<string>("sketch.open"),
             attrUpdate: this.topic<SketchAttr>("sketch.attrUpdate"),
             setSelection: this.topic<WorkspaceObjectRef>("sketch.setSelection"),
         };

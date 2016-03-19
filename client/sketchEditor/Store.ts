@@ -31,15 +31,12 @@ namespace SketchEditor {
             parsedFonts: new ParsedFonts((url, font) =>
                 this.events.app.fontLoaded.dispatch(font))
         };
-        router: AppRouter;
         actions = new Actions();
         events = new Events();
 
         private _sketchContent$ = new Rx.Subject<Sketch>();
 
-        constructor(router: AppRouter) {
-            this.router = router;
-
+        constructor() {
             this.setupState();
 
             this.setupSubscriptions();
@@ -66,29 +63,11 @@ namespace SketchEditor {
                     this.setSelection(null, true);
                     this.setEditingItem(null, true);
 
-                    const sketchIdParam = this.sketchIdUrlParam;
-                    if (sketchIdParam) {
-                        S3Access.getFile(sketchIdParam + ".json")
-                            .done(sketch => {
-                                this.loadSketch(sketch);
-
-                                console.log("Retrieved sketch", sketch._id);
-                                if (sketch.browserId === this.state.browserId) {
-                                    console.log('Sketch was created in this browser');
-                                }
-                                else {
-                                    console.log('Sketch was created in a different browser');
-                                }
-
-                                events.app.workspaceInitialized.dispatch(this.state.sketch);
-                            })
-                            .fail(err => {
-                                console.warn("error getting remote sketch", err);
-                                this.loadSketch(this.createSketch());
-                                events.app.workspaceInitialized.dispatch(this.state.sketch);
-                            });
+                    const sketchId = m.data.sketchId;
+                    if (sketchId) {
+                        this.openSketch(sketchId);
                     } else {
-                        this.loadSketch(this.createSketch());
+                        this.newSketch();
                     }
 
                     /* --- Set up sketch state watched --- */
@@ -152,30 +131,23 @@ namespace SketchEditor {
 
             // ----- Sketch -----
 
-            actions.sketch.create.subscribe((m) => {
-                const sketch = this.createSketch();
+            actions.sketch.open.subscribeData(id => {
+                this.openSketch(id);
+            });
 
-                const patch: SketchAttr = m.data || {};
-                patch.backgroundColor = patch.backgroundColor || '#f6f3eb';
-                this.assign(sketch, patch);
-
-                this.loadSketch(sketch)
-
-                this.resources.parsedFonts.get(this.state.sketch.defaultTextBlockAttr.fontFamily);
-
-                this.setEditingItem(null);
-
-                this.changedSketch();
+            actions.sketch.create.subscribeData((attr) => {
+                this.newSketch(attr);
             });
 
             actions.sketch.clone.subscribe(() => {
-                const newSketch = _.clone(this.state.sketch);
-                newSketch._id = newid();
-                this.loadSketch(newSketch);
+                const clone = _.clone(this.state.sketch);
+                clone._id = newid();
+                clone.browserId = this.state.browserId;
+                this.loadSketch(clone);
             });
 
             actions.sketch.attrUpdate.subscribe(ev => {
-                this.assign(this.state.sketch, ev.data);
+                this.merge(this.state.sketch, ev.data);
                 events.sketch.attrChanged.dispatch(
                     this.state.sketch);
                 this.changedSketch();
@@ -198,7 +170,7 @@ namespace SketchEditor {
                         return;
                     }
                     let block = { _id: newid() } as TextBlock;
-                    this.assign(block, patch);
+                    this.merge(block, patch);
 
                     if (!block.textColor) {
                         block.textColor = this.state.sketch.defaultTextBlockAttr.textColor;
@@ -229,7 +201,7 @@ namespace SketchEditor {
                         };
                         const fontChanged = patch.fontFamily !== block.fontFamily
                             || patch.fontVariant !== block.fontVariant;
-                        this.assign(block, patch);
+                        this.merge(block, patch);
 
                         if (block.fontFamily && !block.fontVariant) {
                             const famDef = this.resources.fontFamilies.get(block.fontFamily);
@@ -283,10 +255,34 @@ namespace SketchEditor {
                 });
         }
 
+        private openSketch(id: string) {
+            if(!id || !id.length){
+                return;
+            }
+            S3Access.getFile(id + ".json")
+                .done(sketch => {
+                    this.loadSketch(sketch);
+
+                    console.log("Retrieved sketch", sketch._id);
+                    if (sketch.browserId === this.state.browserId) {
+                        console.log('Sketch was created in this browser');
+                    }
+                    else {
+                        console.log('Sketch was created in a different browser');
+                    }
+
+                    this.events.app.workspaceInitialized.dispatch(this.state.sketch);
+                })
+                .fail(err => {
+                    console.warn("error getting remote sketch", err);
+                    this.newSketch();
+                    this.events.app.workspaceInitialized.dispatch(this.state.sketch);
+                });
+        }
+
         private loadSketch(sketch: Sketch) {
             this.state.loadingSketch = true;
             this.state.sketch = sketch;
-            this.sketchIdUrlParam = sketch._id;
             this.events.sketch.loaded.dispatch(this.state.sketch);
             for (const tb of this.state.sketch.textBlocks) {
                 this.events.textblock.loaded.dispatch(tb);
@@ -331,12 +327,12 @@ namespace SketchEditor {
             this._sketchContent$.onNext(this.state.sketch);
         }
 
-        private assign<T>(dest: T, source: T) {
+        private merge<T>(dest: T, source: T) {
             _.merge(dest, source);
         }
 
-        private createSketch(): Sketch {
-            return {
+        private newSketch(attr?: SketchAttr): Sketch {
+            const sketch = <Sketch>{
                 _id: newid(),
                 browserId: this.state.browserId,
                 defaultTextBlockAttr: {
@@ -344,18 +340,24 @@ namespace SketchEditor {
                     fontVariant: "regular",
                     textColor: "lightgray"
                 },
+                backgroundColor: "white",
                 textBlocks: <TextBlock[]>[]
             };
+            if(attr){
+                this.merge(sketch, attr);
+            }
+            this.loadSketch(sketch);
+            return sketch;
         }
 
-        private get sketchIdUrlParam(): string {
-            const routeState = <RouteState>this.router.getState();
-            return routeState.params.sketchId;
-        }
+        // private get sketchIdUrlParam(): string {
+        //     const routeState = <RouteState>this.router.getState();
+        //     return routeState.params.sketchId;
+        // }
 
-        private set sketchIdUrlParam(value: string) {
-            this.router.navigate("sketch", { sketchId: value });
-        }
+        // private set sketchIdUrlParam(value: string) {
+        //     this.router.navigate("sketch", { sketchId: value });
+        // }
 
         private saveSketch(sketch: Sketch) {
             S3Access.putFile(sketch._id + ".json",

@@ -41,6 +41,10 @@ namespace TypedChannel {
             return this.channel.filter(m => m.type === this.type);
         }
         
+        observeData(): Rx.Observable<TData> {
+            return this.observe().map(m => m.data);
+        }
+        
         forward(channel: ChannelTopic<TData>) {
             this.subscribe(m => channel.dispatch(m.data));
         }

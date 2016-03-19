@@ -22,8 +22,8 @@ class AppRouter extends Router5 {
         });
     }
 
-}
+    toSketchEditor(sketchId: string){
+        this.navigate("sketch", { sketchId: sketchId });
+    }
 
-interface SketchRouteState {
-    sketchId?: string;
 }

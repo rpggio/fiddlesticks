@@ -38,7 +38,7 @@ declare interface Router {
     useMiddleware(fn);
     start(startPathOrState?:string|Object, done?:()=>void): Router;
     stop(): void;
-    getState(): Object;
+    getState(): RouteState;
     isActive(name: string, params?: Object, strictEquality?: boolean, ignoreQueryParams?: boolean): boolean;
     areStatesDescendants(parentState, childState):boolean;
     canDeactivate(name, canDeactivate):void;
