@@ -22,9 +22,9 @@ namespace SketchEditor {
         static FONT_LIST_LIMIT = 100;
         static SKETCH_LOCAL_CACHE_KEY = "fiddlesticks.io.lastSketch";
         static LOCAL_CACHE_DELAY_MS = 1000;
-        static SERVER_SAVE_DELAY_MS = 8000;
+        static SERVER_SAVE_DELAY_MS = 15000;
 
-        state: AppState = {};
+        state: EditorState = {};
         resources = {
             fallbackFont: opentype.Font,
             fontFamilies: new FontFamilies(),
@@ -34,7 +34,6 @@ namespace SketchEditor {
         actions = new Actions();
         events = new Events();
 
-        private _sketchContent$ = new Rx.Subject<Sketch>();
         private appStore: App.Store;
 
         constructor(appStore: App.Store) {
@@ -65,7 +64,7 @@ namespace SketchEditor {
                 if (route.name === "sketch" && routeSketchId !== this.state.sketch._id) {
                     this.openSketch(routeSketchId);
                 }
-            });
+            });    
 
             // ----- Editor -----
 
@@ -83,9 +82,12 @@ namespace SketchEditor {
                         this.newSketch();
                     }
 
-                    this._sketchContent$.debounce(Store.SERVER_SAVE_DELAY_MS)
-                        .subscribe(sketch => {
+                    // on any action, update save delay timer
+                    this.actions.observe().debounce(Store.SERVER_SAVE_DELAY_MS)
+                        .subscribe(() => {
+                            const sketch = this.state.sketch;
                             if (!this.state.loadingSketch
+                                && this.state.sketchIsDirty
                                 && sketch._id
                                 && sketch.textBlocks.length) {
                                 this.saveSketch(sketch);
@@ -286,6 +288,7 @@ namespace SketchEditor {
         private loadSketch(sketch: Sketch) {
             this.state.loadingSketch = true;
             this.state.sketch = sketch;
+            this.state.sketchIsDirty = false;
             this.events.sketch.loaded.dispatch(this.state.sketch);
             this.appStore.actions.editorLoadedSketch.dispatch(sketch._id);
             for (const tb of this.state.sketch.textBlocks) {
@@ -333,8 +336,8 @@ namespace SketchEditor {
         }
 
         private changedSketchContent() {
+            this.state.sketchIsDirty = true;
             this.events.sketch.contentChanged.dispatch(this.state.sketch);
-            this._sketchContent$.onNext(this.state.sketch);
         }
 
         private merge<T>(dest: T, source: T) {
@@ -367,6 +370,7 @@ namespace SketchEditor {
         private saveSketch(sketch: Sketch) {
             S3Access.putFile(sketch._id + ".json",
                 "application/json", JSON.stringify(sketch));
+            this.state.sketchIsDirty = false;
             this.showUserMessage("Saved");
             this.events.designer.snapshotExpired.dispatch(sketch);
             this.appStore.actions.editorSavedSketch.dispatch(sketch._id);

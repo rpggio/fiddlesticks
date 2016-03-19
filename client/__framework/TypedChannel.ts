@@ -63,6 +63,10 @@ namespace TypedChannel {
             return this.subject.subscribe(onNext);
         }
 
+        observe() {
+            return this.subject.asObservable();
+        }
+
         topic<TData extends Serializable>(type: string) : ChannelTopic<TData> {
             return new ChannelTopic<TData>(this.subject as ISubject<Message<TData>>,
                 this.type ? this.type + '.' + type : type);

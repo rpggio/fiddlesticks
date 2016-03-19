@@ -1,6 +1,6 @@
 namespace SketchEditor {
 
-    export class EditorBar extends Component<AppState> {
+    export class EditorBar extends Component<EditorState> {
 
         store: Store;
 
@@ -18,7 +18,7 @@ namespace SketchEditor {
 
         }
 
-        render(state: AppState) {
+        render(state: EditorState) {
             const sketch = state.sketch;
             const self = this;
 

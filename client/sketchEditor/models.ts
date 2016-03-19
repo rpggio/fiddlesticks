@@ -1,6 +1,6 @@
 namespace SketchEditor {
 
-    export interface AppState {
+    export interface EditorState {
         browserId?: string;
         editingItem?: PositionedObjectRef;
         selection?: WorkspaceObjectRef;
@@ -8,6 +8,7 @@ namespace SketchEditor {
         userMessage?: string;
         sketch?: Sketch;
         showHelp?: boolean;
+        sketchIsDirty?: boolean;
     }
 
     export interface Sketch extends SketchAttr {

@@ -71,7 +71,7 @@ namespace SketchEditor {
             });
 
             store.events.designer.snapshotExpired.subscribe((m) => {
-                const dataUrl = this.getSnapshotPNG();
+                const dataUrl = this.getSnapshotPNG(200);
                 store.actions.editor.updateSnapshot.dispatch({
                     sketch: m.data, pngDataUrl: dataUrl
                 });
@@ -163,9 +163,9 @@ namespace SketchEditor {
             return bounds;
         }
 
-        private getSnapshotPNG(): string {
+        private getSnapshotPNG(dpi: number = 300): string {
             const background = this.insertBackground();
-            const raster = this.project.activeLayer.rasterize(300, false);
+            const raster = this.project.activeLayer.rasterize(dpi, false);
             const data = raster.toDataURL();
             background.remove();
             return data;
