@@ -1,29 +1,39 @@
 
-class AppRouter extends Router5 {
+namespace App {
 
-    constructor() {
-        super([
-            new RouteNode("home", "/"),
-            new RouteNode("sketch", "/sketch/:sketchId"), // <[a-fA-F0-9]{14}>
-        ],
-            {
-                useHash: false
-            });
+    export class AppRouter extends Router5 {
 
-        //this.usePlugin(loggerPlugin())
-        this.usePlugin(listenersPlugin.default())
-            .usePlugin(historyPlugin.default());
+        constructor() {
+            super([
+                new RouteNode("home", "/"),
+                new RouteNode("sketch", "/sketch/:sketchId"), // <[a-fA-F0-9]{14}>
+            ],
+                {
+                    useHash: false,
+                    defaultRoute: "home"
+                });
 
-        this.start((err, state) => {
-            if (err) {
-                console.warn("router error", err);
-                this.navigate("home");
-            }
-        });
+            //this.usePlugin(loggerPlugin())
+            this.usePlugin(listenersPlugin.default())
+                .usePlugin(historyPlugin.default());
+        }
+
+        toSketchEditor(sketchId: string) {
+            this.navigate("sketch", { sketchId: sketchId });
+        }
+
+        get state() {
+            // could do route validation somewhere
+            return <AppRouteState><any>this.getState();
+        }
     }
 
-    toSketchEditor(sketchId: string){
-        this.navigate("sketch", { sketchId: sketchId });
+    export interface AppRouteState {
+        name: "home"|"sketch",
+        params?: {
+            sketchId?: string
+        },
+        path?: string
     }
 
 }

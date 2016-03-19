@@ -35,8 +35,11 @@ namespace SketchEditor {
         events = new Events();
 
         private _sketchContent$ = new Rx.Subject<Sketch>();
+        private appStore: App.Store;
 
-        constructor() {
+        constructor(appStore: App.Store) {
+            this.appStore = appStore;
+            
             this.setupState();
 
             this.setupSubscriptions();
@@ -57,32 +60,28 @@ namespace SketchEditor {
 
             // ----- App -----
 
-            actions.app.initWorkspace.observe()
+            this.appStore.events.routeChanged.sub(route => {
+                const routeSketchId = route.params.sketchId;
+                if(route.name === "sketch" && routeSketchId !== this.state.sketch._id){
+                    this.openSketch(routeSketchId);
+                }
+            });
+
+            // ----- Editor -----
+
+            actions.editor.initWorkspace.observe()
                 .pausableBuffered(events.app.resourcesReady.observe().map(m => m.data))
                 .subscribe(m => {
                     this.setSelection(null, true);
                     this.setEditingItem(null, true);
 
-                    const sketchId = m.data.sketchId;
+                    const sketchId = this.appStore.state.route.params.sketchId
+                        || this.appStore.state.lastSavedSketchId;
                     if (sketchId) {
                         this.openSketch(sketchId);
                     } else {
                         this.newSketch();
                     }
-
-                    /* --- Set up sketch state watched --- */
-
-                    // this._sketchContent$
-                    //     .debounce(Store.LOCAL_CACHE_DELAY_MS)
-                    //     .subscribe(rs => {
-                    //         if (!localStorage || !localStorage.getItem) {
-                    //             // not supported
-                    //             return;
-                    //         }
-                    //         localStorage.setItem(
-                    //             Store.SKETCH_LOCAL_CACHE_KEY,
-                    //             JSON.stringify(this.state.sketch));
-                    //     });
 
                     this._sketchContent$.debounce(Store.SERVER_SAVE_DELAY_MS)
                         .subscribe(sketch => {
@@ -92,31 +91,29 @@ namespace SketchEditor {
                         });
                 });
 
-            actions.app.loadFont.subscribe(m =>
+            actions.editor.loadFont.subscribe(m =>
                 this.resources.parsedFonts.get(m.data));
 
-            // ----- Designer -----
-
-            actions.designer.zoomToFit.forward(
+            actions.editor.zoomToFit.forward(
                 events.designer.zoomToFitRequested);
 
-            actions.designer.exportPNG.subscribe(m => {
+            actions.editor.exportPNG.subscribe(m => {
                 this.setSelection(null);
                 this.setEditingItem(null);
                 events.designer.exportPNGRequested.dispatch(m.data);
             });
 
-            actions.designer.exportSVG.subscribe(m => {
+            actions.editor.exportSVG.subscribe(m => {
                 this.setSelection(null);
                 this.setEditingItem(null);
                 events.designer.exportSVGRequested.dispatch(m.data);
             });
 
-            actions.designer.viewChanged.subscribe(m => {
+            actions.editor.viewChanged.subscribe(m => {
                 events.designer.viewChanged.dispatch(m.data);
             });
 
-            actions.designer.updateSnapshot.subscribe(m => {
+            actions.editor.updateSnapshot.subscribe(m => {
                 if (m.data.sketch._id) {
                     const filename = m.data.sketch._id + ".png";
                     const blob = DomHelpers.dataURLToBlob(m.data.pngDataUrl);
@@ -124,18 +121,18 @@ namespace SketchEditor {
                 }
             });
 
-            actions.designer.toggleHelp.subscribe(() => {
+            actions.editor.toggleHelp.subscribe(() => {
                 this.state.showHelp = !this.state.showHelp;
                 events.designer.showHelpChanged.dispatch(this.state.showHelp);
             });
 
             // ----- Sketch -----
 
-            actions.sketch.open.subscribeData(id => {
+            actions.sketch.open.sub(id => {
                 this.openSketch(id);
             });
 
-            actions.sketch.create.subscribeData((attr) => {
+            actions.sketch.create.sub((attr) => {
                 this.newSketch(attr);
             });
 
@@ -284,6 +281,7 @@ namespace SketchEditor {
             this.state.loadingSketch = true;
             this.state.sketch = sketch;
             this.events.sketch.loaded.dispatch(this.state.sketch);
+            this.appStore.actions.editorLoadedSketch.dispatch(sketch._id);
             for (const tb of this.state.sketch.textBlocks) {
                 this.events.textblock.loaded.dispatch(tb);
                 this.loadTextBlockFont(tb);
@@ -350,20 +348,12 @@ namespace SketchEditor {
             return sketch;
         }
 
-        // private get sketchIdUrlParam(): string {
-        //     const routeState = <RouteState>this.router.getState();
-        //     return routeState.params.sketchId;
-        // }
-
-        // private set sketchIdUrlParam(value: string) {
-        //     this.router.navigate("sketch", { sketchId: value });
-        // }
-
         private saveSketch(sketch: Sketch) {
             S3Access.putFile(sketch._id + ".json",
                 "application/json", JSON.stringify(sketch));
             this.showUserMessage("Saved");
             this.events.designer.snapshotExpired.dispatch(sketch);
+            this.appStore.actions.editorSavedSketch.dispatch(sketch._id);
         }
 
         private setSelection(item: WorkspaceObjectRef, force?: boolean) {

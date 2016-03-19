@@ -14,9 +14,9 @@ namespace SketchEditor {
                 outer.append("<i>click to close</i>");
             });
             outer.on("click", ev => {
-                this.store.actions.designer.toggleHelp.dispatch();
+                this.store.actions.editor.toggleHelp.dispatch();
             });
-            store.events.designer.showHelpChanged.subscribeData(show => {
+            store.events.designer.showHelpChanged.sub(show => {
                 show ? outer.show() : outer.hide()
             });
         }

@@ -27,7 +27,7 @@ namespace TypedChannel {
             this.observe().subscribe(observer);
         }
 
-        subscribeData(observer: (data: TData) => void) {
+        sub(observer: (data: TData) => void) {
             this.observe().subscribe(m => observer(m.data));
         }
         dispatch(data?: TData) {

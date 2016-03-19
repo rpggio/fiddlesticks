@@ -92,7 +92,7 @@ namespace SketchEditor {
                                     title: "Fit contents in view"
                                 },
                                 on: {
-                                    click: () => this.store.actions.designer.zoomToFit.dispatch()
+                                    click: () => this.store.actions.editor.zoomToFit.dispatch()
                                 }
                             }
                         },
@@ -103,7 +103,7 @@ namespace SketchEditor {
                                     title: "Export Fiddle as PNG",
                                 },
                                 on: {
-                                    click: () => this.store.actions.designer.exportPNG.dispatch()
+                                    click: () => this.store.actions.editor.exportPNG.dispatch()
                                 }
                             }
                         },
@@ -114,7 +114,7 @@ namespace SketchEditor {
                                     title: "Export Fiddle as vector graphics"
                                 },
                                 on: {
-                                    click: () => this.store.actions.designer.exportSVG.dispatch()
+                                    click: () => this.store.actions.editor.exportSVG.dispatch()
                                 }
                             }
                         },
@@ -143,7 +143,7 @@ namespace SketchEditor {
                             {
                                 on: {
                                     click: () => {
-                                        this.store.actions.designer.toggleHelp.dispatch();
+                                        this.store.actions.editor.toggleHelp.dispatch();
                                     }
                                 }
                             }),

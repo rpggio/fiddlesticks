@@ -2,16 +2,9 @@ namespace SketchEditor {
 
     export class Actions extends TypedChannel.Channel {
 
-        app = {
-            /**
-             * Instructs Store to load retained state from local storage, if it exists.
-             */
-            initWorkspace: this.topic<{sketchId?: string}>("app.initWorkspace"),
-
-            loadFont: this.topic<string>("app.loadFont")
-        };
-
-        designer = {
+        editor = {
+            initWorkspace: this.topic<void>("app.initWorkspace"),
+            loadFont: this.topic<string>("app.loadFont"),
             zoomToFit: this.topic<void>("designer.zoomToFit"),
             exportingImage: this.topic<void>("designer.exportImage"),
             exportPNG: this.topic<void>("designer.exportPNG"),

@@ -36,7 +36,7 @@ namespace SketchEditor {
 
             this.viewZoom = new ViewZoom(this.project);
             this.viewZoom.viewChanged.subscribe(bounds => {
-                store.actions.designer.viewChanged.dispatch(bounds);
+                store.actions.editor.viewChanged.dispatch(bounds);
             });
 
             const clearSelection = (ev: paper.PaperMouseEvent) => {
@@ -67,7 +67,7 @@ namespace SketchEditor {
 
             store.events.designer.snapshotExpired.subscribe((m) => {
                 const dataUrl = this.getSnapshotPNG();
-                store.actions.designer.updateSnapshot.dispatch({
+                store.actions.editor.updateSnapshot.dispatch({
                     sketch: m.data, pngDataUrl: dataUrl
                 });
             });
@@ -116,7 +116,7 @@ namespace SketchEditor {
                     }
                 });
 
-            store.events.textblock.fontReady.subscribeData(data => {
+            store.events.textblock.fontReady.sub(data => {
                 const item = this._textBlockItems[data.textBlockId];
                 if (item) {
                     item.font = data.font;
