@@ -62,7 +62,8 @@ namespace SketchEditor {
 
             store.events.designer.exportPNGRequested.subscribe(() => {
                 const fileName = this.getSketchFileName(40, "png");
-                const data = this.getSnapshotPNG();
+                const data = this.getSnapshotPNG(300);
+//console.warn("png", data);
                 DomHelpers.downloadFile(data, fileName);
             });
 
@@ -163,7 +164,7 @@ namespace SketchEditor {
             return bounds;
         }
 
-        private getSnapshotPNG(dpi: number = 300): string {
+        private getSnapshotPNG(dpi: number): string {
             const background = this.insertBackground();
             const raster = this.project.activeLayer.rasterize(dpi, false);
             const data = raster.toDataURL();

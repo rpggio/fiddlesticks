@@ -10,11 +10,13 @@ namespace SketchEditor {
             outer.append("<h3>Getting started</h3>");
             store.state.showHelp ? outer.show() : outer.hide();
             $.get("content/help.html", d => {
-                $(d).appendTo(outer);
-                outer.append("<i>click to close</i>");
-            });
-            outer.on("click", ev => {
-                this.store.actions.editor.toggleHelp.dispatch();
+                const close = $("<button class='btn btn-default'> Close </button>");
+                close.on("click", ev => {
+                    this.store.actions.editor.toggleHelp.dispatch();
+                });
+                outer.append($(d))
+                     .append(close)
+                     .append("<a class='right' href='mailto:fiddlesticks@codeflight.io'>Email us</a>");
             });
             store.events.designer.showHelpChanged.sub(show => {
                 show ? outer.show() : outer.hide()
