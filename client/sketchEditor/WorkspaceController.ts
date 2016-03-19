@@ -36,6 +36,9 @@ namespace SketchEditor {
                 );
 
             this.viewZoom = new paperExt.ViewZoom(this.project);
+            this.viewZoom.setZoomRange([
+                this.defaultSize.multiply(this.defaultScale * 0.1),
+                this.defaultSize.multiply(0.5)]);
             this.viewZoom.viewChanged.subscribe(bounds => {
                 store.actions.editor.viewChanged.dispatch(bounds);
             });
@@ -63,7 +66,6 @@ namespace SketchEditor {
             store.events.designer.exportPNGRequested.subscribe(() => {
                 const fileName = this.getSketchFileName(40, "png");
                 const data = this.getSnapshotPNG(300);
-//console.warn("png", data);
                 DomHelpers.downloadFile(data, fileName);
             });
 
