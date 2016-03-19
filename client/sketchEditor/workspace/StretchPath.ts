@@ -50,10 +50,10 @@ namespace SketchEditor {
 
         private addHandle(handle: PathHandle) {
             handle.visible = this.visible;
-            handle.on(PaperHelpers.EventType.smartDragMove, ev => {
+            handle.on(paper.EventType.mouseDrag, ev => {
                 this._pathChanged.notify(this._path);
             });
-            handle.on(PaperHelpers.EventType.clickWithoutDrag, ev => {
+            handle.on(paper.EventType.click, ev => {
                 this._pathChanged.notify(this._path);
             })
             this.addChild(handle);

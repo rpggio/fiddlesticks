@@ -59,8 +59,6 @@ namespace SketchEditor {
                 strokeColor: "gray"
             };
 
-            PaperHelpers.addSmartDrag(this);
-
             // -- set up observers --
 
             Rx.Observable.merge(

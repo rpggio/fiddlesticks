@@ -43,9 +43,9 @@ namespace SketchEditor {
                 this.styleAsCurve();
             }
 
-            PaperHelpers.addSmartDrag(this);
+            paperExt.extendMouseEvents(this);
 
-            this.on(PaperHelpers.EventType.smartDragStart, ev => {
+            this.on(paperExt.EventType.mouseDragStart, ev => {
                 if (this._curve) {
                     // split the curve, pupate to segment handle
 
@@ -62,19 +62,22 @@ namespace SketchEditor {
                 }
             });
 
-            this.on(PaperHelpers.EventType.smartDragMove, ev => {
+            this.on(paper.EventType.mouseDrag, ev => {
                 if (this._segment) {
                     this._segment.point = this.center;
                     if (this._smoothed) {
                         this._segment.smooth();
                     }
                 }
+                this.translate(ev.delta);
+                ev.stop();
             });
 
-            this.on(PaperHelpers.EventType.clickWithoutDrag, ev => {
+            this.on(paper.EventType.click, ev => {
                 if (this._segment) {
                     this.smoothed = !this.smoothed;
                 }
+                ev.stop();
             });
 
             this._curveChangeUnsub = path.subscribe(flags => {

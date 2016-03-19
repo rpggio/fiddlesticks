@@ -1,4 +1,14 @@
-namespace SketchEditor {
+declare module paper {
+    interface View {
+        /**
+         * Internal method for initiating mouse events on view.
+         */
+        emitMouseEvents(view: paper.View, item: paper.Item, type: string,
+            event: any, point: paper.Point, prevPoint: paper.Point);
+    }
+}
+
+namespace paperExt {
 
     export class ViewZoom {
 
@@ -23,14 +33,18 @@ namespace SketchEditor {
 
             let didDrag = false;
 
-            view.on("mousedrag", ev => {
-                if (!this._viewCenterStart) {
+            view.on(paper.EventType.mouseDrag, ev => {
+                const hit = project.hitTest(ev.point);
+                if (!this._viewCenterStart) {  // not already dragging
+                    if (hit) {
+                        // don't start dragging
+                        return;
+                    }
                     this._viewCenterStart = view.center;
                     // Have to use native mouse offset, because ev.delta 
                     //  changes as the view is scrolled.
                     this._mouseNativeStart = new paper.Point(ev.event.offsetX, ev.event.offsetY);
-
-                    view.emit(PaperHelpers.EventType.smartDragStart, ev);
+                    view.emit(paperExt.EventType.mouseDragStart, ev);
                 } else {
                     const nativeDelta = new paper.Point(
                         ev.event.offsetX - this._mouseNativeStart.x,
@@ -41,16 +55,15 @@ namespace SketchEditor {
                     view.center = view.viewToProject(
                         view.projectToView(this._viewCenterStart)
                             .subtract(nativeDelta));
-                    view.emit(PaperHelpers.EventType.smartDragMove, ev);
                     didDrag = true;
                 }
             });
 
-            view.on("mouseup", ev => {
+            view.on(paper.EventType.mouseUp, ev => {
                 if (this._mouseNativeStart) {
                     this._mouseNativeStart = null;
                     this._viewCenterStart = null;
-                    view.emit(PaperHelpers.EventType.smartDragEnd, ev);
+                    view.emit(paperExt.EventType.mouseDragEnd, ev);
                     if (didDrag) {
                         this._viewChanged.notify(view.bounds);
                         didDrag = false;

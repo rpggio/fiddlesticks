@@ -11,7 +11,7 @@ namespace SketchEditor {
         canvas: HTMLCanvasElement;
         project: paper.Project;
         fallbackFont: opentype.Font;
-        viewZoom: ViewZoom;
+        viewZoom: paperExt.ViewZoom;
 
         private store: Store;
         private _sketch: Sketch;
@@ -34,7 +34,7 @@ namespace SketchEditor {
                 canvasSel.css("background-color", ev.data.backgroundColor)
                 );
 
-            this.viewZoom = new ViewZoom(this.project);
+            this.viewZoom = new paperExt.ViewZoom(this.project);
             this.viewZoom.viewChanged.subscribe(bounds => {
                 store.actions.editor.viewChanged.dispatch(bounds);
             });
@@ -44,8 +44,12 @@ namespace SketchEditor {
                     store.actions.sketch.setSelection.dispatch(null);
                 }
             }
-            paper.view.on(paper.EventType.click, clearSelection);
-            paper.view.on(PaperHelpers.EventType.smartDragStart, clearSelection);
+            paper.view.on(paper.EventType.click, ev => {
+                if (!ev.target) {
+                    clearSelection(ev);
+                }
+            });
+            paper.view.on(paperExt.EventType.mouseDragStart, clearSelection);
 
             const keyHandler = new DocumentKeyHandler(store);
 
@@ -261,12 +265,13 @@ namespace SketchEditor {
                     backgroundColor: textBlock.backgroundColor
                 });
 
+            paperExt.extendMouseEvents(item);
+
             if (!textBlock.outline && textBlock.position) {
                 item.position = new paper.Point(textBlock.position);
             }
 
-            item.on(PaperHelpers.EventType.clickWithoutDrag, ev => {
-
+            item.on(paper.EventType.click, ev => {
                 if (item.selected) {
                     // select next item behind
                     let otherHits = (<TextWarp[]>_.values(this._textBlockItems))
@@ -289,18 +294,22 @@ namespace SketchEditor {
                 }
             });
 
-            item.on(PaperHelpers.EventType.smartDragStart, ev => {
+            item.on(paperExt.EventType.mouseDragStart, ev => {
                 item.bringToFront();
+            });
+
+            item.on(paper.EventType.mouseDrag, ev => {
+                item.translate(ev.delta);
+            });
+
+            item.on(paperExt.EventType.mouseDragEnd, ev => {
+                let block = <TextBlock>this.getBlockArrangement(item);
+                block._id = textBlock._id;
+                this.store.actions.textBlock.updateArrange.dispatch(block);
                 if (!item.selected) {
                     this.store.actions.sketch.setSelection.dispatch(
                         { itemId: textBlock._id, itemType: "TextBlock" });
                 }
-            });
-
-            item.on(PaperHelpers.EventType.smartDragEnd, ev => {
-                let block = <TextBlock>this.getBlockArrangement(item);
-                block._id = textBlock._id;
-                this.store.actions.textBlock.updateArrange.dispatch(block);
             });
 
             const itemChange$ = PaperNotify.observe(item, PaperNotify.ChangeFlag.GEOMETRY);
