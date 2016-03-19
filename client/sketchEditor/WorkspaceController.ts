@@ -25,6 +25,7 @@ namespace SketchEditor {
             this.canvas = <HTMLCanvasElement>document.getElementById('mainCanvas');
             paper.setup(this.canvas);
             this.project = paper.project;
+            window.onresize = () => this.project.view.draw();
 
             const canvasSel = $(this.canvas);
             store.events.mergeTyped(
