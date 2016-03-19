@@ -39,7 +39,7 @@ namespace SketchEditor {
 
         constructor(appStore: App.Store) {
             this.appStore = appStore;
-            
+
             this.setupState();
 
             this.setupSubscriptions();
@@ -62,7 +62,7 @@ namespace SketchEditor {
 
             this.appStore.events.routeChanged.sub(route => {
                 const routeSketchId = route.params.sketchId;
-                if(route.name === "sketch" && routeSketchId !== this.state.sketch._id){
+                if (route.name === "sketch" && routeSketchId !== this.state.sketch._id) {
                     this.openSketch(routeSketchId);
                 }
             });
@@ -85,7 +85,9 @@ namespace SketchEditor {
 
                     this._sketchContent$.debounce(Store.SERVER_SAVE_DELAY_MS)
                         .subscribe(sketch => {
-                            if (sketch && sketch._id && sketch.textBlocks.length) {
+                            if (!this.state.loadingSketch
+                                && sketch._id
+                                && sketch.textBlocks.length) {
                                 this.saveSketch(sketch);
                             }
                         });
@@ -257,7 +259,7 @@ namespace SketchEditor {
         }
 
         private openSketch(id: string) {
-            if(!id || !id.length){
+            if (!id || !id.length) {
                 return;
             }
             S3Access.getFile(id + ".json")
@@ -342,7 +344,7 @@ namespace SketchEditor {
         private newSketch(attr?: SketchAttr): Sketch {
             const sketch = <Sketch>this.defaultSketchAttr();
             sketch._id = newid();
-            if(attr){
+            if (attr) {
                 this.merge(sketch, attr);
             }
             this.loadSketch(sketch);
