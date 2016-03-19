@@ -56,7 +56,7 @@ namespace SketchEditor {
             // -- assign style --
 
             this.customStyle = customStyle || {
-                strokeColor: "lightgray"
+                strokeColor: "gray"
             };
 
             PaperHelpers.addSmartDrag(this);

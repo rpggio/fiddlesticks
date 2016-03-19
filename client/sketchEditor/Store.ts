@@ -357,7 +357,7 @@ namespace SketchEditor {
                 defaultTextBlockAttr: {
                     fontFamily: "Roboto",
                     fontVariant: "regular",
-                    textColor: "lightgray"
+                    textColor: "gray"
                 },
                 backgroundColor: "white",
                 textBlocks: <TextBlock[]>[]
