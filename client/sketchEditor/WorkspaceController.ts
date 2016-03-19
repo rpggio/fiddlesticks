@@ -45,7 +45,7 @@ namespace SketchEditor {
                 }
             }
             paper.view.on(paper.EventType.click, ev => {
-                if (!ev.target) {
+                if (!this.project.hitTest(ev.point)) {
                     clearSelection(ev);
                 }
             });
@@ -275,7 +275,7 @@ namespace SketchEditor {
                 if (item.selected) {
                     // select next item behind
                     let otherHits = (<TextWarp[]>_.values(this._textBlockItems))
-                        .filter(i => i.id !== item.id && i.contains(ev.point));
+                        .filter(i => i.id !== item.id && !!i.hitTest(ev.point));
                     const otherItem = _.sortBy(otherHits, i => i.index)[0];
                     if (otherItem) {
                         otherItem.bringToFront();
