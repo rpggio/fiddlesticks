@@ -140,6 +140,17 @@ namespace SketchEditor {
                                 }
                             }
                         },
+                        {
+                            content: "Open sample sketch",
+                            options: {
+                                attrs: {
+                                    title: "Open a sample sketch to play with"
+                                },
+                                on: {
+                                    click: () => this.store.actions.editor.openSample.dispatch()
+                                }
+                            }
+                        },
                     ]
                 }),
 

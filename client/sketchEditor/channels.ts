@@ -12,6 +12,7 @@ namespace SketchEditor {
             viewChanged: this.topic<paper.Rectangle>("designer.viewChanged"),
             updateSnapshot: this.topic<{ sketch: Sketch, pngDataUrl: string }>("designer.updateSnapshot"),
             toggleHelp: this.topic<void>("designer.toggleHelp"),
+            openSample: this.topic<void>("designer.openSample"),
         }
 
         sketch = {

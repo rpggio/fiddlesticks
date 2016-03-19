@@ -23,6 +23,7 @@ namespace SketchEditor {
         static SKETCH_LOCAL_CACHE_KEY = "fiddlesticks.io.lastSketch";
         static LOCAL_CACHE_DELAY_MS = 1000;
         static SERVER_SAVE_DELAY_MS = 15000;
+        static GREETING_SKETCH_ID = "ilz5iwn99t3xr"; 
 
         state: EditorState = {};
         resources = {
@@ -79,7 +80,7 @@ namespace SketchEditor {
                     if (sketchId) {
                         this.openSketch(sketchId);
                     } else {
-                        this.newSketch();
+                        this.loadGreetingSketch();
                     }
 
                     // on any action, update save delay timer
@@ -129,6 +130,8 @@ namespace SketchEditor {
                 this.state.showHelp = !this.state.showHelp;
                 events.designer.showHelpChanged.dispatch(this.state.showHelp);
             });
+
+            actions.editor.openSample.sub(() => this.loadGreetingSketch());
 
             // ----- Sketch -----
 
@@ -280,7 +283,7 @@ namespace SketchEditor {
                 })
                 .fail(err => {
                     console.warn("error getting remote sketch", err);
-                    this.newSketch();
+                    this.loadGreetingSketch();
                     this.events.app.workspaceInitialized.dispatch(this.state.sketch);
                 });
         }
@@ -297,6 +300,15 @@ namespace SketchEditor {
             }
             this.events.designer.zoomToFitRequested.dispatch();
             this.state.loadingSketch = false;
+        }
+
+        private loadGreetingSketch() {
+            S3Access.getFile(Store.GREETING_SKETCH_ID + ".json")
+            .done(sketch => {
+                sketch._id = newid();
+                sketch.browserId = this.state.browserId;
+                this.loadSketch(sketch);
+            });
         }
 
         private clearSketch() {
