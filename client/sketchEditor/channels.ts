@@ -3,8 +3,8 @@ namespace SketchEditor {
     export class Actions extends TypedChannel.Channel {
 
         editor = {
-            initWorkspace: this.topic<void>("app.initWorkspace"),
-            loadFont: this.topic<string>("app.loadFont"),
+            initWorkspace: this.topic<void>("designer.initWorkspace"),
+            loadFont: this.topic<string>("designer.loadFont"),
             zoomToFit: this.topic<void>("designer.zoomToFit"),
             exportingImage: this.topic<void>("designer.exportImage"),
             exportPNG: this.topic<void>("designer.exportPNG"),
@@ -16,6 +16,7 @@ namespace SketchEditor {
 
         sketch = {
             create: this.topic<SketchAttr>("sketch.create"),
+            clear: this.topic<void>("sketch.clear"),
             clone: this.topic<SketchAttr>("sketch.clone"),
             open: this.topic<string>("sketch.open"),
             attrUpdate: this.topic<SketchAttr>("sketch.attrUpdate"),
@@ -23,10 +24,10 @@ namespace SketchEditor {
         };
 
         textBlock = {
-            add: this.topic<TextBlock>("textblock.add"),
-            updateAttr: this.topic<TextBlock>("textblock.updateAttr"),
-            updateArrange: this.topic<TextBlock>("textblock.updateArrange"),
-            remove: this.topic<TextBlock>("textblock.remove")
+            add: this.topic<TextBlock>("textBlock.add"),
+            updateAttr: this.topic<TextBlock>("textBlock.updateAttr"),
+            updateArrange: this.topic<TextBlock>("textBlock.updateArrange"),
+            remove: this.topic<TextBlock>("textBlock.remove")
         };
 
     }

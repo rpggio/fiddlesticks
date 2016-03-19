@@ -86,6 +86,17 @@ namespace SketchEditor {
                             }
                         },
                         {
+                            content: "Clear all",
+                            options: {
+                                attrs: {
+                                    title: "Clear sketch contents"
+                                },
+                                on: {
+                                    click: () => this.store.actions.sketch.clear.dispatch()
+                                }
+                            }
+                        },
+                        {
                             content: "Zoom to fit",
                             options: {
                                 attrs: {

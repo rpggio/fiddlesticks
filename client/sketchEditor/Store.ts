@@ -22,7 +22,7 @@ namespace SketchEditor {
         static FONT_LIST_LIMIT = 100;
         static SKETCH_LOCAL_CACHE_KEY = "fiddlesticks.io.lastSketch";
         static LOCAL_CACHE_DELAY_MS = 1000;
-        static SERVER_SAVE_DELAY_MS = 6000;
+        static SERVER_SAVE_DELAY_MS = 8000;
 
         state: AppState = {};
         resources = {
@@ -136,6 +136,10 @@ namespace SketchEditor {
                 this.newSketch(attr);
             });
 
+            actions.sketch.clear.sub(() => {
+                this.clearSketch();
+            })
+
             actions.sketch.clone.subscribe(() => {
                 const clone = _.clone(this.state.sketch);
                 clone._id = newid();
@@ -147,7 +151,7 @@ namespace SketchEditor {
                 this.merge(this.state.sketch, ev.data);
                 events.sketch.attrChanged.dispatch(
                     this.state.sketch);
-                this.changedSketch();
+                this.changedSketchContent();
             });
 
             actions.sketch.setSelection.subscribe(m => {
@@ -180,7 +184,7 @@ namespace SketchEditor {
 
                     this.state.sketch.textBlocks.push(block);
                     events.textblock.added.dispatch(block);
-                    this.changedSketch();
+                    this.changedSketchContent();
 
                     this.loadTextBlockFont(block);
                 });
@@ -216,7 +220,7 @@ namespace SketchEditor {
                         };
 
                         events.textblock.attrChanged.dispatch(block);
-                        this.changedSketch();
+                        this.changedSketchContent();
 
                         if (fontChanged) {
                             this.loadTextBlockFont(block);
@@ -235,7 +239,7 @@ namespace SketchEditor {
                     });
                     if (didDelete) {
                         events.textblock.removed.dispatch({ _id: ev.data._id });
-                        this.changedSketch();
+                        this.changedSketchContent();
                         this.setEditingItem(null);
                     }
                 });
@@ -247,7 +251,7 @@ namespace SketchEditor {
                         block.position = ev.data.position;
                         block.outline = ev.data.outline;
                         events.textblock.arrangeChanged.dispatch(block);
-                        this.changedSketch();
+                        this.changedSketchContent();
                     }
                 });
         }
@@ -290,6 +294,12 @@ namespace SketchEditor {
             this.state.loadingSketch = false;
         }
 
+        private clearSketch() {
+            const sketch = <Sketch>this.defaultSketchAttr();
+            sketch._id = this.state.sketch._id;
+            this.loadSketch(sketch);
+        }
+
         private loadResources() {
             this.resources.fontFamilies.loadCatalogLocal(families => {
                 // load fonts into browser for preview
@@ -320,7 +330,7 @@ namespace SketchEditor {
             );
         }
 
-        private changedSketch() {
+        private changedSketchContent() {
             this.events.sketch.contentChanged.dispatch(this.state.sketch);
             this._sketchContent$.onNext(this.state.sketch);
         }
@@ -330,8 +340,17 @@ namespace SketchEditor {
         }
 
         private newSketch(attr?: SketchAttr): Sketch {
-            const sketch = <Sketch>{
-                _id: newid(),
+            const sketch = <Sketch>this.defaultSketchAttr();
+            sketch._id = newid();
+            if(attr){
+                this.merge(sketch, attr);
+            }
+            this.loadSketch(sketch);
+            return sketch;
+        }
+
+        private defaultSketchAttr() {
+            return <SketchAttr>{
                 browserId: this.state.browserId,
                 defaultTextBlockAttr: {
                     fontFamily: "Roboto",
@@ -341,11 +360,6 @@ namespace SketchEditor {
                 backgroundColor: "white",
                 textBlocks: <TextBlock[]>[]
             };
-            if(attr){
-                this.merge(sketch, attr);
-            }
-            this.loadSketch(sketch);
-            return sketch;
         }
 
         private saveSketch(sketch: Sketch) {
