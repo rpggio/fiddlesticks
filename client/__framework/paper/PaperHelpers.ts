@@ -18,7 +18,7 @@ namespace PaperHelpers {
 
     export function getMaxExportDpi(itemSize: paper.Size){
         const itemArea = itemSize.width * itemSize.height;
-        return 72 * SAFARI_MAX_CANVAS_AREA / itemArea;
+        return (SAFARI_MAX_CANVAS_AREA / itemArea) * 72 * 0.99;
     }
 
     export const importOpenTypePath = function(openPath: opentype.Path): paper.CompoundPath {
