@@ -6,12 +6,19 @@ interface Console {
 
 namespace PaperHelpers {
 
+    export const SAFARI_MAX_CANVAS_AREA = 67108864;
+
     export var shouldLogInfo: boolean;
 
     const log = function(...params: any[]) {
         if (shouldLogInfo) {
             console.log(...params);
         }
+    }
+
+    export function getMaxExportDpi(itemSize: paper.Size){
+        const itemArea = itemSize.width * itemSize.height;
+        return 72 * SAFARI_MAX_CANVAS_AREA / itemArea;
     }
 
     export const importOpenTypePath = function(openPath: opentype.Path): paper.CompoundPath {
