@@ -12,7 +12,7 @@ namespace SketchEditor {
             const sketchDom$ = store.events.merge(
                 store.events.sketch.loaded,
                 store.events.sketch.attrChanged,
-                store.events.designer.userMessageChanged)
+                store.events.editor.userMessageChanged)
                 .map(m => this.render(store.state));
             ReactiveDom.renderStream(sketchDom$, container);
 
@@ -133,7 +133,7 @@ namespace SketchEditor {
                             content: "Duplicate sketch",
                             options: {
                                 attrs: {
-                                    title: "Copy contents into new sketch"
+                                    title: "Copy contents into a sketch with a new address"
                                 },
                                 on: {
                                     click: () => this.store.actions.sketch.clone.dispatch()

@@ -3,9 +3,11 @@ namespace SketchEditor {
     export class S3Access {
 
         /**
-         * Upload file to application S3 bucket
+         * Upload file to application S3 bucket.
+         * Returns upload URL as a promise.
          */
-        static putFile(fileName: string, fileType: string, data: Blob | string) {
+        static putFile(fileName: string, fileType: string, data: Blob | string)
+            : JQueryPromise<string> {
 
             // https://github.com/aws/aws-sdk-js/issues/190   
             if (navigator.userAgent.match(/Firefox/) && !fileType.match(/;/)) {
@@ -15,8 +17,9 @@ namespace SketchEditor {
 
             const signUrl = `/api/storage/access?fileName=${fileName}&fileType=${fileType}`;
             // get signed URL
-            $.getJSON(signUrl)
-                .done(signResponse => {
+            return $.getJSON(signUrl)
+                .then(
+                signResponse => {
 
                     // PUT file
                     const putRequest = {
@@ -31,16 +34,17 @@ namespace SketchEditor {
                         contentType: fileType
                     };
 
-                    $.ajax(putRequest)
-                        .done(putResponse => {
-                            console.log("uploaded file", signResponse.url)
-                        })
-                        .fail(err => {
+                    return $.ajax(putRequest)
+                        .then(
+                        putResponse => {
+                            console.log("uploaded file", signResponse.url);
+                            return signResponse.url;
+                        },
+                        err => {
                             console.error("error uploading to S3", err);
                         });
-
-                })
-                .fail(err => {
+                },
+                err => {
                     console.error("error on /api/storage/access", err);
                 });
         }
@@ -48,12 +52,8 @@ namespace SketchEditor {
         /**
          * Download file from bucket
          */
-        static getFile(fileName: string): JQueryPromise<any> {
-            return $.ajax({
-                url: `/api/storage/url?fileName=${fileName}`,
-                dataType: "json",
-                cache: false
-            })
+        static getJson(fileName: string): JQueryPromise<Object> {
+            return this.getFileUrl(fileName)
                 .then(response => {
                     console.log("downloading", response.url);
                     return $.ajax({
@@ -62,6 +62,14 @@ namespace SketchEditor {
                         cache: false
                     });
                 });
+        }
+
+        static getFileUrl(fileName: string): JQueryPromise<{ url: string }> {
+            return $.ajax({
+                url: `/api/storage/url?fileName=${fileName}`,
+                dataType: "json",
+                cache: false
+            });
         }
 
     }

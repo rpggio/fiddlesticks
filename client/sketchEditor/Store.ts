@@ -23,14 +23,14 @@ namespace SketchEditor {
         static SKETCH_LOCAL_CACHE_KEY = "fiddlesticks.io.lastSketch";
         static LOCAL_CACHE_DELAY_MS = 1000;
         static SERVER_SAVE_DELAY_MS = 15000;
-        static GREETING_SKETCH_ID = "ilz5iwn99t3xr"; 
+        static GREETING_SKETCH_ID = "ilz5iwn99t3xr";
 
         state: EditorState = {};
         resources = {
             fallbackFont: opentype.Font,
             fontFamilies: new FontFamilies(),
             parsedFonts: new ParsedFonts((url, font) =>
-                this.events.app.fontLoaded.dispatch(font))
+                this.events.editor.fontLoaded.dispatch(font))
         };
         actions = new Actions();
         events = new Events();
@@ -65,23 +65,25 @@ namespace SketchEditor {
                 if (route.name === "sketch" && routeSketchId !== this.state.sketch._id) {
                     this.openSketch(routeSketchId);
                 }
-            });    
+            });
 
             // ----- Editor -----
 
             actions.editor.initWorkspace.observe()
-                .pausableBuffered(events.app.resourcesReady.observe().map(m => m.data))
+                .pausableBuffered(events.editor.resourcesReady.observe().map(m => m.data))
                 .subscribe(m => {
                     this.setSelection(null, true);
                     this.setEditingItem(null, true);
 
                     const sketchId = this.appStore.state.route.params.sketchId
                         || this.appStore.state.lastSavedSketchId;
+                    let promise: JQueryPromise<any>;
                     if (sketchId) {
-                        this.openSketch(sketchId);
+                        promise = this.openSketch(sketchId);
                     } else {
-                        this.loadGreetingSketch();
+                        promise = this.loadGreetingSketch();
                     }
+                    promise.then(() => events.editor.workspaceInitialized.dispatch());
 
                     // on any action, update save delay timer
                     this.actions.observe().debounce(Store.SERVER_SAVE_DELAY_MS)
@@ -100,35 +102,47 @@ namespace SketchEditor {
                 this.resources.parsedFonts.get(m.data));
 
             actions.editor.zoomToFit.forward(
-                events.designer.zoomToFitRequested);
+                events.editor.zoomToFitRequested);
 
             actions.editor.exportPNG.subscribe(m => {
                 this.setSelection(null);
                 this.setEditingItem(null);
-                events.designer.exportPNGRequested.dispatch(m.data);
+                events.editor.exportPNGRequested.dispatch(m.data);
             });
 
             actions.editor.exportSVG.subscribe(m => {
                 this.setSelection(null);
                 this.setEditingItem(null);
-                events.designer.exportSVGRequested.dispatch(m.data);
+                events.editor.exportSVGRequested.dispatch(m.data);
             });
 
             actions.editor.viewChanged.subscribe(m => {
-                events.designer.viewChanged.dispatch(m.data);
+                events.editor.viewChanged.dispatch(m.data);
             });
 
-            actions.editor.updateSnapshot.subscribe(m => {
-                if (m.data.sketch._id) {
-                    const filename = m.data.sketch._id + ".png";
-                    const blob = DomHelpers.dataURLToBlob(m.data.pngDataUrl);
-                    S3Access.putFile(filename, "image/png", blob);
+            actions.editor.pngExportGenerated.sub(({sketchId, pngDataUrl}) => {
+                if (sketchId === this.state.sketch._id) {
+                    const s3fileName = sketchId + ".300.png";
+                    const downloadFileAsName = SketchHelpers.getSketchFileName(this.state.sketch, 40, "300.png");
+                    const blob = DomHelpers.dataURLToBlob(pngDataUrl);
+                    S3Access.putFile(s3fileName, "image/png", blob)
+                        .then(url => {
+                            DomHelpers.downloadFile(url, downloadFileAsName);
+                        });
+                }
+            });
+
+            actions.editor.updateSnapshot.sub(({sketchId, pngDataUrl}) => {
+                if (sketchId === this.state.sketch._id) {
+                    const fileName = sketchId + ".png";
+                    const blob = DomHelpers.dataURLToBlob(pngDataUrl);
+                    S3Access.putFile(fileName, "image/png", blob);
                 }
             });
 
             actions.editor.toggleHelp.subscribe(() => {
                 this.state.showHelp = !this.state.showHelp;
-                events.designer.showHelpChanged.dispatch(this.state.showHelp);
+                events.editor.showHelpChanged.dispatch(this.state.showHelp);
             });
 
             actions.editor.openSample.sub(() => this.loadGreetingSketch());
@@ -263,12 +277,13 @@ namespace SketchEditor {
                 });
         }
 
-        private openSketch(id: string) {
+        private openSketch(id: string): JQueryPromise<Sketch> {
             if (!id || !id.length) {
                 return;
             }
-            S3Access.getFile(id + ".json")
-                .done(sketch => {
+            return S3Access.getJson(id + ".json")
+                .then(
+                (sketch: Sketch) => {
                     this.loadSketch(sketch);
 
                     console.log("Retrieved sketch", sketch._id);
@@ -278,13 +293,12 @@ namespace SketchEditor {
                     else {
                         console.log('Sketch was created in a different browser');
                     }
-
-                    this.events.app.workspaceInitialized.dispatch(this.state.sketch);
-                })
-                .fail(err => {
+                    
+                    return sketch;
+                },
+                err => {
                     console.warn("error getting remote sketch", err);
                     this.loadGreetingSketch();
-                    this.events.app.workspaceInitialized.dispatch(this.state.sketch);
                 });
         }
 
@@ -298,17 +312,17 @@ namespace SketchEditor {
                 this.events.textblock.loaded.dispatch(tb);
                 this.loadTextBlockFont(tb);
             }
-            this.events.designer.zoomToFitRequested.dispatch();
+            this.events.editor.zoomToFitRequested.dispatch();
             this.state.loadingSketch = false;
         }
 
-        private loadGreetingSketch() {
-            S3Access.getFile(Store.GREETING_SKETCH_ID + ".json")
-            .done(sketch => {
-                sketch._id = newid();
-                sketch.browserId = this.state.browserId;
-                this.loadSketch(sketch);
-            });
+        private loadGreetingSketch(): JQueryPromise<any> {
+            return S3Access.getJson(Store.GREETING_SKETCH_ID + ".json")
+                .done((sketch: Sketch) => {
+                    sketch._id = newid();
+                    sketch.browserId = this.state.browserId;
+                    this.loadSketch(sketch);
+                });
         }
 
         private clearSketch() {
@@ -326,16 +340,16 @@ namespace SketchEditor {
                     Store.FALLBACK_FONT_URL,
                     (url, font) => this.resources.fallbackFont = font);
 
-                this.events.app.resourcesReady.dispatch(true);
+                this.events.editor.resourcesReady.dispatch(true);
             });
         }
 
         private showUserMessage(message: string) {
             this.state.userMessage = message;
-            this.events.designer.userMessageChanged.dispatch(message);
+            this.events.editor.userMessageChanged.dispatch(message);
             setTimeout(() => {
                 this.state.userMessage = null;
-                this.events.designer.userMessageChanged.dispatch(null);
+                this.events.editor.userMessageChanged.dispatch(null);
             }, 1500)
         }
 
@@ -384,7 +398,7 @@ namespace SketchEditor {
                 "application/json", JSON.stringify(sketch));
             this.state.sketchIsDirty = false;
             this.showUserMessage("Saved");
-            this.events.designer.snapshotExpired.dispatch(sketch);
+            this.events.editor.snapshotExpired.dispatch(sketch);
             this.appStore.actions.editorSavedSketch.dispatch(sketch._id);
         }
 
@@ -445,6 +459,7 @@ namespace SketchEditor {
         private getBlock(id: string) {
             return _.find(this.state.sketch.textBlocks, tb => tb._id === id);
         }
+
     }
 
 }

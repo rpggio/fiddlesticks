@@ -10,7 +10,8 @@ namespace SketchEditor {
             exportPNG: this.topic<void>("designer.exportPNG"),
             exportSVG: this.topic<void>("designer.exportSVG"),
             viewChanged: this.topic<paper.Rectangle>("designer.viewChanged"),
-            updateSnapshot: this.topic<{ sketch: Sketch, pngDataUrl: string }>("designer.updateSnapshot"),
+            updateSnapshot: this.topic<{ sketchId: string, pngDataUrl: string }>("designer.updateSnapshot"),
+            pngExportGenerated: this.topic<{ sketchId: string, pngDataUrl: string }>("designer.pngExportGenerated"),
             toggleHelp: this.topic<void>("designer.toggleHelp"),
             openSample: this.topic<void>("designer.openSample"),
         }
@@ -35,13 +36,10 @@ namespace SketchEditor {
 
     export class Events extends TypedChannel.Channel {
 
-        app = {
+        editor = {
             resourcesReady: this.topic<boolean>("app.resourcesReady"),
-            workspaceInitialized: this.topic<Sketch>("app.workspaceInitialized"),
-            fontLoaded: this.topic<opentype.Font>("app.fontLoaded")
-        }
-
-        designer = {
+            workspaceInitialized: this.topic<void>("app.workspaceInitialized"),
+            fontLoaded: this.topic<opentype.Font>("app.fontLoaded"),
             zoomToFitRequested: this.topic<void>("designer.zoomToFitRequested"),
             exportPNGRequested: this.topic<void>("designer.exportPNGRequested"),
             exportSVGRequested: this.topic<void>("designer.exportSVGRequested"),

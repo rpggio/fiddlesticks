@@ -18,7 +18,7 @@ namespace SketchEditor {
                      .append(close)
                      .append("<a class='right' href='mailto:fiddlesticks@codeflight.io'>Email us</a>");
             });
-            store.events.designer.showHelpChanged.sub(show => {
+            store.events.editor.showHelpChanged.sub(show => {
                 show ? outer.show() : outer.hide()
             });
         }

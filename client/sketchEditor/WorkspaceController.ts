@@ -59,24 +59,29 @@ namespace SketchEditor {
 
             // ----- Designer -----
 
-            store.events.designer.zoomToFitRequested.subscribe(() => {
+            store.events.editor.workspaceInitialized.sub(() => {
+               this.project.view.draw(); 
+            });
+
+            store.events.editor.zoomToFitRequested.subscribe(() => {
                 this.zoomToFit();
             });
 
-            store.events.designer.exportPNGRequested.subscribe(() => {
-                const fileName = this.getSketchFileName(40, "png");
-                const data = this.getSnapshotPNG(300);
-                DomHelpers.downloadFile(data, fileName);
-            });
-
-            store.events.designer.exportSVGRequested.subscribe(() => {
+            store.events.editor.exportSVGRequested.subscribe(() => {
                 this.downloadSVG();
             });
 
-            store.events.designer.snapshotExpired.subscribe((m) => {
-                const dataUrl = this.getSnapshotPNG(200);
+            store.events.editor.exportPNGRequested.sub(() => {
+                const data = this.getSnapshotPNG(300);
+                store.actions.editor.pngExportGenerated.dispatch({
+                    sketchId: this.store.state.sketch._id, pngDataUrl: data
+                });
+            });
+
+            store.events.editor.snapshotExpired.sub(() => {
+                const data = this.getSnapshotPNG(72);
                 store.actions.editor.updateSnapshot.dispatch({
-                    sketch: m.data, pngDataUrl: dataUrl
+                    sketchId: this.store.state.sketch._id, pngDataUrl: data
                 });
             });
 
@@ -182,32 +187,12 @@ namespace SketchEditor {
 
             var url = "data:image/svg+xml;utf8," + encodeURIComponent(
                 <string>this.project.exportSVG({ asString: true }));
-            DomHelpers.downloadFile(url, this.getSketchFileName(40, "svg"));
+            DomHelpers.downloadFile(url, SketchHelpers.getSketchFileName(
+                this.store.state.sketch, 40, "svg"));
 
             if (background) {
                 background.remove();
             }
-        }
-
-        private getSketchFileName(length: number, extension: string): string {
-            let name = "";
-            outer:
-            for (const block of this.store.state.sketch.textBlocks) {
-                for (const word of block.text.split(/\s/)) {
-                    const trim = word.replace(/\W/g, '').trim();
-                    if (trim.length) {
-                        if (name.length) name += " ";
-                        name += trim;
-                    }
-                    if (name.length >= length) {
-                        break outer;
-                    }
-                }
-            }
-            if (!name.length) {
-                name = "fiddle";
-            }
-            return name + "." + extension;
         }
 
         /**
