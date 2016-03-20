@@ -180,7 +180,7 @@ namespace SketchEditor {
         }
 
         private downloadPNG() {
-            const data = this.getSnapshotPNG(72);
+            const data = this.getSnapshotPNG(200);
             const fileName = SketchHelpers.getSketchFileName(
                 this.store.state.sketch, 40, "png");
             const blob = DomHelpers.dataURLToBlob(data);
