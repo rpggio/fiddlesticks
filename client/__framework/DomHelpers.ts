@@ -1,18 +1,6 @@
 
 namespace DomHelpers {
 
-    //  https://support.mozilla.org/en-US/questions/968992
-    export function downloadFile(url: string, asFileName: string) {
-        var link = <any>document.createElement("a");
-        link.id = newid();
-        link.download = asFileName;
-        link.href = url;
-        document.body.appendChild(link);
-        link.target = "_blank";
-        link.click();
-        document.body.removeChild(link);
-    }
-
     /**
      * Creates and returns a blob from a data URL (either base64 encoded or not).
      * https://github.com/ebidel/filer.js/blob/master/src/filer.js#L137

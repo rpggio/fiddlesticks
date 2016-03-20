@@ -120,18 +120,6 @@ namespace SketchEditor {
                 events.editor.viewChanged.dispatch(m.data);
             });
 
-            actions.editor.pngExportGenerated.sub(({sketchId, pngDataUrl}) => {
-                if (sketchId === this.state.sketch._id) {
-                    const s3fileName = sketchId + ".300.png";
-                    const downloadFileAsName = SketchHelpers.getSketchFileName(this.state.sketch, 40, "300.png");
-                    const blob = DomHelpers.dataURLToBlob(pngDataUrl);
-                    S3Access.putFile(s3fileName, "image/png", blob)
-                        .then(url => {
-                            DomHelpers.downloadFile(url, downloadFileAsName);
-                        });
-                }
-            });
-
             actions.editor.updateSnapshot.sub(({sketchId, pngDataUrl}) => {
                 if (sketchId === this.state.sketch._id) {
                     const fileName = sketchId + ".png";

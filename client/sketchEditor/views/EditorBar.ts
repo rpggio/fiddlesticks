@@ -111,7 +111,7 @@ namespace SketchEditor {
                             content: "Export image",
                             options: {
                                 attrs: {
-                                    title: "Export Fiddle as PNG",
+                                    title: "Export sketch as PNG",
                                 },
                                 on: {
                                     click: () => this.store.actions.editor.exportPNG.dispatch()
@@ -122,7 +122,7 @@ namespace SketchEditor {
                             content: "Export SVG",
                             options: {
                                 attrs: {
-                                    title: "Export Fiddle as vector graphics"
+                                    title: "Export sketch as vector graphics"
                                 },
                                 on: {
                                     click: () => this.store.actions.editor.exportSVG.dispatch()

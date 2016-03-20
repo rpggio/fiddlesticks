@@ -60,7 +60,7 @@ namespace SketchEditor {
             // ----- Designer -----
 
             store.events.editor.workspaceInitialized.sub(() => {
-               this.project.view.draw(); 
+                this.project.view.draw();
             });
 
             store.events.editor.zoomToFitRequested.subscribe(() => {
@@ -72,10 +72,7 @@ namespace SketchEditor {
             });
 
             store.events.editor.exportPNGRequested.sub(() => {
-                const data = this.getSnapshotPNG(300);
-                store.actions.editor.pngExportGenerated.dispatch({
-                    sketchId: this.store.state.sketch._id, pngDataUrl: data
-                });
+                this.downloadPNG();
             });
 
             store.events.editor.snapshotExpired.sub(() => {
@@ -171,6 +168,9 @@ namespace SketchEditor {
             return bounds;
         }
 
+        /**
+         * @returns data URL
+         */
         private getSnapshotPNG(dpi: number): string {
             const background = this.insertBackground();
             const raster = this.project.activeLayer.rasterize(dpi, false);
@@ -179,16 +179,26 @@ namespace SketchEditor {
             return data;
         }
 
+        private downloadPNG() {
+            const data = this.getSnapshotPNG(300);
+            const fileName = SketchHelpers.getSketchFileName(
+                this.store.state.sketch, 40, "png");
+            const blob = DomHelpers.dataURLToBlob(data);
+            saveAs(blob, fileName);
+        }
+
         private downloadSVG() {
             let background: paper.Item;
             if (this.store.state.sketch.backgroundColor) {
                 background = this.insertBackground();
             }
 
-            var url = "data:image/svg+xml;utf8," + encodeURIComponent(
+            var dataUrl = "data:image/svg+xml;utf8," + encodeURIComponent(
                 <string>this.project.exportSVG({ asString: true }));
-            DomHelpers.downloadFile(url, SketchHelpers.getSketchFileName(
-                this.store.state.sketch, 40, "svg"));
+            const blob = DomHelpers.dataURLToBlob(dataUrl);
+            const fileName = SketchHelpers.getSketchFileName(
+                this.store.state.sketch, 40, "svg");
+            saveAs(blob, fileName);
 
             if (background) {
                 background.remove();

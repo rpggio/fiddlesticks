@@ -11,7 +11,6 @@ namespace SketchEditor {
             exportSVG: this.topic<void>("designer.exportSVG"),
             viewChanged: this.topic<paper.Rectangle>("designer.viewChanged"),
             updateSnapshot: this.topic<{ sketchId: string, pngDataUrl: string }>("designer.updateSnapshot"),
-            pngExportGenerated: this.topic<{ sketchId: string, pngDataUrl: string }>("designer.pngExportGenerated"),
             toggleHelp: this.topic<void>("designer.toggleHelp"),
             openSample: this.topic<void>("designer.openSample"),
         }
