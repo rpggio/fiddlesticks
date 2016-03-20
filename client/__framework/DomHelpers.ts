@@ -9,7 +9,6 @@ namespace DomHelpers {
         link.href = url;
         document.body.appendChild(link);
         link.target = "_blank";
-console.warn(link);        
         link.click();
         document.body.removeChild(link);
     }
