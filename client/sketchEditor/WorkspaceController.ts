@@ -183,9 +183,9 @@ namespace SketchEditor {
         }
 
         private downloadPNG() {
-            const dpi = Math.min(300, PaperHelpers.getMaxExportDpi(this.project.view.bounds.size));
-            console.log(`generating PNG at ${dpi} DPI`);
-            const data = this.getSnapshotPNG(dpi);
+            // const dpi = Math.min(300, PaperHelpers.getMaxExportDpi(this.project.view.bounds.size));
+            // console.log(`generating PNG at ${dpi} DPI`);
+            const data = this.getSnapshotPNG(200);
             const fileName = SketchHelpers.getSketchFileName(
                 this.store.state.sketch, 40, "png");
             const blob = DomHelpers.dataURLToBlob(data);
