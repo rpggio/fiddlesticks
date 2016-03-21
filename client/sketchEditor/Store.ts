@@ -182,10 +182,8 @@ namespace SketchEditor {
                     let block = { _id: newid() } as TextBlock;
                     this.merge(block, patch);
 
-                    if (!block.textColor) {
-                        block.textColor = this.state.sketch.defaultTextBlockAttr.textColor;
-                    }
-
+                    block.textColor = this.state.sketch.defaultTextBlockAttr.textColor;
+                    block.backgroundColor = this.state.sketch.defaultTextBlockAttr.backgroundColor;
                     if (!block.fontFamily) {
                         block.fontFamily = this.state.sketch.defaultTextBlockAttr.fontFamily;
                         block.fontVariant = this.state.sketch.defaultTextBlockAttr.fontVariant;
