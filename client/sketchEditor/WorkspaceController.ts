@@ -173,9 +173,6 @@ namespace SketchEditor {
          */
         private getSnapshotPNG(dpi: number): string {
             const background = this.insertBackground();
-            console.log("layer bounds", 
-                [this.project.activeLayer.bounds.width, 
-                    this.project.activeLayer.bounds.height]);
             const raster = this.project.activeLayer.rasterize(dpi, false);
             const data = raster.toDataURL();
             background.remove();
@@ -183,9 +180,10 @@ namespace SketchEditor {
         }
 
         private downloadPNG() {
-            // const dpi = Math.min(300, PaperHelpers.getMaxExportDpi(this.project.view.bounds.size));
-            // console.log(`generating PNG at ${dpi} DPI`);
-            const data = this.getSnapshotPNG(200);
+            // Half of max DPI produces approx 4200x4200.
+            const dpi = 0.5 * PaperHelpers.getMaxExportDpi(this.project.activeLayer.bounds.size);
+            const data = this.getSnapshotPNG(dpi);
+            
             const fileName = SketchHelpers.getSketchFileName(
                 this.store.state.sketch, 40, "png");
             const blob = DomHelpers.dataURLToBlob(data);

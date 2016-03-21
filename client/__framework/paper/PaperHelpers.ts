@@ -16,14 +16,19 @@ namespace PaperHelpers {
         }
     }
 
+    /**
+     * Determine the max dpi that can supported by Canvas.
+     * Using Safari as the measure, because it seems to have the smallest limit.
+     */
     export function getMaxExportDpi(itemSize: paper.Size){
         const itemArea = itemSize.width * itemSize.height;
-        return (SAFARI_MAX_CANVAS_AREA / itemArea) * 72 * 0.99;
+        return 0.999 * Math.sqrt(SAFARI_MAX_CANVAS_AREA) 
+                * (paper.view.resolution) 
+                /  Math.sqrt(itemArea);
     }
 
     export const importOpenTypePath = function(openPath: opentype.Path): paper.CompoundPath {
         return new paper.CompoundPath(openPath.toPathData());
-
         // let svg = openPath.toSVG(4);
         // return <paper.Path>paper.project.importSVG(svg);
     }
