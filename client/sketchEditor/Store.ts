@@ -392,12 +392,14 @@ namespace SketchEditor {
 
         private saveSketch(sketch: Sketch) {
             const saving = _.clone(sketch);
-            saving.savedAt = new Date();
+            const now = new Date();
+            saving.savedAt = now;
             this.setUserMessage("Saving");
             S3Access.putFile(sketch._id + ".json",
                 "application/json", JSON.stringify(saving))
                 .then(() => {
                     this.state.sketchIsDirty = false;
+                    this.state.sketch.savedAt = now;
                     this.setDefaultUserMessage();
                     this.appStore.actions.editorSavedSketch.dispatch(sketch._id);
                     this.events.editor.snapshotExpired.dispatch(sketch);
