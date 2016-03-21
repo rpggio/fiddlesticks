@@ -2,7 +2,7 @@ namespace SketchEditor {
 
     export class FontFamilies {
 
-        static CATALOG_LIMIT = 150;
+        static CATALOG_LIMIT = 250;
 
         public catalog: FontFamily[] = [];
 

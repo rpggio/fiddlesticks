@@ -19,7 +19,6 @@ namespace SketchEditor {
         static BROWSER_ID_KEY = "browserId";
         static FALLBACK_FONT_URL = "/fonts/Roboto-500.ttf";
         static DEFAULT_FONT_NAME = "Roboto";
-        static FONT_LIST_LIMIT = 100;
         static SKETCH_LOCAL_CACHE_KEY = "fiddlesticks.io.lastSketch";
         static LOCAL_CACHE_DELAY_MS = 1000;
         static SERVER_SAVE_DELAY_MS = 10000;

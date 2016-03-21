@@ -35,14 +35,21 @@ namespace SketchEditor {
             this.store.events.editor.fontLoaded.observe().first().subscribe(m => {
 
                 this.workspaceController = new WorkspaceController(this.store, m.data);
-                
+
                 this.store.actions.editor.initWorkspace.dispatch();
-                
+
+                this.store.events.editor.workspaceInitialized.sub(() => {
+                    $(window).on("beforeunload", () => {
+                        if (this.store.state.sketchIsDirty) {
+                            return "Your latest changes are not saved yet.";
+                        }
+                    });
+                });
             });
 
         }
 
-        openSketch(id: string){
+        openSketch(id: string) {
             this.store.actions.sketch.open.dispatch(id);
         }
 
