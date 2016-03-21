@@ -14,6 +14,7 @@ namespace SketchEditor {
     export interface Sketch extends SketchAttr {
         _id: string;
         browserId?: string;
+        savedAt?: Date;
         textBlocks?: TextBlock[];
     }
 

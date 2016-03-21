@@ -22,7 +22,7 @@ namespace SketchEditor {
         static FONT_LIST_LIMIT = 100;
         static SKETCH_LOCAL_CACHE_KEY = "fiddlesticks.io.lastSketch";
         static LOCAL_CACHE_DELAY_MS = 1000;
-        static SERVER_SAVE_DELAY_MS = 15000;
+        static SERVER_SAVE_DELAY_MS = 10000;
         static GREETING_SKETCH_ID = "ilz5iwn99t3xr";
 
         state: EditorState = {};
@@ -292,13 +292,17 @@ namespace SketchEditor {
             this.state.loadingSketch = true;
             this.state.sketch = sketch;
             this.state.sketchIsDirty = false;
+            this.setDefaultUserMessage();
+            
             this.events.sketch.loaded.dispatch(this.state.sketch);
             this.appStore.actions.editorLoadedSketch.dispatch(sketch._id);
             for (const tb of this.state.sketch.textBlocks) {
                 this.events.textblock.loaded.dispatch(tb);
                 this.loadTextBlockFont(tb);
             }
+            
             this.events.editor.zoomToFitRequested.dispatch();
+            
             this.state.loadingSketch = false;
         }
 
@@ -330,13 +334,20 @@ namespace SketchEditor {
             });
         }
 
-        private showUserMessage(message: string) {
-            this.state.userMessage = message;
-            this.events.editor.userMessageChanged.dispatch(message);
-            setTimeout(() => {
-                this.state.userMessage = null;
-                this.events.editor.userMessageChanged.dispatch(null);
-            }, 1500)
+        private setUserMessage(message: string) {
+           if(this.state.userMessage !== message){
+                this.state.userMessage = message;
+                this.events.editor.userMessageChanged.dispatch(message);
+            }
+        }
+        
+        private setDefaultUserMessage(){
+            // if not the last saved sketch, or sketch is dirty, show "Unsaved"
+            const message = (this.state.sketchIsDirty 
+                || !this.state.sketch.savedAt) 
+                ? "Unsaved" 
+                : "Saved";
+            this.setUserMessage(message);
         }
 
         private loadTextBlockFont(block: TextBlock) {
@@ -350,6 +361,7 @@ namespace SketchEditor {
         private changedSketchContent() {
             this.state.sketchIsDirty = true;
             this.events.sketch.contentChanged.dispatch(this.state.sketch);
+            this.setDefaultUserMessage();
         }
 
         private merge<T>(dest: T, source: T) {
@@ -380,12 +392,20 @@ namespace SketchEditor {
         }
 
         private saveSketch(sketch: Sketch) {
+            const saving = _.clone(sketch);
+            saving.savedAt = new Date();
+            this.setUserMessage("Saving");
             S3Access.putFile(sketch._id + ".json",
-                "application/json", JSON.stringify(sketch));
-            this.state.sketchIsDirty = false;
-            this.showUserMessage("Saved");
-            this.events.editor.snapshotExpired.dispatch(sketch);
-            this.appStore.actions.editorSavedSketch.dispatch(sketch._id);
+                "application/json", JSON.stringify(saving))
+                .then(() => {
+                    this.state.sketchIsDirty = false;
+                    this.setDefaultUserMessage();
+                    this.appStore.actions.editorSavedSketch.dispatch(sketch._id);
+                    this.events.editor.snapshotExpired.dispatch(sketch);
+                },
+                () => {
+                    this.setUserMessage("Unable to save");
+                });
         }
 
         private setSelection(item: WorkspaceObjectRef, force?: boolean) {
