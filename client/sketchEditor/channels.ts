@@ -54,7 +54,8 @@ namespace SketchEditor {
             contentChanged: this.topic<Sketch>("sketch.contentChanged"),
             editingItemChanged: this.topic<PositionedObjectRef>("sketch.editingItemChanged"),
             selectionChanged: this.topic<WorkspaceObjectRef>("sketch.selectionChanged"),
-            saveLocalRequested: this.topic<void>("sketch.savelocal.saveLocalRequested")
+            saveLocalRequested: this.topic<void>("sketch.savelocal.saveLocalRequested"),
+            cloned: this.topic<Sketch>("sketch.cloned"),
         };
 
         textblock = {

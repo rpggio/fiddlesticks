@@ -22,7 +22,7 @@ namespace SketchEditor {
         static SKETCH_LOCAL_CACHE_KEY = "fiddlesticks.io.lastSketch";
         static LOCAL_CACHE_DELAY_MS = 1000;
         static SERVER_SAVE_DELAY_MS = 10000;
-        static GREETING_SKETCH_ID = "ilz5iwn99t3xr";
+        static GREETING_SKETCH_ID = "im2ba92i1714i";
 
         state: EditorState = {};
         resources = {
@@ -152,7 +152,11 @@ namespace SketchEditor {
                 const clone = _.clone(this.state.sketch);
                 clone._id = newid();
                 clone.browserId = this.state.browserId;
+                clone.savedAt = null;
                 this.loadSketch(clone);
+                this.state.sketchIsDirty = false;
+                this.events.sketch.cloned.dispatch(clone);
+                this.pulseUserMessage("Duplicated sketch. Address of this page has been updated.");
             });
 
             actions.sketch.attrUpdate.subscribe(ev => {
@@ -340,6 +344,11 @@ namespace SketchEditor {
             }
         }
         
+        private pulseUserMessage(message: string){
+            this.setUserMessage(message);
+            setTimeout(() => this.setDefaultUserMessage(), 4000);
+        }
+        
         private setDefaultUserMessage(){
             // if not the last saved sketch, or sketch is dirty, show "Unsaved"
             const message = (this.state.sketchIsDirty 
@@ -409,7 +418,7 @@ namespace SketchEditor {
                 });
         }
 
-        private setSelection(item: WorkspaceObjectRef, force?: boolean) {
+        private setSelection(item: WorkspaceObjectRef, force: boolean = true) {
             if (!force) {
                 // early exit on no change
                 if (item) {

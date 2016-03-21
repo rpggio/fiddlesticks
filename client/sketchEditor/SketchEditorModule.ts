@@ -39,11 +39,13 @@ namespace SketchEditor {
                 this.store.actions.editor.initWorkspace.dispatch();
 
                 this.store.events.editor.workspaceInitialized.sub(() => {
+
                     $(window).on("beforeunload", () => {
                         if (this.store.state.sketchIsDirty) {
                             return "Your latest changes are not saved yet.";
                         }
                     });
+                    
                 });
             });
 
