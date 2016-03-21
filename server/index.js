@@ -50,6 +50,7 @@ app.get("/api/storage/access", function(req, res) {
                 signedRequest: data,
                 url: "https://" + S3_BUCKET + ".s3.amazonaws.com/" + req.query.fileName
             };
+            res.type("application/json");
             res.write(JSON.stringify(returnData));
             res.end();
         }
@@ -60,6 +61,7 @@ app.get("/api/storage/url", function(req, res) {
     var returnData = {
         url: "https://" + S3_BUCKET + ".s3.amazonaws.com/" + req.query.fileName
     };
+    res.type("application/json");
     res.write(JSON.stringify(returnData));
     res.end();
 });

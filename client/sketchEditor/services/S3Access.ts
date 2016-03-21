@@ -31,7 +31,8 @@ namespace SketchEditor {
                         },
                         data: data,
                         processData: false,
-                        contentType: fileType
+                        contentType: fileType,
+                        accept: "application/json"
                     };
 
                     return $.ajax(putRequest)
