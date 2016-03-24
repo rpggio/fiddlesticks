@@ -11,11 +11,7 @@ window.patch = snabbdom.init([ // Init patch function with choosen modules
 ]);
 window.h = require("snabbdom/h"); // helper function for creating VNodes
 
-//window.hh = require("hyperscript-helpers")(window.h); // shortcut syntax for hypescript
-
 window._ = require("lodash");
-
-window.postal = require("postal"); // message bus
 
 window.WebFont = require("webfontloader");
 
