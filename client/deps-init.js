@@ -17,11 +17,6 @@ window._ = require("lodash");
 
 window.postal = require("postal"); // message bus
 
-window.React = require("react");
-window.ReactDOM = require("react-dom");
-
-window.ReactSelect = require("react-select");
-
 window.WebFont = require("webfontloader");
 
 var router5 = require("router5");
