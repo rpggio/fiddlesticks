@@ -1,4 +1,4 @@
-namespace SketchEditor {
+namespace FontShape {
 
     export class SnapPath extends paper.Group {
 
@@ -103,7 +103,7 @@ namespace SketchEditor {
      *   starting with topLeft and proceeding clockwise
      *   to bottomLeft. 
      */
-    type CornerOffsets = [
+    export type CornerOffsets = [
         number, // topLeft
         number, // topRight
         number, // bottomRight

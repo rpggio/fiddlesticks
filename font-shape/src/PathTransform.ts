@@ -1,4 +1,4 @@
-namespace SketchEditor {
+namespace FontShape {
 
     export class PathTransform {
         pointTransform: (point: paper.Point) => paper.Point;

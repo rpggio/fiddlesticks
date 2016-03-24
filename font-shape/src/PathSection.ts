@@ -1,4 +1,4 @@
-namespace SketchEditor {
+namespace FontShape {
 
     export class PathSection implements paper.Curvelike {
         path: paper.Path;

@@ -128,7 +128,7 @@ namespace SketchEditor {
 
             let projection = PaperHelpers.dualBoundsPathProjection(
                 this._upper.path, this._lower.path);
-            let transform = new PathTransform(point => {
+            let transform = new FontShape.PathTransform(point => {
                 if (!point) {
                     return point;
                 }

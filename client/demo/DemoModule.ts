@@ -29,7 +29,7 @@ namespace Demo {
                 region.strokeColor = "lightgray";
                 region.strokeWidth = 3;
 
-                const snapPath = new SketchEditor.SnapPath(region, content);
+                const snapPath = new FontShape.SnapPath(region, content);
                 snapPath.corners = [0, 0.4, 0.45, 0.95];
                 
                 view.onFrame = () => {
@@ -56,12 +56,12 @@ namespace Demo {
                 closed: true
             });
             
-            const section = new SketchEditor.PathSection(box, 0.1, 0.1);
+            const section = new FontShape.PathSection(box, 0.1, 0.1);
             this.assertEqual(4, section.length);
             this.assertPointEqual(new paper.Point(4, 0), section.getPointAt(0));
             this.assertPointEqual(new paper.Point(8, 0), section.getPointAt(4));
                 
-            const sectionOverStart = new SketchEditor.PathSection(box, 0.9, 0.2);
+            const sectionOverStart = new FontShape.PathSection(box, 0.9, 0.2);
             this.assertEqual(8, sectionOverStart.length);
             this.assertPointEqual(new paper.Point(0, 4), sectionOverStart.getPointAt(0));
             this.assertPointEqual(new paper.Point(4, 0), sectionOverStart.getPointAt(8));
