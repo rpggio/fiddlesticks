@@ -6,6 +6,8 @@ namespace App {
         editorModule: SketchEditor.SketchEditorModule;
         
         constructor(){
+            PaperHelpers.shouldLogInfo = false;       
+
             this.store = new Store();
             this.editorModule = new SketchEditor.SketchEditorModule(this.store);
         }
@@ -16,4 +18,8 @@ namespace App {
 
     }
 
+}
+
+interface Window {
+    app: App.AppModule;
 }

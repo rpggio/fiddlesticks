@@ -86,9 +86,11 @@ namespace PaperHelpers {
             let topPoint = topPath.getPointAt(unitPoint.x * topPathLength);
             let bottomPoint = bottomPath.getPointAt(unitPoint.x * bottomPathLength);
             if (topPoint == null || bottomPoint == null) {
-                throw "could not get projected point for unit point " + unitPoint.toString();
+                console.warn("could not get projected point for unit point " + unitPoint);
+                return topPoint;
+            } else {
+                return topPoint.add(bottomPoint.subtract(topPoint).multiply(unitPoint.y));
             }
-            return topPoint.add(bottomPoint.subtract(topPoint).multiply(unitPoint.y));
         }
     }
 
@@ -178,4 +180,30 @@ namespace PaperHelpers {
     export const cloneSegment = function(segment: paper.Segment) {
         return new paper.Segment(segment.point, segment.handleIn, segment.handleOut);
     }
+    
+    /**
+     * Returns a - b, where a and b are unit offsets along a closed path.
+     */
+    export function pathOffsetLength(start: number, end: number, clockwise: boolean = true){
+        start = pathOffsetNormalize(start);
+        end = pathOffsetNormalize(end);
+        if(clockwise){
+            if(start > end) {
+                end += 1;
+            }
+            return pathOffsetNormalize(end - start); 
+        }
+        if(end > start){
+            start += 1;
+        }
+        return pathOffsetNormalize(start - end);
+    }
+    
+    export function pathOffsetNormalize(offset: number){
+        if(offset < 0){
+            offset += Math.round(offset) + 1;
+        }
+        return offset % 1;
+    }
+    
 }

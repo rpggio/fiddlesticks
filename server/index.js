@@ -30,6 +30,9 @@ app.get("/", function(req, res) {
 app.get("/sketch/*", function(req, res) {
     res.sendFile(indexPath);
 });
+app.get("/demo", function(req, res) {
+    res.sendFile(path.join(sitePath, "demo.html"));
+});
 
 app.get("/api/storage/access", function(req, res) {
     aws.config.update({ accessKeyId: AWS_ACCESS_KEY, secretAccessKey: AWS_SECRET_KEY });

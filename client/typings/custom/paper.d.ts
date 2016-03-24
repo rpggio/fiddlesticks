@@ -2209,12 +2209,21 @@ declare module paper {
          * @param path - the other item to find the intersections with
          * @param sorted [optional] - specifies whether the returned CurveLocation objects should be sorted by path and offset, default: false
          */
-        getIntersections(path: PathItem, sorted?: boolean): CurveLocation[];
+        getIntersections(path: PathItem, include?: (location: CurveLocation) => boolean, sorted?: boolean): 
+            CurveLocation[];
+
+        getCrossings(path: PathItem, sorted?: boolean): CurveLocation[];
 
         /**
          * Smooth bezier curves without changing the amount of segments or their points, by only smoothing and adjusting their handle points, for both open ended and closed paths.
          */
         smooth(): void;
+
+        /**
+         * Reduces the path by removing curves that have a length of 0, and unnecessary segments between two collinear curves.
+         * This method doesn't actually return an item, but haven't figured out how to resolve compiler conflict with Item.reduce().
+         */
+        reduce(options?: Object): Item;
 
         /**
          * On a normal empty Path, the point is simply added as the path's first segment. If called on a CompoundPath, a new Path is created as a child and the point is added as its first segment.
