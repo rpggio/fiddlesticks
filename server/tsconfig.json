@@ -1,12 +1,13 @@
 {
     "compilerOptions": {
-        "module": "system",
+        "moduleResolution": "node",
         "target": "es5",
         "declaration": false,
         "inlineSourceMap": true,
         "inlineSources": true,
         "experimentalDecorators": true,
-        "outFile": "../site/lib/main.js"
+        "outFile": "dist/index.js",
+        "allowJs": true
     },
     "exclude": [
         "bower_components",

@@ -2,7 +2,7 @@
   "name": "fiddlesticks",
   "version": "1.0.0",
   "description": "fiddlesticks",
-  "main": "site/lib/main.js",
+  "main": "",
   "dependencies": {
     "aws-sdk": "^2.2.42",
     "body-parser": "^1.15.0",
@@ -23,10 +23,10 @@
   },
   "devDependencies": {},
   "scripts": {
-    "compile-ts": "tsc -d -p ./font-shape && tsc -p ./client && copy .\\font-shape\\dist\\index.js .\\site\\lib\\font-shape.js",
+    "compile-ts": "tsc -d -p ./font-shape && tsc -p ./client && tsc -p ./server && copy .\\font-shape\\dist\\index.js .\\site\\lib\\font-shape.js",
     "bundle-client": "browserify client/deps-init.js -o site/lib/client-deps.js",
     "compile-content": "kramdown -i markdown -o html < site\\content\\help.md > site\\content\\help.html",
-    "start": "node server/index.js"
+    "start": "node server/dist/index.js"
   },
   "repository": {
     "type": "git",
