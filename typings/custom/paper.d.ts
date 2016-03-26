@@ -1247,6 +1247,191 @@ declare module paper {
         static get(id: string): PaperScope;
 
     }
+    
+    export interface ItemOptions {
+
+        /**
+         * The name of the item. If the item has a name, it can be accessed by name through its parent's children list.
+         */
+        name?: string;
+
+        /**
+         * The path style of the item.
+         */
+        style?: IStyle;
+
+        /**
+         * Specifies whether the item is visible. When set to false, the item won't be drawn.
+         */
+        visible?: boolean;
+
+        /**
+         * The blend mode with which the item is composited onto the canvas. Both the standard canvas compositing modes, as well as the new CSS blend modes are supported. If blend-modes cannot be rendered natively, they are emulated. Be aware that emulation can have an impact on performance.
+         * String('normal', 'multiply', 'screen', 'overlay', 'soft-light', 'hard-light', 'color-dodge', 'color-burn', 'darken', 'lighten', 'difference', 'exclusion', 'hue', 'saturation', 'luminosity', 'color', 'add', 'subtract', 'average', 'pin-light', 'negation', 'source-over', 'source-in', 'source-out', 'source-atop', 'destination-over', 'destination-in', 'destination-out', 'destination-atop', 'lighter', 'darker', 'copy', 'xor')
+         */
+        blendMode?: string;
+
+        /**
+         * The opacity of the item as a value between 0 and 1.
+         */
+        opacity?: number;
+
+        /**
+         * Specifies whether the item is selected. This will also return true for Group items if they are partially selected, e.g. groups containing selected or partially selected paths.
+         * Paper.js draws the visual outlines of selected items on top of your project. This can be useful for debugging, as it allows you to see the construction of paths, position of path curves, individual segment points and bounding boxes of symbol and raster items.
+         */
+        selected?: boolean;
+
+        /**
+         * Specifies whether the item defines a clip mask. This can only be set on paths, compound paths, and text frame objects, and only if the item is already contained within a clipping group.
+         */
+        clipMask?: boolean;
+
+        /**
+         * A plain javascript object which can be used to store arbitrary data on the item.
+         */
+        data?: any;
+
+        /**
+         * The item's position within the parent item's coordinate system. By default, this is the rectangle.center of the item's bounds rectangle.
+         */
+        position?: Point;
+
+        /**
+         * The item's pivot point specified in the item coordinate system, defining the point around which all transformations are hinging. This is also the reference point for position. By default, it is set to null, meaning the rectangle.center of the item's bounds rectangle is used as pivot.
+         */
+        pivot?: Point;
+        
+        /**
+         * The current rotation angle of the item, as described by its matrix.
+         */
+        rotation?: number;
+
+        /**
+         * The current scale factor of the item, as described by its matrix.
+         */
+        scaling?: Point;
+
+        /**
+         * The item's transformation matrix, defining position and dimensions in relation to its parent item in which it is contained.
+         */
+        matrix?: Matrix;
+
+        /**
+         * The children items contained within this item. Items that define a name can also be accessed by name.
+         * Please note: The children array should not be modified directly using array functions. To remove single items from the children list, use item.remove(), to remove all items from the children list, use item.removeChildren(). To add items to the children list, use item.addChild(item) or item.insertChild(index, item).
+         */
+        children?: Item[];
+
+        /**
+         * The color of the stroke.
+         */
+        strokeColor?: Color | string;
+
+        /**
+         * The width of the stroke.
+         */
+        strokeWidth?: number;
+
+        /**
+         * The shape to be used at the beginning and end of open Path items, when they have a stroke.
+         * String('round', 'square', 'butt')
+         */
+        strokeCap?: string;
+
+        /**
+         * The shape to be used at the segments and corners of Path items when they have a stroke.
+         * String('miter', 'round', 'bevel')
+         */
+        strokeJoin?: string;
+
+        /**
+         * The dash offset of the stroke.
+         */
+        dashOffset?: number;
+
+        /**
+         * Specifies whether the stroke is to be drawn taking the current affine transformation into account (the default behavior), or whether it should appear as a non-scaling stroke.
+         */
+        strokeScaling?: boolean;
+
+        /**
+         * Specifies an array containing the dash and gap lengths of the stroke.
+         */
+        dashArray?: number[];
+
+        /**
+         * When two line segments meet at a sharp angle and miter joins have been specified for item.strokeJoin, it is possible for the miter to extend far beyond the item.strokeWidth of the path. The miterLimit imposes a limit on the ratio of the miter length to the item.strokeWidth.
+         */
+        miterLimit?: number;
+
+        /**
+         * The winding-rule with which the shape gets filled. Please note that only modern browsers support winding-rules other than 'nonzero'.
+         * String('nonzero', 'evenodd')
+         */
+        windingRule?: string;
+
+        /**
+         * The fill color of the item.
+         */
+        fillColor?: Color | string;
+
+        /**
+         * The color the item is highlighted with when selected. If the item does not specify its own color, the color defined by its layer is used instead.
+         */
+        selectedColor?: Color | string;
+        
+
+        /**
+         * Item level handler function to be called on each frame of an animation.
+         * The function receives an event object which contains information about the frame event:
+         */
+        onFrame?: (event: IFrameEvent) => void;
+
+        /**
+         * The function to be called when the mouse button is pushed down on the item. The function receives a MouseEvent object which contains information about the mouse event.
+         */
+        onMouseDown?: (event: PaperMouseEvent) => void;
+
+        /**
+         * The function to be called when the mouse is dragged. The function receives a MouseEvent object which contains information about the mouse event.
+         */
+        onMouseDrag?: (event: PaperMouseEvent) => void;
+
+        /**
+         * The function to be called when the mouse button is released over the item.
+         * The function receives a MouseEvent object which contains information about the mouse event.
+         */
+        onMouseUp?: (event: PaperMouseEvent) => void;
+
+        /**
+         * The function to be called when the mouse clicks on the item. The function receives a MouseEvent object which contains information about the mouse event.
+         */
+        onClick?: (event: PaperMouseEvent) => void;
+
+        /**
+         * The function to be called when the mouse double clicks on the item. The function receives a MouseEvent object which contains information about the mouse event.
+         */
+        onDoubleClick?: (event: PaperMouseEvent) => void;
+
+        /**
+         * The function to be called repeatedly when the mouse moves on top of the item. The function receives a MouseEvent object which contains information about the mouse event.
+         */
+        onMouseMove?: (event: PaperMouseEvent) => void;
+
+        /**
+         * The function to be called when the mouse moves over the item. This function will only be called again, once the mouse moved outside of the item first. The function receives a MouseEvent object which contains information about the mouse event.
+         */
+        onMouseEnter?: (event: PaperMouseEvent) => void;
+
+        /**
+         * The function to be called when the mouse moves out of the item.
+         * The function receives a MouseEvent object which contains information about the mouse event.
+         */
+        onMouseLeave?: (event: PaperMouseEvent) => void;
+
+    }
+    
     /**
      * The Item type allows you to access and modify the items in Paper.js projects. Its functionality is inherited by different project item types such as Path, CompoundPath, Group, Layer and Raster. They each add a layer of functionality that is unique to their type, but share the underlying properties and functions that they inherit from Item.
      */
@@ -4212,6 +4397,40 @@ declare module paper {
         toString(): string;
 
     }
+    
+    export interface TextItemOptions extends ItemOptions {
+        /**
+         * The text contents of the text item.
+         */
+        content?: string;
+
+        /**
+         * The font-family to be used in text content.
+         */
+        fontFamily?: string;
+
+        /**
+         * The font-weight to be used in text content.
+         */
+        fontWeight?: string | number;
+
+        /**
+         * The font size of text content, as {@Number} in pixels, or as {@String} with optional units 'px', 'pt' and 'em'.
+         */
+        fontSize?: string | number;
+
+        /**
+         * The text leading of text content.
+         */
+        leading?: string | number;
+
+        /**
+         * The justification of text paragraphs.
+         * String('left', 'right', 'center')
+         */
+        justification?: string;
+    }
+    
     /**
      * The TextItem type allows you to create typography. Its functionality is inherited by different text item types such as PointText, and AreaText (coming soon). They each add a layer of functionality that is unique to their type, but share the underlying properties and functions that they inherit from TextItem.
      */
@@ -4264,7 +4483,11 @@ declare module paper {
          * Creates a point text item from the properties described by an object literal.
          * @param object - an object literal containing properties describing the path's attributes
          */
-        new (object?: any): PointText;
+        new (object?: PointTextOptions): PointText;
+    }
+    
+    export interface PointTextOptions extends TextItemOptions {
+        point?: Point;
     }
     
     /**
