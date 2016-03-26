@@ -1,27 +1,33 @@
 namespace SketchBuilder {
-    
-    export class Builder{
-        
-        constructor(container: HTMLElement, store: Store){
-            
-            const dom$ = store.renderable$.map(({template, design}) => {
-                const controls = template.createControls(design);
-                const vnode = h("div", {}, controls);
-                return vnode;
-            });
-            
-            ReactiveDom.renderStream(dom$, container);
-            
-//             .subscribe(({template, design}) => {
-// console.warn("render", {template, design});
-//                 const controls = template.createControls(design);
-//                 const vnode = h("div", {}, controls);
-//                 VDomHelpers.renderAsChild(container, vnode);
-//             });
 
+    export class Builder {
+
+        constructor(container: HTMLElement, store: Store) {
+
+            const templateContext = <TemplateContext>{
+                renderDesign: (design, callback) => {
+                    store.render({
+                        designOptions: {},
+                        callback
+                    });
+                }
+            }
+
+            const dom$ = Rx.Observable.combineLatest(
+                store.template$,
+                store.design$,
+                (template, design) => {
+                    return { template, design };
+                })
+                .map(({template, design}) => {
+                    const controls = template.createControls(design, templateContext);
+                    const vnode = h("div", {}, controls);
+                    return vnode;
+                });
+
+            ReactiveDom.renderStream(dom$, container);
         }
-        
-        
+
     }
-    
+
 }

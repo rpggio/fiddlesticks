@@ -4,6 +4,7 @@ namespace SketchBuilder {
 
         private _template$ = new Rx.Subject<Template>();
         private _design$ = new Rx.Subject<Design>();
+        private _render$ = new Rx.Subject<RenderRequest>();
         private _state: {
             template?: Template;
             design?: Design;
@@ -25,16 +26,15 @@ namespace SketchBuilder {
             return this._template$;
         }
 
-        get renderable$() {
-            return Rx.Observable.combineLatest(
-                            this.template$,
-                            this.design$,
-                            (template, design) => {
-                                return {template, design};
-                            });
+        get render$(){
+            return this._render$.observeOn(Rx.Scheduler.async);
         }
 
-        set template(name: string) {
+        get template() {
+            return this.state.template;
+        }
+
+        setTemplate(name: string) {
             let template;
             if(/Dickens/i.test(name)){
                 template = new SketchBuilder.Templates.Dickens();
@@ -50,6 +50,11 @@ namespace SketchBuilder {
             this.state.design = value;
             this._design$.onNext(value);
         }
+        
+        render(request: RenderRequest){
+            this._render$.onNext(request);
+        }
+        
     }
 
 }

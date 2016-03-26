@@ -1,0 +1,15 @@
+
+ul.chooser {
+    list-style-type: none;
+}
+
+ul.chooser img {
+  float: left;
+  padding: 5px;
+  margin: 10px;
+  border: 2px solid lightgray;
+}
+
+ul.chooser img:hover {
+  border-color: lightblue;
+}

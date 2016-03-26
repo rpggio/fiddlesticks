@@ -15,7 +15,7 @@
 
     <script type="text/javascript" src="lib/client-deps.js"></script>
 
-    <link rel='stylesheet' href='css/app.css' />
+    <link rel='stylesheet' href='css/builder.css' />
 
 </head>
 
@@ -23,15 +23,15 @@
 
     <div id="builderContainer"></div>
 
-    <div id="previewContainer">
-        <canvas id="previewCanvas" resize></canvas>
+    <div id="renderCanvasContainer">
+        <canvas id="renderCanvas" resize></canvas>
     </div>
 
     <script type="text/javascript" src="lib/main.js"></script>
     <script type="text/javascript">
         const module = new SketchBuilder.Module(
             document.getElementById("builderContainer"),
-            document.getElementById("previewCanvas"));
+            document.getElementById("renderCanvas"));
         module.start();
     </script>
 

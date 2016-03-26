@@ -25,7 +25,7 @@ class ReactiveDom {
         const sink = new Rx.Subject<VNode>();
         dom$.subscribe(dom => {
             if(!dom) return;
-console.warn('rendering dom', dom); /////////////////////
+//console.warn('rendering dom', dom);
             
             // retain ID
             const patched = patch(current, dom);
