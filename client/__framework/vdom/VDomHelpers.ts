@@ -4,9 +4,9 @@ interface ReactiveDomComponent {
 }
 
 namespace VDomHelpers {
-    export function renderAsChild(container: HTMLElement, dom: VNode){
+    export function renderAsChild(container: HTMLElement, vnode: VNode){
         const child = document.createElement("div");
-        const patched = patch(child, dom);
+        const patched = patch(child, vnode);
         container.appendChild(patched.elm);
     }
 }
@@ -25,7 +25,7 @@ class ReactiveDom {
         const sink = new Rx.Subject<VNode>();
         dom$.subscribe(dom => {
             if(!dom) return;
-//console.log('rendering dom', dom); /////////////////////
+console.warn('rendering dom', dom); /////////////////////
             
             // retain ID
             const patched = patch(current, dom);

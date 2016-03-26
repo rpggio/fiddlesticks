@@ -35,6 +35,9 @@ var startServer = function() {
     app.get("/demo", function(req, res) {
         res.sendFile(path.join(sitePath, "demo.html"));
     });
+    app.get("/build", function(req, res) {
+        res.sendFile(path.join(sitePath, "builder.html"));
+    });
 
     app.get("/api/storage/access", function(req, res) {
         aws.config.update({ accessKeyId: AWS_ACCESS_KEY, secretAccessKey: AWS_SECRET_KEY });

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Fiddlesticks | Builder</title>
+
+    <base href="/">
+
+    <link rel="icon" href="img/favicon.ico?v=3" type="image/x-icon" />
+
+    <script type="text/javascript" src="lib/jquery-2.2.0.min.js"></script>
+    <script type="text/javascript" src="lib/paper-full.js"></script>
+    <script type="text/javascript" src="lib/opentype.js"></script>
+
+    <script type="text/javascript" src="lib/client-deps.js"></script>
+
+    <link rel='stylesheet' href='css/app.css' />
+
+</head>
+
+<body>
+
+    <div id="builderContainer"></div>
+
+    <div id="previewContainer">
+        <canvas id="previewCanvas" resize></canvas>
+    </div>
+
+    <script type="text/javascript" src="lib/main.js"></script>
+    <script type="text/javascript">
+        const module = new SketchBuilder.Module(
+            document.getElementById("builderContainer"),
+            document.getElementById("previewCanvas"));
+        module.start();
+    </script>
+
+</body>
+
+</html>

@@ -7,13 +7,16 @@ namespace SketchBuilder.Templates {
         image: string;
         
         createControls(design: Design): SketchBuilder.VControl[] {
-            return [];
+            return [
+                h("span", {}, ["yo"])
+            ];
         }
         
         build(design: Design): paper.Item {
             return new paper.PointText({
                 content: "Dickens!",
-                fillColor: "green"
+                fillColor: "green",
+                point: new paper.Point(50,50)
             });
         }
     }
