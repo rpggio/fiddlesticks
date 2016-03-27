@@ -27,7 +27,7 @@ namespace SketchBuilder {
         }
 
         get render$(){
-            return this._render$.observeOn(Rx.Scheduler.async);
+            return this._render$;//.observeOn(Rx.Scheduler.default);
         }
 
         get template() {
@@ -49,6 +49,11 @@ namespace SketchBuilder {
         set design(value: Design){
             this.state.design = value;
             this._design$.onNext(value);
+        }
+        
+        updateDesign(update: Design){
+            _.merge(this.state.design, update);
+            this._design$.onNext(this.state.design);
         }
         
         render(request: RenderRequest){

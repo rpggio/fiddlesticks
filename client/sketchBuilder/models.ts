@@ -4,7 +4,7 @@ namespace SketchBuilder {
         name: string;
         description: string;
         image: string;
-        createControls(design: Design, context: TemplateContext): VControl[];
+        createControls(context: TemplateContext): DesignControl[];
         build(design: Design): paper.Item;
     }
 
@@ -13,15 +13,21 @@ namespace SketchBuilder {
     }
     
     export interface Design {
-        
+        text?: string;
+        shape?: string;
+        font?: [string, string];
+        palette?: Object;
+        seed?: number;
     }
     
     export interface RenderRequest {
-        designOptions?: Design,
-        area?: number,
-        callback: (imageDataUrl: string) => void
+        design: Design;
+        area?: number;
+        callback: (imageDataUrl: string) => void;
     }
     
-    export type VControl = VNode;
-    
+    export interface DesignControl {
+        output$: Rx.Observable<Design>;
+        createNode(design: Design): VNode; 
+    }
 }

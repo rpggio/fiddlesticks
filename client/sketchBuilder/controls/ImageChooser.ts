@@ -1,16 +1,21 @@
 namespace SketchBuilder {
 
-    export namespace Controls {
+    export class ImageChooser {
 
-        export function imageChooser(options: ImageChooserOptions) {
+        private _chosen$ = new Rx.Subject<ImageChoice>();
+
+        createNode(options: ImageChooserOptions): VNode {
             const choiceNodes = options.choices.map(c => {
                 let img: VNode;
                 const onClick = () => {
-                    options.on && options.on.choice && options.on.choice(c);
+                    this._chosen$.onNext(c);
                 }
+                const selector = options.chosen === c.value 
+                    ? "img.chosen" 
+                    : "img";
                 if (c.loadImage) {
                     let imgElm;
-                    img = h("img",
+                    img = h(selector,
                         {
                             on: {
                                 click: onClick
@@ -24,7 +29,7 @@ namespace SketchBuilder {
                     );
 
                 } else {
-                    img = h("img",
+                    img = h(selector,
                         {
                             attrs: {
                                 href: c.imageUrl
@@ -42,19 +47,22 @@ namespace SketchBuilder {
             return h("ul.chooser", {}, choiceNodes);
         }
 
-        export interface ImageChooserOptions {
-            choices: ImageChoice[],
-            chosen?: ImageChoice | string,
-            on?: {
-                choice?: (choice: ImageChoice) => void
-            }
+        get chosen$() {
+            return this._chosen$;
         }
 
-        export interface ImageChoice {
-            value: string;
-            label: string;
-            imageUrl?: string;
-            loadImage?: (element: HTMLImageElement) => void;
-        }
     }
+
+    export interface ImageChooserOptions {
+        choices: ImageChoice[],
+        chosen?: string
+    }
+
+    export interface ImageChoice {
+        value: string;
+        label: string;
+        imageUrl?: string;
+        loadImage?: (element: HTMLImageElement) => void;
+    }
+
 }

@@ -11,5 +11,8 @@ ul.chooser img {
 }
 
 ul.chooser img:hover {
-  border-color: lightblue;
+}
+
+ul.chooser .chosen {
+    border-color: darkred;
 }

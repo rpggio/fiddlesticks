@@ -4,24 +4,33 @@ namespace SketchBuilder {
 
         constructor(container: HTMLElement, store: Store) {
 
-            const templateContext = <TemplateContext>{
+            const context = <TemplateContext>{
                 renderDesign: (design, callback) => {
                     store.render({
-                        designOptions: {},
+                        design: design,
                         callback
                     });
                 }
             }
 
+
+            const controls$ = store.template$.map(t => {
+                const controls = t.createControls(context);
+                for (const c of controls) {
+                     c.output$.subscribe(d => store.updateDesign(d));
+                }
+                return controls;
+            });
+
             const dom$ = Rx.Observable.combineLatest(
-                store.template$,
+                controls$,
                 store.design$,
-                (template, design) => {
-                    return { template, design };
+                (controls, design) => {
+                    return { controls, design };
                 })
-                .map(({template, design}) => {
-                    const controls = template.createControls(design, templateContext);
-                    const vnode = h("div", {}, controls);
+                .map(({controls, design}) => {
+                    const nodes = controls.map(c => c.createNode(design));
+                    const vnode = h("div", {}, nodes);
                     return vnode;
                 });
 

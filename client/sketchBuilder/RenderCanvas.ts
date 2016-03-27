@@ -11,20 +11,12 @@ namespace SketchBuilder {
 
             paper.setup(canvas);
 
-            // const dom$ = store.renderable$.subscribe(({template, design}) => {
-            //     if(this.builtDesign){
-            //         this.builtDesign.remove();
-            //     }
-            //     this.builtDesign = template.build(design);
-            // });
-
             store.render$.subscribe(request => {
-                const design = <Design>_.clone(this.store.design);
-                if (request.designOptions) {
-                    _.merge(design, request.designOptions);
-                }
+                let design = <Design>_.clone(this.store.design);
+                design = _.merge(design, request.design);
                 const item = this.store.template.build(design);
                 const raster = paper.project.activeLayer.rasterize(72, false);
+                item.remove();
                 request.callback(raster.toDataURL());
             });
 
