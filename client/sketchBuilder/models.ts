@@ -4,18 +4,22 @@ namespace SketchBuilder {
         name: string;
         description: string;
         image: string;
-        createControls(context: TemplateContext): DesignControl[];
-        build(design: Design): paper.Item;
+        createUI(context: TemplateUIContext): DesignControl[];
+        build(design: Design, context: TemplateBuildContext): Promise<paper.Item>;
     }
 
-    export interface TemplateContext {
+    export interface TemplateUIContext {
         renderDesign(design: Design, callback: (imageDataUrl: string) => void);
+    }
+    
+    export interface TemplateBuildContext {
+        getFont(desc: FontShape.FontSpecifier): Promise<opentype.Font>;
     }
     
     export interface Design {
         text?: string;
         shape?: string;
-        font?: [string, string];
+        font?: FontShape.FontSpecifier;
         palette?: Object;
         seed?: number;
     }

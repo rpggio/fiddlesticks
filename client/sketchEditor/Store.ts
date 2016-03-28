@@ -27,9 +27,9 @@ namespace SketchEditor {
         state: EditorState = {};
         resources = {
             fallbackFont: opentype.Font,
-            fontFamilies: new FontFamilies(),
-            parsedFonts: new ParsedFonts((url, font) =>
-                this.events.editor.fontLoaded.dispatch(font))
+            fontFamilies: new FontShape.FontFamilies("fonts/google-fonts.json"),
+            parsedFonts: new FontShape.ParsedFonts(parsed =>
+                this.events.editor.fontLoaded.dispatch(parsed.font))
         };
         actions = new Actions();
         events = new Events();
@@ -282,7 +282,7 @@ namespace SketchEditor {
                     else {
                         console.log('Sketch was created in a different browser');
                     }
-                    
+
                     return sketch;
                 },
                 err => {
@@ -296,16 +296,16 @@ namespace SketchEditor {
             this.state.sketch = sketch;
             this.state.sketchIsDirty = false;
             this.setDefaultUserMessage();
-            
+
             this.events.sketch.loaded.dispatch(this.state.sketch);
             this.appStore.actions.editorLoadedSketch.dispatch(sketch._id);
             for (const tb of this.state.sketch.textBlocks) {
                 this.events.textblock.loaded.dispatch(tb);
                 this.loadTextBlockFont(tb);
             }
-            
+
             this.events.editor.zoomToFitRequested.dispatch();
-            
+
             this.state.loadingSketch = false;
         }
 
@@ -329,41 +329,40 @@ namespace SketchEditor {
                 // load fonts into browser for preview
                 this.resources.fontFamilies.loadPreviewSubsets(families.map(f => f.family));
 
-                this.resources.parsedFonts.get(
-                    Store.FALLBACK_FONT_URL,
-                    (url, font) => this.resources.fallbackFont = font);
+                this.resources.parsedFonts.get(Store.FALLBACK_FONT_URL).then(({font}) =>
+                    this.resources.fallbackFont = font);
 
                 this.events.editor.resourcesReady.dispatch(true);
             });
         }
 
         private setUserMessage(message: string) {
-           if(this.state.userMessage !== message){
+            if (this.state.userMessage !== message) {
                 this.state.userMessage = message;
                 this.events.editor.userMessageChanged.dispatch(message);
             }
         }
-        
-        private pulseUserMessage(message: string){
+
+        private pulseUserMessage(message: string) {
             this.setUserMessage(message);
             setTimeout(() => this.setDefaultUserMessage(), 4000);
         }
-        
-        private setDefaultUserMessage(){
+
+        private setDefaultUserMessage() {
             // if not the last saved sketch, or sketch is dirty, show "Unsaved"
-            const message = (this.state.sketchIsDirty 
-                || !this.state.sketch.savedAt) 
-                ? "Unsaved" 
+            const message = (this.state.sketchIsDirty
+                || !this.state.sketch.savedAt)
+                ? "Unsaved"
                 : "Saved";
             this.setUserMessage(message);
         }
 
         private loadTextBlockFont(block: TextBlock) {
             this.resources.parsedFonts.get(
-                this.resources.fontFamilies.getUrl(block.fontFamily, block.fontVariant),
-                (url, font) => this.events.textblock.fontReady.dispatch(
-                    { textBlockId: block._id, font: font })
-            );
+                this.resources.fontFamilies.getUrl(block.fontFamily, block.fontVariant))
+                .then(({font}) =>
+                    this.events.textblock.fontReady.dispatch(
+                        { textBlockId: block._id, font }));
         }
 
         private changedSketchContent() {

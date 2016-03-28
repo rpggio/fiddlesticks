@@ -11,10 +11,10 @@ namespace Demo {
         start() {
             const view = paper.view;
 
-            const parsedFonts = new SketchEditor.ParsedFonts(() => { });
-            parsedFonts.get("fonts/Roboto-500.ttf", (url, font) => {
+            const parsedFonts = new FontShape.ParsedFonts(() => { });
+            parsedFonts.get("fonts/Roboto-500.ttf").then( parsed => {
 
-                 const pathData = font.getPath("SNAP", 0, 0, 128).toPathData();
+                 const pathData = parsed.font.getPath("SNAP", 0, 0, 128).toPathData();
                  const content = new paper.CompoundPath(pathData);
                  content.position = content.position.add(50);
                  content.fillColor = "lightgray";

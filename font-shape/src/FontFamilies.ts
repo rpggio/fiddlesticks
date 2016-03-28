@@ -1,10 +1,16 @@
-namespace SketchEditor {
+namespace FontShape {
 
     export class FontFamilies {
 
         static CATALOG_LIMIT = 250;
 
+        private _catalogPath: string;
+
         public catalog: FontFamily[] = [];
+
+        constructor(catalogPath: string){
+            this._catalogPath = catalogPath;
+        }
 
         get(family: string) {
             return _.find(this.catalog, ff => ff.family === family);
@@ -34,7 +40,7 @@ namespace SketchEditor {
 
         loadCatalogLocal(callback: (families: FontFamily[]) => void) {
             $.ajax({
-                url: "fonts/google-fonts.json",
+                url: this._catalogPath,
                 dataType: 'json',
                 cache: true,
                 success: (response: { kind: string, items: FontFamily[] }) => {

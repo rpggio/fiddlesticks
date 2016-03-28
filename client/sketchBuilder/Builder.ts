@@ -2,9 +2,11 @@ namespace SketchBuilder {
 
     export class Builder {
 
+        static defaultFontUrl = "fonts/Roboto-500.ttf";
+
         constructor(container: HTMLElement, store: Store) {
 
-            const context = <TemplateContext>{
+            const context = <TemplateUIContext>{
                 renderDesign: (design, callback) => {
                     store.render({
                         design: design,
@@ -13,11 +15,10 @@ namespace SketchBuilder {
                 }
             }
 
-
             const controls$ = store.template$.map(t => {
-                const controls = t.createControls(context);
+                const controls = t.createUI(context);
                 for (const c of controls) {
-                     c.output$.subscribe(d => store.updateDesign(d));
+                    c.output$.subscribe(d => store.updateDesign(d));
                 }
                 return controls;
             });

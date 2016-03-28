@@ -4,6 +4,23 @@ declare module paper {
         getPointAt(offset: number): paper.Point;
     }
 }
+declare namespace FontShape {
+    class FontFamilies {
+        static CATALOG_LIMIT: number;
+        private _catalogPath;
+        catalog: FontFamily[];
+        constructor(catalogPath: string);
+        get(family: string): FontFamily;
+        getUrl(family: string, variant: string): string;
+        defaultVariant(famDef: FontFamily): string;
+        loadCatalogLocal(callback: (families: FontFamily[]) => void): void;
+        /**
+         * For a list of families, load alphanumeric chars into browser
+         *   to support previewing.
+         */
+        loadPreviewSubsets(families: string[]): void;
+    }
+}
 interface Console {
     log(message?: any, ...optionalParams: any[]): void;
     log(...optionalParams: any[]): void;
@@ -49,6 +66,23 @@ declare namespace PaperHelpers {
      */
     function pathOffsetLength(start: number, end: number, clockwise?: boolean): number;
     function pathOffsetNormalize(offset: number): number;
+}
+declare namespace FontShape {
+    type ParsedFont = {
+        url: string;
+        font: opentype.Font;
+    };
+    class ParsedFonts {
+        fonts: {
+            [url: string]: opentype.Font;
+        };
+        _fontLoaded: (parsed: ParsedFont) => void;
+        constructor(fontLoaded?: (parsed: ParsedFont) => void);
+        get(url: string): Promise<{
+            url: string;
+            font: opentype.Font;
+        }>;
+    }
 }
 declare namespace FontShape {
     class PathSection implements paper.Curvelike {
@@ -98,4 +132,37 @@ declare namespace FontShape {
      *   to bottomLeft.
      */
     type CornerOffsets = [number, number, number, number];
+}
+declare namespace FontShape {
+    class VerticalBoundsStretchPath extends paper.Group {
+        static POINTS_PER_PATH: number;
+        private _boundaries;
+        private _content;
+        private _warped;
+        corners: CornerOffsets;
+        constructor(content: paper.CompoundPath, boundaries?: VerticalBounds);
+        updatePath(): void;
+    }
+}
+declare namespace FontShape {
+    interface VerticalBounds {
+        upper: paper.Path;
+        lower: paper.Path;
+    }
+    interface FontSpecifier {
+        family: string;
+        variant: string;
+    }
+    interface FontFamily {
+        kind?: string;
+        family?: string;
+        category?: string;
+        variants?: string[];
+        subsets?: string[];
+        version?: string;
+        lastModified?: string;
+        files?: {
+            [variant: string]: string;
+        };
+    }
 }

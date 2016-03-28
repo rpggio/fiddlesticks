@@ -56,7 +56,7 @@ namespace SketchEditor {
                         }
                     },
                     this.store.resources.fontFamilies.catalog
-                        .map((ff: FontFamily) => h("option",
+                        .map((ff: FontShape.FontFamily) => h("option",
                             {
                                 attrs: {
                                     selected: ff.family === block.fontFamily,
