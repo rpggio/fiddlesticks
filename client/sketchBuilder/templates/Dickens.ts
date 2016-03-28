@@ -13,11 +13,47 @@ namespace SketchBuilder.Templates {
         }
 
         build(design: Design): paper.Item {
-            return new paper.PointText({
-                content: `Dickens ${design && design.shape}`,
-                fillColor: "green",
-                point: new paper.Point(50, 50)
-            });
+            const words = "The rain in Spain falls mainly in the drain".split(/\s/);
+            const lines: string[] = [];
+            const ideal = _.max(words.map(w => w.length));
+            const calcScore = (text: string) => 
+                Math.pow(Math.abs(ideal - text.length), 2);
+
+            let currentLine = null;
+            let currentScore = 10000;
+            while (words.length) {
+                const word = words.shift();
+                const newLine = currentLine + " " + word;
+                const newScore = calcScore(newLine);
+                if (currentLine && newScore <= currentScore) {
+                    // append
+                    currentLine += " " + word;
+                    currentScore = newScore;
+                } else {
+                    // new line
+                    if (currentLine) {
+                        lines.push(currentLine);
+                    }
+                    currentLine = word;
+                    currentScore = calcScore(currentLine);
+                }
+            }
+            lines.push(currentLine);
+
+            const box = new paper.Group();
+
+            let position = new paper.Point(0, 0);
+            for (const line of lines) {
+                const text = new paper.PointText({
+                        content: line,
+                        fillColor: "green",
+                        position: position 
+                    });
+                box.addChild(text);
+                position = position.add(new paper.Point(0, text.bounds.height + 3));
+            }
+
+            return box;
         }
 
         private createShapeChooser(context: TemplateContext): DesignControl {
