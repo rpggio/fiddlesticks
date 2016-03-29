@@ -25,25 +25,26 @@ namespace SketchBuilder {
                     }
                     return parsedFonts.get(url)
                         .then(result => result.font);
-                    // return new Promise<opentype.Font>((resolve, reject) => {
-                    //      const url = fontFamilies.getUrl(specifier.family, specifier.variant)
-                    //         || Builder.defaultFontUrl;
-                    //      parsedFonts.get(url)
-                    //         .then
-
-                    // });
                 }
             };
 
-            store.render$.subscribe(request => {
+            const controlled = store.render$.controlled();
+            controlled.subscribe(request => {
                 let design = <Design>_.clone(this.store.design);
                 design = _.merge(design, request.design);
+                paper.project.activeLayer.removeChildren();
                 this.store.template.build(design, context).then(item => {
                     const raster = paper.project.activeLayer.rasterize(72, false);
                     item.remove();
                     request.callback(raster.toDataURL());
+                    controlled.request(1);
+                },
+                (err) => {
+                    console.warn("error on template.build", err);
+                    controlled.request(1);
                 });
             });
+            controlled.request(1);
 
         }
 

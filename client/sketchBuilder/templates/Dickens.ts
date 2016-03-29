@@ -8,7 +8,27 @@ namespace SketchBuilder.Templates {
 
         createUI(context: TemplateUIContext): DesignControl[] {
             return [
-                this.createShapeChooser(context)
+                this.createShapeChooser(context),
+
+                {
+                    createNode: design => {
+                        return h("img", {
+                            hook: {
+                                insert: vnode => {
+//console.warn("rendering default", vnode);
+                                    context.renderDesign(
+                                        null,
+                                        dataUrl => {
+                                            vnode.elm.src = dataUrl;
+                                        });
+                                }
+                            }
+                        })
+                    },
+                    output$: Rx.Observable.empty<Design>()
+                }
+
+
             ];
         }
 
@@ -106,18 +126,24 @@ namespace SketchBuilder.Templates {
                         value: "narrow",
                         label: "narrow",
                         loadImage: el => {
+//console.warn("rendering narrow", design);
                             context.renderDesign(
                                 { shape: "narow" },
-                                dataUrl => el.src = dataUrl)
+                                dataUrl => {
+                                    el.src = dataUrl;
+                                })
                         }
                     },
                     {
                         value: "wide",
                         label: "wide",
                         loadImage: el => {
+//console.warn("rendering wide", design);
                             context.renderDesign(
                                 { shape: "wide" },
-                                dataUrl => el.src = dataUrl)
+                                dataUrl => {
+                                    el.src = dataUrl;
+                                })
                         }
                     }
                 ]
