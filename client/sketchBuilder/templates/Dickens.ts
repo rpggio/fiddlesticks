@@ -5,6 +5,7 @@ namespace SketchBuilder.Templates {
         name = "Dickens";
         description: "Stack blocks of text in the form of a crazy ladder.";
         image: string;
+        lineHeightVariation = 0.8;
 
         createUI(context: TemplateUIContext): DesignControl[] {
             return [
@@ -13,8 +14,12 @@ namespace SketchBuilder.Templates {
         }
 
         build(design: Design, context: TemplateBuildContext): Promise<paper.Item> {
+            if (!design.text) {
+                return null;
+            }
+
             return context.getFont(design.font).then(font => {
-                const words = "The rain in Spain falls mainly in the drain".split(/\s/);
+                const words = design.text.toLocaleUpperCase().split(/\s/);
 
                 let lines: string[];
                 switch (design.shape) {
@@ -31,25 +36,59 @@ namespace SketchBuilder.Templates {
 
                 const box = new paper.Group();
 
-                const fontStyle = { fillColor: "green" };
-
                 const blocks = lines.map(l => {
                     const pathData = font.getPath(l, 0, 0, 24).toPathData();
                     return new paper.CompoundPath(pathData);
                 });
 
+                const fillColor = (design && design.palette[0]) || "red";
                 const maxWidth = _.max(blocks.map(b => b.bounds.width));
+                const lineHeight = blocks[0].bounds.height;
 
-                let position = new paper.Point(0, 0);
+                let upper = new paper.Path([
+                    new paper.Point(0, 0),
+                    new paper.Point(maxWidth, 0)
+                ]);
+                let lower: paper.Path;
+                let remaining = blocks.length;
+
                 for (const block of blocks) {
-                    const stretch = new FontShape.VerticalBoundsStretchPath(block);
-                    stretch.position = position;
+                    if (--remaining <= 0) {
+                        const mid = upper.bounds.center;
+                        // last lower line is level
+                        lower = new paper.Path([
+                            new paper.Point(0, mid.y + lineHeight),
+                            new paper.Point(maxWidth, mid.y + lineHeight)
+                        ]);
+                    } else {
+                        lower = this.randomLowerPathFor(upper, lineHeight);
+                    }
+                    const stretch = new FontShape.VerticalBoundsStretchPath(
+                        block, { upper, lower });
+                    stretch.fillColor = fillColor;
                     box.addChild(stretch);
-                    position = position.add(new paper.Point(0, block.bounds.height + 3));
+                    upper = lower;
+                    lower = null;
                 }
 
                 return box;
             });
+        }
+
+        private randomLowerPathFor(upper: paper.Path, avgHeight: number): paper.Path {
+            const points: paper.Point[] = [];
+            let upperCenter = upper.bounds.center;
+            let x = 0;
+            const numPoints = 4;
+            for(let i = 0; i < numPoints; i++){
+                const y = upperCenter.y + (Math.random() - 0.5) * this.lineHeightVariation * avgHeight;
+                points.push(new paper.Point(x, y));
+                x += upper.bounds.width / (numPoints - 1);
+            }
+            const path = new paper.Path(points);
+            path.smooth();
+            path.bounds.center = upper.bounds.center.add(new paper.Point(0, avgHeight));
+            return path;
         }
 
         private splitWordsNarrow(words: string[]): string[] {

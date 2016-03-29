@@ -21,7 +21,10 @@ this.store.template$.subscribe(t => console.log("template", t));
         
         start() {
             this.store.setTemplate("Dickens");
-            this.store.design = {};
+            this.store.design = {
+                text: "The rain in spain falls mainly in the drain",
+                palette: ["green"]
+            };
         }
         
     }

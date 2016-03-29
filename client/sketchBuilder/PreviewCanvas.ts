@@ -59,9 +59,14 @@ namespace SketchBuilder {
             this.rendering = true;
             paper.project.activeLayer.removeChildren();
             return this.store.template.build(design, this.context).then(item => {
+                if(!item){
+                    return;
+                }
+                
                 paper.view.viewSize = item.bounds.size.multiply(1.1);
                 paper.view.center = item.bounds.center;
                 this.rendering = false;
+                
                 // handle any received while rendering 
                 this.renderLastReceived();
             },
