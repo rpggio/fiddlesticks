@@ -9,6 +9,7 @@ namespace SketchBuilder.Templates {
 
         createUI(context: TemplateUIContext): DesignControl[] {
             return [
+                this.createTextEntry(),
                 this.createShapeChooser(context),
             ];
         }
@@ -135,6 +136,18 @@ namespace SketchBuilder.Templates {
                 firstLine.join(" "),
                 secondLine.join(" ")
             ];
+        }
+
+        private createTextEntry() {
+            const textInput = new TextInput();
+            return {
+                createNode: design => {
+                    return textInput.createNode(design.text, "What do you want to say?");
+                },
+                output$: textInput.value$.map(v => {
+                    return <Design>{ text: v };
+                })
+            }
         }
 
         private createShapeChooser(context: TemplateUIContext): DesignControl {

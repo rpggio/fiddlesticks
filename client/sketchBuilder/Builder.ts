@@ -31,7 +31,7 @@ namespace SketchBuilder {
                 })
                 .map(({controls, design}) => {
                     const nodes = controls.map(c => c.createNode(design));
-                    const vnode = h("div", {}, nodes);
+                    const vnode = h("div#templateControls", {}, nodes);
                     return vnode;
                 });
 

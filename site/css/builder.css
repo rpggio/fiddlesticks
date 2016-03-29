@@ -25,3 +25,8 @@ ul.chooser img {
 .chooser .chosen {
     border-color: darkred;
 }
+
+#templateControls input {
+    width: 300px;
+    margin: 10px;
+}

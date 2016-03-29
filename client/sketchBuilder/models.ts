@@ -39,6 +39,10 @@ namespace SketchBuilder {
         createNode(choices: VNode[], chosenKey: string): VNode;
     }
     
+    export interface VDomControl {
+        value$: Rx.Observable<string>;
+    }
+    
     export interface VDomChooser extends VDomComponent {
         chosen$: Rx.Observable<VNode>;
     }
