@@ -9,26 +9,6 @@ namespace SketchBuilder.Templates {
         createUI(context: TemplateUIContext): DesignControl[] {
             return [
                 this.createShapeChooser(context),
-
-                {
-                    createNode: design => {
-                        return h("img", {
-                            hook: {
-                                insert: vnode => {
-//console.warn("rendering default", vnode);
-                                    context.renderDesign(
-                                        null,
-                                        dataUrl => {
-                                            vnode.elm.src = dataUrl;
-                                        });
-                                }
-                            }
-                        })
-                    },
-                    output$: Rx.Observable.empty<Design>()
-                }
-
-
             ];
         }
 
@@ -119,46 +99,21 @@ namespace SketchBuilder.Templates {
         }
 
         private createShapeChooser(context: TemplateUIContext): DesignControl {
-            var imageChooser = new ImageChooser();
-            const createChoices = (design: Design) => {
-                return [
+            const createChoice = (shape: string) =>
+                h("div",
                     {
-                        value: "narrow",
-                        label: "narrow",
-                        loadImage: el => {
-//console.warn("rendering narrow", design);
-                            context.renderDesign(
-                                { shape: "narow" },
-                                dataUrl => {
-                                    el.src = dataUrl;
-                                })
-                        }
+                        key: shape
                     },
-                    {
-                        value: "wide",
-                        label: "wide",
-                        loadImage: el => {
-//console.warn("rendering wide", design);
-                            context.renderDesign(
-                                { shape: "wide" },
-                                dataUrl => {
-                                    el.src = dataUrl;
-                                })
-                        }
-                    }
-                ]
-            };
-
+                    [shape]);
+            var chooser = new Chooser();
             return {
                 createNode: design => {
-                    const choices = createChoices(design);
-                    // const chosen = _.find(choices, c => design.shape === c.value);
-                    return imageChooser.createNode(
-                        { choices, chosen: design.shape }
-                    );
+                    const choices = ["narrow", "wide"].map(createChoice);
+                    const chooserNode = chooser.createNode(choices, design.shape);
+                    return chooserNode;
                 },
-                output$: imageChooser.chosen$.map(choice => {
-                    return <Design>{ shape: choice.value };
+                output$: chooser.chosen$.map(choice => {
+                    return <Design>{ shape: choice.key };
                 })
             }
         }

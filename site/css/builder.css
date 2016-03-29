@@ -10,9 +10,18 @@ ul.chooser img {
   border: 2px solid lightgray;
 }
 
-ul.chooser img:hover {
+.chooser img:hover {
 }
 
-ul.chooser .chosen {
+.chooser .choice {
+    display: inline-block;
+    min-width: 80px;
+    min-height: 40px;
+    margin: 8px;
+    border: 2px solid lightgray;
+    cursor: pointer; 
+}
+
+.chooser .chosen {
     border-color: darkred;
 }
