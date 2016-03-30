@@ -1,6 +1,6 @@
 namespace SketchBuilder {
 
-    export class TextInput implements VDomControl {
+    export class TextInput implements ValueControl<string> {
 
         private _value$ = new Rx.Subject<string>();
 

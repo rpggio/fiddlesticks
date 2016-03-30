@@ -8,10 +8,10 @@ namespace FontShape {
 
     export interface FontSpecifier {
         family: string;
-        variant: string;
+        variant?: string;
     }
 
-    export interface FontFamily {
+    export interface FamilyRecord {
         kind?: string;
         family?: string;
         category?: string;

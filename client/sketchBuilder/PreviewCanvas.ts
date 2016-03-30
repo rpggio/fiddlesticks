@@ -15,32 +15,29 @@ namespace SketchBuilder {
 
             paper.setup(canvas);
 
-            const parsedFonts = new FontShape.ParsedFonts(() => { });
-            const fontFamilies = new FontShape.FontFamilies("fonts/google-fonts.json");
-
             this.context = {
                 getFont: specifier => {
                     let url: string;
                     if (!specifier || !specifier.family) {
                         url = Builder.defaultFontUrl;
                     } else {
-                        url = fontFamilies.getUrl(specifier.family, specifier.variant)
+                        url = store.fontCatalog.getUrl(specifier.family, specifier.variant)
                             || Builder.defaultFontUrl;
                     }
-                    return parsedFonts.get(url)
+                    return store.parsedFonts.get(url)
                         .then(result => result.font);
                 }
             };
 
-            store.design$.subscribe(received => {
+            store.templateState$.subscribe((ts: TemplateState) => {
                 // only process one request at a time
                 if (this.rendering) {
                     // always process the last received
-                    this.lastReceived = received;
+                    this.lastReceived = ts.design;
                     return;
                 }
 
-                this.render(received);
+                this.render(ts.design);
             });
         }
 

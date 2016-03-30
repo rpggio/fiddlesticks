@@ -26,7 +26,15 @@ ul.chooser img {
     border-color: darkred;
 }
 
+#templateControls {
+    margin: 10px;
+}
+
 #templateControls input {
     width: 300px;
-    margin: 10px;
+    margin: 6px;
+}
+
+#previewCanvasContainer {
+    display: inline-block;
 }

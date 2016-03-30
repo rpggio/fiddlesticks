@@ -50,24 +50,25 @@ namespace SketchEditor {
                         on: {
                             change: ev => update({
                                 fontFamily: ev.target.value,
-                                fontVariant: this.store.resources.fontFamilies.defaultVariant(
-                                    this.store.resources.fontFamilies.get(ev.target.value))
+                                fontVariant: FontShape.FontCatalog.defaultVariant(
+                                    this.store.resources.fontCatalog.getRecord(ev.target.value))
                             })
                         }
                     },
-                    this.store.resources.fontFamilies.catalog
-                        .map((ff: FontShape.FontFamily) => h("option",
+                    this.store.resources.fontCatalog
+                        .getList(this.store.fontListLimit)
+                        .map((record: FontShape.FamilyRecord) => h("option",
                             {
                                 attrs: {
-                                    selected: ff.family === block.fontFamily,
-                                    "data-content": `<span style="${FontHelpers.getStyleString(ff.family, null, this.previewFontSize)}">${ff.family}</span>`
+                                    selected: record.family === block.fontFamily,
+                                    "data-content": `<span style="${FontHelpers.getStyleString(record.family, null, this.previewFontSize)}">${record.family}</span>`
                                 },
                             },
-                            [ff.family])
+                            [record.family])
                         )
                 )
             );
-            const selectedFamily = this.store.resources.fontFamilies.get(block.fontFamily);
+            const selectedFamily = this.store.resources.fontCatalog.getRecord(block.fontFamily);
             if (selectedFamily && selectedFamily.variants
                 && selectedFamily.variants.length > 1) {
                 elements.push(h("select",

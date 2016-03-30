@@ -8,22 +8,18 @@ namespace SketchBuilder {
 
         constructor(canvas: HTMLCanvasElement, store: Store) {
             this.store = store;
-
             paper.setup(canvas);
-
-            const parsedFonts = new FontShape.ParsedFonts(() => { });
-            const fontFamilies = new FontShape.FontFamilies("fonts/google-fonts.json");
-
+            
             const context = {
                 getFont: specifier => {
                     let url: string;
                     if (!specifier || !specifier.family) {
                         url = Builder.defaultFontUrl;
                     } else {
-                        url = fontFamilies.getUrl(specifier.family, specifier.variant)
+                        url = store.fontCatalog.getUrl(specifier.family, specifier.variant)
                             || Builder.defaultFontUrl;
                     }
-                    return parsedFonts.get(url)
+                    return store.parsedFonts.get(url)
                         .then(result => result.font);
                 }
             };

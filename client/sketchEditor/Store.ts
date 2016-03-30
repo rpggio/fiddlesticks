@@ -24,13 +24,10 @@ namespace SketchEditor {
         static SERVER_SAVE_DELAY_MS = 10000;
         static GREETING_SKETCH_ID = "im2ba92i1714i";
 
+        fontListLimit = 250;
+
         state: EditorState = {};
-        resources = {
-            fallbackFont: opentype.Font,
-            fontFamilies: new FontShape.FontFamilies("fonts/google-fonts.json"),
-            parsedFonts: new FontShape.ParsedFonts(parsed =>
-                this.events.editor.fontLoaded.dispatch(parsed.font))
-        };
+        resources: StoreResources = {};
         actions = new Actions();
         events = new Events();
 
@@ -215,10 +212,10 @@ namespace SketchEditor {
                         this.merge(block, patch);
 
                         if (block.fontFamily && !block.fontVariant) {
-                            const famDef = this.resources.fontFamilies.get(block.fontFamily);
-                            if (famDef) {
+                            const record = this.resources.fontCatalog.getRecord(block.fontFamily);
+                            if (record) {
                                 // regular or else first variant
-                                block.fontVariant = this.resources.fontFamilies.defaultVariant(famDef);
+                                block.fontVariant = FontShape.FontCatalog.defaultVariant(record);
                             }
                         }
 
@@ -325,15 +322,22 @@ namespace SketchEditor {
         }
 
         private loadResources() {
-            this.resources.fontFamilies.loadCatalogLocal(families => {
-                // load fonts into browser for preview
-                this.resources.fontFamilies.loadPreviewSubsets(families.map(f => f.family));
+            this.resources.parsedFonts = new FontShape.ParsedFonts(parsed =>
+                this.events.editor.fontLoaded.dispatch(parsed.font))
+            
+            FontShape.FontCatalog.fromLocal("fonts/google-fonts.json")
+                .then(catalog => {
+                    this.resources.fontCatalog = catalog;
+                    
+                    // load fonts into browser for preview
+                    FontShape.FontCatalog.loadPreviewSubsets(
+                        catalog.getList(this.fontListLimit).map(f => f.family));
 
-                this.resources.parsedFonts.get(Store.FALLBACK_FONT_URL).then(({font}) =>
-                    this.resources.fallbackFont = font);
+                    this.resources.parsedFonts.get(Store.FALLBACK_FONT_URL).then(({font}) =>
+                        this.resources.fallbackFont = font);
 
-                this.events.editor.resourcesReady.dispatch(true);
-            });
+                    this.events.editor.resourcesReady.dispatch(true);
+                });
         }
 
         private setUserMessage(message: string) {
@@ -359,7 +363,7 @@ namespace SketchEditor {
 
         private loadTextBlockFont(block: TextBlock) {
             this.resources.parsedFonts.get(
-                this.resources.fontFamilies.getUrl(block.fontFamily, block.fontVariant))
+                this.resources.fontCatalog.getUrl(block.fontFamily, block.fontVariant))
                 .then(({font}) =>
                     this.events.textblock.fontReady.dispatch(
                         { textBlockId: block._id, font }));

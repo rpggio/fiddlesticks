@@ -11,6 +11,12 @@ namespace SketchEditor {
         sketchIsDirty?: boolean;
     }
 
+    export interface StoreResources {
+        fallbackFont?: opentype.Font
+        fontCatalog?: FontShape.FontCatalog
+        parsedFonts?: FontShape.ParsedFonts
+    }
+
     export interface Sketch extends SketchAttr {
         _id: string;
         browserId?: string;

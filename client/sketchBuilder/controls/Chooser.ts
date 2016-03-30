@@ -1,30 +1,37 @@
 namespace SketchBuilder {
 
-    export class Chooser implements VDomChooser {
+    export class Chooser<T> implements OptionChooser<T> {
+        private factory: (value: T) => VNode;
+        private _value$ = new Rx.Subject<T>();
+        
+        constructor(factory: (value: T) => VNode) {
+            this.factory = factory;
+        }
 
-        private _chosen$ = new Rx.Subject<VNode>();
+        get value$() {
+            return this._value$;
+        }        
 
-        createNode(choices: VNode[], chosenKey: string) {
+        createNode(choices: T[], value?: T): VNode{
             return h("ul.chooser",
                 {},
-                choices.map(c =>
-                    h("li.choice",
+                choices.map(choice => {
+                    const choiceNode = this.factory(choice);
+                    return h("li.choice",
                         {
                             class: {
-                                chosen: chosenKey && c.key === chosenKey
+                                chosen: _.isEqual(value, choice)
                             },
                             on: {
-                                click: ev => this._chosen$.onNext(c)
+                                click: ev => {
+                                    this._value$.onNext(choice);
+                                }
                             }
                         },
-                        [c])
-                )
-            );
-        }
-
-        get chosen$() {
-            return this._chosen$;
+                        [choiceNode])
+                })
+            ); 
         }
     }
-
+    
 }

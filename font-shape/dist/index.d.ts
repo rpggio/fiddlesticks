@@ -5,20 +5,23 @@ declare module paper {
     }
 }
 declare namespace FontShape {
-    class FontFamilies {
-        static CATALOG_LIMIT: number;
-        private _catalogPath;
-        catalog: FontFamily[];
-        constructor(catalogPath: string);
-        get(family: string): FontFamily;
-        getUrl(family: string, variant: string): string;
-        defaultVariant(famDef: FontFamily): string;
-        loadCatalogLocal(callback: (families: FontFamily[]) => void): void;
+    class FontCatalog {
+        static fromLocal(path: string): JQueryPromise<FontCatalog>;
+        static fromRemote(): JQueryPromise<FontCatalog>;
+        private records;
+        constructor(data: FamilyRecord[]);
+        getList(limit?: number): FamilyRecord[];
+        getCategories(): string[];
+        getFamilies(category?: string): string[];
+        getVariants(family: string): string[];
+        getRecord(family: string): FamilyRecord;
+        getUrl(family: string, variant?: string): string;
+        static defaultVariant(record: FamilyRecord): string;
         /**
          * For a list of families, load alphanumeric chars into browser
          *   to support previewing.
          */
-        loadPreviewSubsets(families: string[]): void;
+        static loadPreviewSubsets(families: string[]): void;
     }
 }
 interface Console {
@@ -151,9 +154,9 @@ declare namespace FontShape {
     }
     interface FontSpecifier {
         family: string;
-        variant: string;
+        variant?: string;
     }
-    interface FontFamily {
+    interface FamilyRecord {
         kind?: string;
         family?: string;
         category?: string;

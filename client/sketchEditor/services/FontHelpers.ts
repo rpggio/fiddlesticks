@@ -1,7 +1,8 @@
     
 namespace SketchEditor {
     
-    export function getFontDescription(family: FontShape.FontFamily, variant?: string): FontDescription {
+    export function getFontDescription(family: FontShape.FamilyRecord, variant?: string)
+        : FontDescription {
         let url: string;
         url = family.files[variant || "regular"];
         if(!url){

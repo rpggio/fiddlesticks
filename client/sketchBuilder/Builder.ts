@@ -12,25 +12,28 @@ namespace SketchBuilder {
                         design: design,
                         callback
                     });
+                },
+                createFontChooser: () => {
+                    return new DesignFontChooser(store);
                 }
             }
 
             const controls$ = store.template$.map(t => {
                 const controls = t.createUI(context);
                 for (const c of controls) {
-                    c.output$.subscribe(d => store.updateDesign(d));
+                    c.value$.subscribe(d => store.updateTemplateState(d));
                 }
                 return controls;
             });
 
             const dom$ = Rx.Observable.combineLatest(
                 controls$,
-                store.design$,
-                (controls, design) => {
-                    return { controls, design };
+                store.templateState$,
+                (controls, templateState) => {
+                    return { controls, templateState };
                 })
-                .map(({controls, design}) => {
-                    const nodes = controls.map(c => c.createNode(design));
+                .map(({controls, templateState}) => {
+                    const nodes = controls.map(c => c.createNode(templateState));
                     const vnode = h("div#templateControls", {}, nodes);
                     return vnode;
                 });

@@ -6,17 +6,19 @@ namespace SketchBuilder.Templates {
         description: "Stack blocks of text in the form of a crazy ladder.";
         image: string;
         lineHeightVariation = 0.8;
+        defaultFontSize = 128;
 
-        createUI(context: TemplateUIContext): DesignControl[] {
+        createUI(context: TemplateUIContext): BuilderControl[] {
             return [
                 this.createTextEntry(),
                 this.createShapeChooser(context),
+                context.createFontChooser()
             ];
         }
 
         build(design: Design, context: TemplateBuildContext): Promise<paper.Item> {
             if (!design.text) {
-                return null;
+                return Promise.resolve(null);
             }
 
             return context.getFont(design.font).then(font => {
@@ -38,7 +40,7 @@ namespace SketchBuilder.Templates {
                 const box = new paper.Group();
 
                 const blocks = lines.map(l => {
-                    const pathData = font.getPath(l, 0, 0, 24).toPathData();
+                    const pathData = font.getPath(l, 0, 0, this.defaultFontSize).toPathData();
                     return new paper.CompoundPath(pathData);
                 });
 
@@ -138,34 +140,34 @@ namespace SketchBuilder.Templates {
             ];
         }
 
-        private createTextEntry() {
+        private createTextEntry(): BuilderControl {
             const textInput = new TextInput();
             return {
-                createNode: design => {
-                    return textInput.createNode(design.text, "What do you want to say?");
+                createNode: (value: TemplateState) => {
+                    return h("div",
+                    [
+                        h("h3", ["Text"]),
+                        textInput.createNode(value && value.design.text, "What do you want to say?")
+                    ]); 
                 },
-                output$: textInput.value$.map(v => {
-                    return <Design>{ text: v };
+                value$: textInput.value$.map(v => {
+                    return <TemplateStateChange>{ design: { text: v } };
                 })
             }
         }
 
-        private createShapeChooser(context: TemplateUIContext): DesignControl {
+        private createShapeChooser(context: TemplateUIContext): BuilderControl {
             const createChoice = (shape: string) =>
-                h("div",
-                    {
-                        key: shape
-                    },
-                    [shape]);
-            var chooser = new Chooser();
-            return {
-                createNode: design => {
+                h("div", { key: shape }, [shape]);
+            var chooser = new ChooserWrapper();
+            return <BuilderControl>{
+                createNode: (value: TemplateState) => {
                     const choices = ["narrow", "wide"].map(createChoice);
-                    const chooserNode = chooser.createNode(choices, design.shape);
-                    return chooserNode;
+                    const chooserNode = chooser.createNode(choices, value && value.design.shape);
+                    return h("div", {}, [h("h3", ["Shape"]), chooserNode]);
                 },
-                output$: chooser.chosen$.map(choice => {
-                    return <Design>{ shape: choice.key };
+                value$: chooser.chosen$.map(choice => {
+                    return <TemplateStateChange>{ design: { shape: choice.key } };
                 })
             }
         }

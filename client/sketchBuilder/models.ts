@@ -4,16 +4,27 @@ namespace SketchBuilder {
         name: string;
         description: string;
         image: string;
-        createUI(context: TemplateUIContext): DesignControl[];
+        createUI(context: TemplateUIContext): BuilderControl[];
         build(design: Design, context: TemplateBuildContext): Promise<paper.Item>;
     }
 
     export interface TemplateUIContext {
         renderDesign(design: Design, callback: (imageDataUrl: string) => void);
+        createFontChooser(): BuilderControl;
     }
     
     export interface TemplateBuildContext {
         getFont(desc: FontShape.FontSpecifier): Promise<opentype.Font>;
+    }
+    
+    export interface TemplateState {
+        design: Design;
+        fontCategory?: string;
+    }
+
+    export interface TemplateStateChange {
+        design?: Design;
+        fontCategory?: string;
     }
     
     export interface Design {
@@ -23,6 +34,9 @@ namespace SketchBuilder {
         palette?: Object;
         seed?: number;
     }
+
+    export interface DesignChange extends Design{
+    }
     
     export interface RenderRequest {
         design: Design;
@@ -30,20 +44,23 @@ namespace SketchBuilder {
         callback: (imageDataUrl: string) => void;
     }
     
-    export interface DesignControl {
-        output$: Rx.Observable<Design>;
-        createNode(design: Design): VNode; 
+    export interface BuilderControl {
+        value$: Rx.Observable<TemplateStateChange>;
+        createNode(value: TemplateState): VNode;
     }
     
-    export interface VDomComponent {
-        createNode(choices: VNode[], chosenKey: string): VNode;
+    export interface ValueControl<T> {
+        value$: Rx.Observable<T>;
+        createNode(value?: T): VNode;
+    }
+
+    export interface OptionChooser<T> {
+        value$: Rx.Observable<T>;
+        createNode(choices: T[], value?: T): VNode;
     }
     
-    export interface VDomControl {
-        value$: Rx.Observable<string>;
-    }
-    
-    export interface VDomChooser extends VDomComponent {
-        chosen$: Rx.Observable<VNode>;
-    }
+    // export interface VNodeChooser {
+    //     createNode(choices: VNode[], chosenKey: string): VNode;
+    //     chosen$: Rx.Observable<VNode>;
+    // }
 }
