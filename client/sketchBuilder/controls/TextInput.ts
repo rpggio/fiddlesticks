@@ -4,11 +4,11 @@ namespace SketchBuilder {
 
         private _value$ = new Rx.Subject<string>();
 
-        createNode(value?: string, placeholder?: string) {
-            return h("input",
+        createNode(value?: string, placeholder?: string, textarea?: boolean) {
+            return h("textarea" ? "textarea" : "input",
                 {
                     attrs: {
-                        type: "text",
+                        type: textarea ? undefined : "text",
                         placeholder: placeholder
                     },
                     props: {

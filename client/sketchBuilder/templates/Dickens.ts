@@ -25,7 +25,8 @@ namespace SketchBuilder.Templates {
             return [
                 this.createTextEntry(),
                 this.createShapeChooser(context),
-                context.createFontChooser()
+                context.createFontChooser(),
+                this.createPaletteChooser()
             ];
         }
 
@@ -50,6 +51,12 @@ namespace SketchBuilder.Templates {
                         break;
                 }
 
+                let textColor = design.palette && design.palette.color || "black";
+                let backgroundColor = "white";
+                if(design.palette && design.palette.invert){
+                    [textColor, backgroundColor] = [backgroundColor, textColor];
+                }
+
                 const box = new paper.Group();
 
                 const blocks = lines.map(l => {
@@ -57,7 +64,6 @@ namespace SketchBuilder.Templates {
                     return new paper.CompoundPath(pathData);
                 });
 
-                const fillColor = design && design.palette && design.palette[0];
                 const maxWidth = _.max(blocks.map(b => b.bounds.width));
                 const lineHeight = blocks[0].bounds.height;
 
@@ -81,13 +87,18 @@ namespace SketchBuilder.Templates {
                     }
                     const stretch = new FontShape.VerticalBoundsStretchPath(
                         block, { upper, lower });
-                    if(fillColor) {
-                        stretch.fillColor = fillColor;
-                    }
+                    stretch.fillColor = textColor;
                     box.addChild(stretch);
                     upper = lower;
                     lower = null;
                 }
+
+                const bounds = box.bounds.clone();
+                bounds.size = bounds.size.multiply(1.1);
+                bounds.center = box.bounds.center;
+                const background = paper.Shape.Rectangle(bounds);
+                background.fillColor = backgroundColor;
+                box.insertChild(0, background);
 
                 return box;
             });
@@ -161,8 +172,11 @@ namespace SketchBuilder.Templates {
                 createNode: (value: TemplateState) => {
                     return h("div",
                         [
-                            h("h3", ["Text"]),
-                            textInput.createNode(value && value.design.text, "What do you want to say?")
+                            h("h3", {}, ["Message"]),
+                            textInput.createNode(
+                                value && value.design.text,
+                                "What do you want to say?",
+                                true)
                         ]);
                 },
                 value$: textInput.value$.map(v => {
@@ -184,11 +198,99 @@ namespace SketchBuilder.Templates {
                             value$.onNext({ design: { shape } });
                         }
                     });
-                    return ControlHelpers.chooser(choices);
+
+                    const node = h("div",
+                        [
+                            h("h3", {}, ["Shape"]),
+                            ControlHelpers.chooser(choices)
+                        ]);
+                    return node;
+
                 },
                 value$: value$.asObservable()
             };
         }
+
+        private createPaletteChooser(): BuilderControl {
+            const parsedColors = this.paletteColors.map(c => new paper.Color(c));
+            const colors = _.sortBy(parsedColors, c => c.hue)
+                .map(c => c.toCSS(true));
+
+            const value$ = new Rx.Subject<TemplateStateChange>();
+            return <BuilderControl>{
+                createNode: (ts: TemplateState) => {
+                    const palette = ts.design.palette;
+                    const choices = colors.map(color =>
+                        <ControlHelpers.Choice>{
+                            node: h("div.paletteTile",
+                                {
+                                    style: {
+                                        backgroundColor: color
+                                    }
+                                }),
+                            chosen: palette && palette.color === color,
+                            callback: () => {
+                                value$.onNext({ design: { palette: { color } } });
+                            }
+                        });
+
+                    const invertNode = h("div", [
+                        h("label", [
+                            h("input",
+                                {
+                                    attrs: {
+                                        type: "checkbox",
+                                        checked: palette && palette.invert
+                                    },
+                                    on: {
+                                        change: ev => value$.onNext({ design: { palette: { invert: ev.target.checked } } })
+                                    }
+                                }
+                            ),
+                            "Invert color"
+                        ])
+                    ]);
+
+                    const node = h("div.colorChooser",
+                        [
+                            h("h3", {}, ["Color"]),
+                            ControlHelpers.chooser(choices),
+                            invertNode
+                        ]);
+                    return node;
+
+                },
+                value$: value$.asObservable()
+            };
+
+        }
+
+        paletteColors = [
+            "#4b3832",
+            "#854442",
+            //"#fff4e6",
+            "#3c2f2f",
+            "#be9b7b",
+
+            "#1b85b8",
+            "#5a5255",
+            "#559e83",
+            "#ae5a41",
+            "#c3cb71",
+
+            "#0e1a40",
+            "#222f5b",
+            "#5d5d5d",
+            "#946b2d",
+            "#000000",
+
+            "#edc951",
+            "#eb6841",
+            "#cc2a36",
+            "#4f372d",
+            "#00a0b0",
+        ];
+
     }
 
 }

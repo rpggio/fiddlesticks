@@ -33,8 +33,13 @@ namespace SketchBuilder {
         text?: string;
         shape?: string;
         font?: FontShape.FontSpecifier;
-        palette?: Object;
+        palette?: DesignPalette;
         seed?: number;
+    }
+    
+    export interface DesignPalette {
+        color?: string;
+        invert?: boolean;
     }
 
     export interface DesignChange extends Design{

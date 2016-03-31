@@ -1,3 +1,6 @@
+ul, menu, dir {
+    -webkit-padding-start: inherit;
+}
 
 ul.chooser {
     list-style-type: none;
@@ -7,7 +10,7 @@ ul.chooser img {
   float: left;
   padding: 5px;
   margin: 10px;
-  border: 2px solid lightgray;
+  border: 3px solid lightgray;
 }
 
 .chooser img:hover {
@@ -19,20 +22,15 @@ ul.chooser img {
 }
 
 .chooser .choice {
+    /*flex-basis: content;*/
+    
     font-size: 30px;
     line-height: 50px;
-    
-    /*width: 100px;
-    height: 60px;*/
-
-    /*align-items: center;
-    margin: 8px;
-    padding: 6px 6px; */
 
     margin: 2px 4px;
     padding: 0 8px;
-
     border: 2px solid lightgray;
+
     cursor: pointer; 
 }
 
@@ -53,11 +51,34 @@ ul.chooser img {
     margin: 10px;
 }
 
-#templateControls input {
-    width: 300px;
+#templateControls input,
+#templateControls textarea {
     margin: 6px;
+    font-size: 24px;
+}
+
+#templateControls textarea {
+    width: 500px;
+    resize: none;
+}
+
+#templateControls {
+    font-size: 16px;
 }
 
 #previewCanvasContainer {
     display: inline-block;
+}
+
+.colorChooser .choice {
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+}
+
+.paletteTile {
+    width: 50px;
+    height: 50px;
+    margin: 0;
 }

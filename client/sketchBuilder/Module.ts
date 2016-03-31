@@ -21,6 +21,10 @@ namespace SketchBuilder {
         start() {
             this.store.init().then(s => {
                 this.store.setTemplate("Dickens");
+                this.store.updateTemplateState(
+                    { design:
+                        { text: "The rain in Spain falls mainly in the plain"}
+                    });
             })
 
         }

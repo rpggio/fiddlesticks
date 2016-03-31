@@ -23,7 +23,9 @@ namespace SketchBuilder {
             store.template$.observeOn(Rx.Scheduler.default).subscribe(t => {
                 const currentText = store.design.text;
                 const newTemplateState = t.createNew(context);
-                newTemplateState.design.text = currentText || "The rain in Spain falls mainly in the drain";
+                if (currentText && currentText.length) {
+                    newTemplateState.design.text = currentText;
+                }
                 store.setTemplateState(newTemplateState);
             });
 
@@ -36,7 +38,7 @@ namespace SketchBuilder {
                     catch (err) {
                         console.error(`Error calling ${store.template.name}.createUI`, err);
                     }
-                    
+
                     for (const c of controls) {
                         c.value$.subscribe(d => store.updateTemplateState(d));
                     }

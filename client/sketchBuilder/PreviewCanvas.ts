@@ -37,7 +37,6 @@ namespace SketchBuilder {
                     return;
                 }
                 
-console.warn("rendering", ts.design);
                 this.render(ts.design);
             });
         }
