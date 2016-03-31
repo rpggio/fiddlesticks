@@ -1,3 +1,31 @@
+#pageContainer {
+    display: flex;
+}
+
+#templateControls {
+    flex-basis: 500px;
+    margin: 10px;
+}
+
+#templateControls input,
+#templateControls textarea {
+    margin: 6px;
+    font-size: 24px;
+}
+
+#templateControls textarea {
+    width: 500px;
+    resize: none;
+}
+
+#templateControls {
+    font-size: 16px;
+}
+
+#previewCanvasContainer {
+    min-width: 400px;
+}
+
 ul, menu, dir {
     -webkit-padding-start: inherit;
 }
@@ -45,29 +73,6 @@ ul.chooser img {
 
 .chooser .chosen {
     border-color: darkred;
-}
-
-#templateControls {
-    margin: 10px;
-}
-
-#templateControls input,
-#templateControls textarea {
-    margin: 6px;
-    font-size: 24px;
-}
-
-#templateControls textarea {
-    width: 500px;
-    resize: none;
-}
-
-#templateControls {
-    font-size: 16px;
-}
-
-#previewCanvasContainer {
-    display: inline-block;
 }
 
 .colorChooser .choice {
