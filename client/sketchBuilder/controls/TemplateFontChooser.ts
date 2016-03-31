@@ -1,13 +1,13 @@
 namespace SketchBuilder {
 
-    export class DesignFontChooser implements BuilderControl{
+    export class TemplateFontChooser implements BuilderControl{
         
         private _fontChooser: FontChooser;
         
         constructor(store: Store) {
-            this._fontChooser = new FontChooser(store);
+            this._fontChooser = new FontChooser(store.fontCatalog);
             
-            this._fontChooser.maxChoices = 12; 
+            this._fontChooser.maxFamilies = 15; 
         }
         
         createNode(value: TemplateState): VNode {

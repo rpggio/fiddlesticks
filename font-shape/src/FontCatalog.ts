@@ -2,6 +2,9 @@ namespace FontShape {
 
     export class FontCatalog {
 
+        // Encountered issues with these families
+        excludeFamilies = ["Anton", "Slabo 27px"];
+
         static fromLocal(path: string): JQueryPromise<FontCatalog> {
             return $.ajax({
                 url: path,
@@ -36,9 +39,12 @@ namespace FontShape {
 
         private records: FamilyRecord[];
 
-        constructor(data: FamilyRecord[]) {
+        constructor(records: FamilyRecord[]) {
+
+            records = records.filter(r => this.excludeFamilies.indexOf(r.family) < 0);
+
             // make files https
-            for (const record of data) {
+            for (const record of records) {
                 _.forOwn(record.files, (val: string, key: string) => {
                     if (_.startsWith(val, "http:")) {
                         record.files[key] = val.replace("http:", "https:");
@@ -46,7 +52,7 @@ namespace FontShape {
                 });
             }
 
-            this.records = data;
+            this.records = records;
         }
 
         getList(limit?: number) {
@@ -83,7 +89,7 @@ namespace FontShape {
                 console.warn("no definition available for family", family);
                 return null;
             }
-            if(!variant){
+            if (!variant) {
                 variant = FontCatalog.defaultVariant(record);
             }
             let file = record.files[variant];
@@ -107,14 +113,19 @@ namespace FontShape {
          *   to support previewing.
          */
         static loadPreviewSubsets(families: string[]) {
-            for (const chunk of _.chunk(families, 10)) {
-                WebFont.load({
-                    classes: false,
-                    google: {
-                        families: <string[]>chunk,
-                        text: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-                    }
-                });
+            for (const chunk of _.chunk(families.filter(f => !!f), 10)) {
+                try {
+                    WebFont.load({
+                        classes: false,
+                        google: {
+                            families: <string[]>chunk,
+                            text: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+                        }
+                    });
+                }
+                catch (err) {
+                    console.error("error loading font subsets", err, chunk);
+                }
             }
         }
     }

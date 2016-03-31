@@ -2,65 +2,88 @@ namespace SketchBuilder {
 
     export class FontChooser implements ValueControl<FontChooserState> {
 
-        private store: Store;
-        private categoryChooser: Chooser<string>;
-        private familyChooser: Chooser<string>;
-        private variantChooser: Chooser<string>;
+        private fontCatalog: FontShape.FontCatalog;
+        private _value$ = new Rx.Subject<FontChooserState>();
 
-        maxChoices = Number.MAX_VALUE;
+        maxFamilies = Number.MAX_VALUE;
 
-        constructor(store: Store) {
-            this.store = store;
-            const stringAsDiv = (s: string) => h("div", {}, [s]);
-            this.categoryChooser = new Chooser<string>(stringAsDiv);
-            this.familyChooser = new Chooser<string>(stringAsDiv);
-            this.variantChooser = new Chooser<string>(stringAsDiv);
+        constructor(fontCatalog: FontShape.FontCatalog) {
+            this.fontCatalog = fontCatalog;
+            
+            const preloadFamilies = this.fontCatalog.getCategories()
+                .map(c => fontCatalog.getFamilies(c)[0]);
+            FontShape.FontCatalog.loadPreviewSubsets(preloadFamilies);
         }
 
         get value$(): Rx.Observable<FontChooserState> {
-            return Rx.Observable.combineLatest(
-                this.categoryChooser.value$.startWith(null),
-                this.familyChooser.value$.startWith(null),
-                this.variantChooser.value$.startWith(null),
-                (category, family, variant) => {
-                    return { category, family, variant };
-                }).skip(1);
+            return this._value$;
         }
 
         createNode(value?: FontChooserState): VNode {
             const children: VNode[] = [];
-            children.push(h("h3", {}, ["Categories"]));
-            children.push(
-                this.categoryChooser.createNode(
-                    this.store.fontCatalog.getCategories(),
-                    value.category
-                )
-            );
-            if (value.category) {
-                const families = this.store.fontCatalog.getFamilies(value.category);
-                if (this.maxChoices) {
-                    families.length = this.maxChoices;
+
+            children.push(h("h3", ["Categories"]));
+            const categoryChoices = this.fontCatalog.getCategories().map(category => {
+                let categoryFamilies = this.fontCatalog.getFamilies(category);
+                if (this.maxFamilies) {
+                    categoryFamilies = categoryFamilies.slice(0, this.maxFamilies);
                 }
+                const firstFamily = categoryFamilies[0];
+                return <ControlHelpers.Choice>{
+                    node: h("span",
+                        {
+                            style: FontHelpers.getCssStyle(firstFamily)
+                        },
+                        [category]),
+                    chosen: value.category === category,
+                    callback: () => {
+                        FontShape.FontCatalog.loadPreviewSubsets(categoryFamilies); 
+                        this._value$.onNext({ category, family: firstFamily });
+                    }
+                }
+            });
+            children.push(ControlHelpers.chooser(categoryChoices));
+
+            if (value.category) {
                 children.push(h("h3", {}, ["Families"]));
-                children.push(
-                    this.familyChooser.createNode(
-                        families,
-                        value.family
-                    )
-                );
+                let families = this.fontCatalog.getFamilies(value.category);
+                if (this.maxFamilies) {
+                    families = families.slice(0, this.maxFamilies);
+                }
+                const familyOptions = families.map(family => {
+                    return <ControlHelpers.Choice>{
+                        node: h("span",
+                            {
+                                style: FontHelpers.getCssStyle(family)
+                            },
+                            [family]),
+                        chosen: value.family === family,
+                        callback: () => this._value$.onNext({ family, variant: "" })
+                    }
+                });
+                children.push(ControlHelpers.chooser(familyOptions));
             }
+            
             if (value.family) {
-                const variants = this.store.fontCatalog.getVariants(value.family);
+                const variants = this.fontCatalog.getVariants(value.family);
                 if (variants.length > 1) {
                     children.push(h("h3", {}, ["Variants"]));
-                    children.push(
-                        this.variantChooser.createNode(
-                            variants,
-                            value.variant
-                        )
-                    );
+
+                    const variantOptions = variants.map(variant => {
+                        return <ControlHelpers.Choice>{
+                            node: h("span",
+                                {
+                                    style: FontHelpers.getCssStyle(value.family, variant)
+                                },
+                                [variant]),
+                            chosen: value.variant === variant,
+                            callback: () => this._value$.onNext({ variant })
+                        }
+                    });
+                    children.push(ControlHelpers.chooser(variantOptions));
                 }
             }
+            
             return h("div.fontChooser", {}, children);
         }
     }

@@ -6,10 +6,11 @@ declare module paper {
 }
 declare namespace FontShape {
     class FontCatalog {
+        excludeFamilies: string[];
         static fromLocal(path: string): JQueryPromise<FontCatalog>;
         static fromRemote(): JQueryPromise<FontCatalog>;
         private records;
-        constructor(data: FamilyRecord[]);
+        constructor(records: FamilyRecord[]);
         getList(limit?: number): FamilyRecord[];
         getCategories(): string[];
         getFamilies(category?: string): string[];

@@ -13,13 +13,36 @@ ul.chooser img {
 .chooser img:hover {
 }
 
+.chooser {
+    display: flex;
+    flex-wrap: wrap;
+}
+
 .chooser .choice {
-    display: inline-block;
-    min-width: 80px;
-    min-height: 40px;
+    font-size: 30px;
+    line-height: 50px;
+    
+    /*width: 100px;
+    height: 60px;*/
+
+    /*align-items: center;
     margin: 8px;
+    padding: 6px 6px; */
+
+    margin: 2px 4px;
+    padding: 0 8px;
+
     border: 2px solid lightgray;
     cursor: pointer; 
+}
+
+.fontChooser .chooser .choice {
+    font-variant: small-caps;
+    font-weight: bold;
+}
+
+.fontChooser .chooser .choice span {
+    /*vertical-align: middle;*/
 }
 
 .chooser .chosen {

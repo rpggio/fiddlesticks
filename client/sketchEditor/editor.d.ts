@@ -7,6 +7,6 @@ interface Window {
 
 declare var snabbdom: any;
 declare var patch: (container: HTMLElement | VNode, dom: VNode) => VNode;
-declare var h: any;
+declare function h(...args): VNode;
 
 //declare var hh: HyperScriptHelpers; 

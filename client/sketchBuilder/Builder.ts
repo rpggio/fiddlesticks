@@ -14,7 +14,7 @@ namespace SketchBuilder {
                     });
                 },
                 createFontChooser: () => {
-                    return new DesignFontChooser(store);
+                    return new TemplateFontChooser(store);
                 }
             }
 

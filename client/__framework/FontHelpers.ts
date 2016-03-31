@@ -8,7 +8,7 @@ namespace FontHelpers {
         fontSize?: string; 
     }
     
-    export function getCssStyle(family: string, variant: string, size?: string){
+    export function getCssStyle(family: string, variant?: string, size?: string){
         let style = <ElementFontStyle>{ fontFamily: family };
         if(variant && variant.indexOf("italic") >= 0){
             style.fontStyle = "italic";
