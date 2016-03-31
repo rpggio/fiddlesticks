@@ -3,10 +3,23 @@ namespace SketchBuilder.Templates {
     export class Dickens implements SketchBuilder.Template {
 
         name = "Dickens";
-        description: "Stack blocks of text in the form of a crazy ladder.";
+        description: "Stack blocks of text in the form of a wavy ladder.";
         image: string;
         lineHeightVariation = 0.8;
         defaultFontSize = 128;
+
+        createNew(context: TemplateUIContext): TemplateState {
+            const defaultFontRecord = context.fontCatalog.getList(1)[0];
+            return <TemplateState>{
+                design: {
+                    shape: "narrow",
+                    font: {
+                        family: defaultFontRecord.family
+                    }
+                },
+                fontCategory: defaultFontRecord.category
+            }
+        }
 
         createUI(context: TemplateUIContext): BuilderControl[] {
             return [
@@ -44,7 +57,7 @@ namespace SketchBuilder.Templates {
                     return new paper.CompoundPath(pathData);
                 });
 
-                const fillColor = (design && design.palette[0]) || "red";
+                const fillColor = design && design.palette && design.palette[0];
                 const maxWidth = _.max(blocks.map(b => b.bounds.width));
                 const lineHeight = blocks[0].bounds.height;
 
@@ -68,7 +81,9 @@ namespace SketchBuilder.Templates {
                     }
                     const stretch = new FontShape.VerticalBoundsStretchPath(
                         block, { upper, lower });
-                    stretch.fillColor = fillColor;
+                    if(fillColor) {
+                        stretch.fillColor = fillColor;
+                    }
                     box.addChild(stretch);
                     upper = lower;
                     lower = null;
@@ -83,7 +98,7 @@ namespace SketchBuilder.Templates {
             let upperCenter = upper.bounds.center;
             let x = 0;
             const numPoints = 4;
-            for(let i = 0; i < numPoints; i++){
+            for (let i = 0; i < numPoints; i++) {
                 const y = upperCenter.y + (Math.random() - 0.5) * this.lineHeightVariation * avgHeight;
                 points.push(new paper.Point(x, y));
                 x += upper.bounds.width / (numPoints - 1);
@@ -145,10 +160,10 @@ namespace SketchBuilder.Templates {
             return {
                 createNode: (value: TemplateState) => {
                     return h("div",
-                    [
-                        h("h3", ["Text"]),
-                        textInput.createNode(value && value.design.text, "What do you want to say?")
-                    ]); 
+                        [
+                            h("h3", ["Text"]),
+                            textInput.createNode(value && value.design.text, "What do you want to say?")
+                        ]);
                 },
                 value$: textInput.value$.map(v => {
                     return <TemplateStateChange>{ design: { text: v } };
@@ -157,19 +172,22 @@ namespace SketchBuilder.Templates {
         }
 
         private createShapeChooser(context: TemplateUIContext): BuilderControl {
-            const createChoice = (shape: string) =>
-                h("div", { key: shape }, [shape]);
-            var chooser = new ChooserWrapper();
+            const value$ = new Rx.Subject<TemplateStateChange>();
             return <BuilderControl>{
-                createNode: (value: TemplateState) => {
-                    const choices = ["narrow", "wide"].map(createChoice);
-                    const chooserNode = chooser.createNode(choices, value && value.design.shape);
-                    return h("div", {}, [h("h3", ["Shape"]), chooserNode]);
+                createNode: (ts: TemplateState) => {
+                    const choices = ["narrow", "wide"].map(shape => <ControlHelpers.Choice>{
+                        node: h("span",
+                            {},
+                            [shape]),
+                        chosen: ts.design.shape === shape,
+                        callback: () => {
+                            value$.onNext({ design: { shape } });
+                        }
+                    });
+                    return ControlHelpers.chooser(choices);
                 },
-                value$: chooser.chosen$.map(choice => {
-                    return <TemplateStateChange>{ design: { shape: choice.key } };
-                })
-            }
+                value$: value$.asObservable()
+            };
         }
     }
 

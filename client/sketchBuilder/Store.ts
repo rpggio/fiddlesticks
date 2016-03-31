@@ -71,7 +71,7 @@ namespace SketchBuilder {
         }
 
         setTemplate(name: string) {
-            let template;
+            let template: Template;
             if (/Dickens/i.test(name)) {
                 template = new SketchBuilder.Templates.Dickens();
             }
@@ -88,9 +88,23 @@ namespace SketchBuilder {
         }
 
         updateTemplateState(change: TemplateStateChange) {
-            const merged = _.merge(this.state.templateState, change);
+            _.merge(this.state.templateState, change);
+            
+            const design = this.state.templateState.design;
+            if(design && design.font && design.font.family && !design.font.variant) {
+               // set default variant
+                design.font.variant = FontShape.FontCatalog.defaultVariant(
+                    this._fontCatalog.getRecord(design.font.family));
+            }
+            
             this._templateState$.onNext(this.state.templateState);
         }
+        
+        setTemplateState(state: TemplateState){
+            this._state.templateState = state;
+            this._templateState$.onNext(state);
+        }
+
 
         render(request: RenderRequest) {
             this._render$.onNext(request);

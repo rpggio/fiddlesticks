@@ -36,7 +36,8 @@ namespace SketchBuilder {
                     this.lastReceived = ts.design;
                     return;
                 }
-
+                
+console.warn("rendering", ts.design);
                 this.render(ts.design);
             });
         }
@@ -68,6 +69,7 @@ namespace SketchBuilder {
                 this.renderLastReceived();
             },
             err => {
+                console.error("Error rendering design", err, design);
                 this.rendering = false;
             });
         }

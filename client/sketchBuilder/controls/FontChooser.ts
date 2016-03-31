@@ -23,7 +23,8 @@ namespace SketchBuilder {
             const children: VNode[] = [];
 
             children.push(h("h3", ["Categories"]));
-            const categoryChoices = this.fontCatalog.getCategories().map(category => {
+            const categories = this.fontCatalog.getCategories();
+            const categoryChoices = categories.map(category => {
                 let categoryFamilies = this.fontCatalog.getFamilies(category);
                 if (this.maxFamilies) {
                     categoryFamilies = categoryFamilies.slice(0, this.maxFamilies);

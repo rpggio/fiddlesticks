@@ -3,7 +3,7 @@ namespace FontShape {
     export class FontCatalog {
 
         // Encountered issues with these families
-        excludeFamilies = ["Anton", "Slabo 27px"];
+        excludeFamilies = ["Anton", "Arimo", "Slabo 27px"];
 
         static fromLocal(path: string): JQueryPromise<FontCatalog> {
             return $.ajax({

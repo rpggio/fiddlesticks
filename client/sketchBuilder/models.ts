@@ -4,12 +4,14 @@ namespace SketchBuilder {
         name: string;
         description: string;
         image: string;
+        createNew(context: TemplateUIContext): TemplateState;
         createUI(context: TemplateUIContext): BuilderControl[];
         build(design: Design, context: TemplateBuildContext): Promise<paper.Item>;
     }
 
     export interface TemplateUIContext {
         renderDesign(design: Design, callback: (imageDataUrl: string) => void);
+        fontCatalog: FontShape.FontCatalog;
         createFontChooser(): BuilderControl;
     }
     

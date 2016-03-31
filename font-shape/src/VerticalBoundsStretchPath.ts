@@ -22,7 +22,7 @@ namespace FontShape {
                     lower: new paper.Path([content.bounds.bottomLeft, content.bounds.bottomRight]),
                 }
             this._warped = new paper.CompoundPath(content.pathData);
-            this._warped.fillColor = "gray";
+            this._warped.fillColor = "lightgray";
 
             this.addChild(this._content);
             this.addChild(this._warped);
