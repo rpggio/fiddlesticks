@@ -6,7 +6,7 @@ namespace SketchBuilder {
         store: Store;
         builtDesign: paper.Item;
         context: TemplateBuildContext;
-        
+
         private lastReceived: Design;
         private rendering = false;
         private project: paper.Project;
@@ -40,15 +40,15 @@ namespace SketchBuilder {
                     this.lastReceived = ts.design;
                     return;
                 }
-                
+
                 this.render(ts.design);
             });
-            
+
             store.events.downloadPNGRequested.sub(() => this.downloadPNG());
         }
 
         private downloadPNG() {
-            if(!this.store.design.text || !this.store.design.text.length){
+            if (!this.store.design.text || !this.store.design.text.length) {
                 return;
             }
             // Half of max DPI produces approx 4200x4200.
@@ -61,7 +61,7 @@ namespace SketchBuilder {
         }
 
         private renderLastReceived() {
-            if(this.lastReceived){
+            if (this.lastReceived) {
                 const rendering = this.lastReceived;
                 this.lastReceived = null;
                 this.render(rendering);
@@ -69,27 +69,32 @@ namespace SketchBuilder {
         }
 
         private render(design: Design): Promise<void> {
-            if(this.rendering){
+            if (this.rendering) {
                 throw new Error("render is in progress");
             }
             this.rendering = true;
             paper.project.activeLayer.removeChildren();
             return this.store.template.build(design, this.context).then(item => {
-                if(!item){
-                    return;
+                try {
+                    if (!item) {
+                        console.log("no render result from", design);
+                        return;
+                    }
+
+                    item.fitBounds(this.project.view.bounds);
+                    item.bounds.point = this.project.view.bounds.topLeft;
                 }
-                
-                paper.view.viewSize = item.bounds.size.multiply(1.1);
-                paper.view.center = item.bounds.center;
-                this.rendering = false;
-                
+                finally {
+                    this.rendering = false;
+                }
+
                 // handle any received while rendering 
                 this.renderLastReceived();
             },
-            err => {
-                console.error("Error rendering design", err, design);
-                this.rendering = false;
-            });
+                err => {
+                    console.error("Error rendering design", err, design);
+                    this.rendering = false;
+                });
         }
 
     }
