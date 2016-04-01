@@ -10,6 +10,7 @@ namespace SketchBuilder {
             template?: Template;
             templateState: TemplateState;
         }
+        private _eventsChannel = new TypedChannel.Channel();
 
         private _parsedFonts: FontShape.ParsedFonts;
         private _fontCatalog: FontShape.FontCatalog;
@@ -22,6 +23,10 @@ namespace SketchBuilder {
             };
 
             this._parsedFonts = new FontShape.ParsedFonts(() => { });
+        }
+
+        events = {
+            downloadPNGRequested: this._eventsChannel.topic<void>("downloadPNGRequested")
         }
 
         get state() {
@@ -68,6 +73,10 @@ namespace SketchBuilder {
                         callback(this);
                     });
             })
+        }
+
+        downloadPNG(){
+            this.events.downloadPNGRequested.dispatch();
         }
 
         setTemplate(name: string) {

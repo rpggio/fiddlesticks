@@ -1,7 +1,7 @@
 namespace FontShape {
 
     export class VerticalBoundsStretchPath extends paper.Group {
-        static POINTS_PER_PATH = 100;
+        static pointsPerPath = 200;
 
         private _boundaries: VerticalBounds;
         private _content: paper.CompoundPath;
@@ -51,7 +51,7 @@ namespace FontShape {
             const newPaths = this._content.children
                 .map(item => {
                     const path = <paper.Path>item;
-                    const xPoints = PaperHelpers.tracePathAsPoints(path, 100)
+                    const xPoints = PaperHelpers.tracePathAsPoints(path, VerticalBoundsStretchPath.pointsPerPath)
                         .map(p => transform.transformPoint(p));
                     const xPath = new paper.Path({
                         segments: xPoints,

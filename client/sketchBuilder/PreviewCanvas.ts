@@ -9,11 +9,15 @@ namespace SketchBuilder {
         
         private lastReceived: Design;
         private rendering = false;
+        private project: paper.Project;
 
         constructor(canvas: HTMLCanvasElement, store: Store) {
             this.store = store;
 
             paper.setup(canvas);
+            this.project = paper.project;
+
+            FontShape.VerticalBoundsStretchPath.pointsPerPath = 300;
 
             this.context = {
                 getFont: specifier => {
@@ -39,6 +43,21 @@ namespace SketchBuilder {
                 
                 this.render(ts.design);
             });
+            
+            store.events.downloadPNGRequested.sub(() => this.downloadPNG());
+        }
+
+        private downloadPNG() {
+            if(!this.store.design.text || !this.store.design.text.length){
+                return;
+            }
+            // Half of max DPI produces approx 4200x4200.
+            const dpi = 0.5 * PaperHelpers.getMaxExportDpi(this.project.activeLayer.bounds.size);
+            const raster = this.project.activeLayer.rasterize(dpi, false);
+            const data = raster.toDataURL();
+            const fileName = Fstx.Framework.createFileName(this.store.design.text, 40, "png");
+            const blob = DomHelpers.dataURLToBlob(data);
+            saveAs(blob, fileName);
         }
 
         private renderLastReceived() {

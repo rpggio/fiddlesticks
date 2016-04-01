@@ -7,7 +7,8 @@ namespace SketchBuilder {
         constructor(
             builderContainer: HTMLElement,
             previewCanvas: HTMLCanvasElement,
-            renderCanvas: HTMLCanvasElement) {
+            renderCanvas: HTMLCanvasElement,
+            belowCanvas: HTMLElement) {
 
             this.store = new Store();
             this.builder = new Builder(builderContainer, this.store);
@@ -16,6 +17,8 @@ namespace SketchBuilder {
 
             this.store.templateState$.subscribe(ts => console.log("templateState", ts));
             this.store.template$.subscribe(t => console.log("template", t));
+            
+            new ShareOptionsUI(belowCanvas, this.store);
         }
 
         start() {

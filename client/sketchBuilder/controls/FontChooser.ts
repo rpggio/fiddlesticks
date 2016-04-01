@@ -22,7 +22,7 @@ namespace SketchBuilder {
         createNode(value?: FontChooserState): VNode {
             const children: VNode[] = [];
 
-            children.push(h("h3", ["Categories"]));
+            children.push(h("h3", ["Font Categories"]));
             const categories = this.fontCatalog.getCategories();
             const categoryChoices = categories.map(category => {
                 let categoryFamilies = this.fontCatalog.getFamilies(category);
@@ -46,7 +46,7 @@ namespace SketchBuilder {
             children.push(ControlHelpers.chooser(categoryChoices));
 
             if (value.category) {
-                children.push(h("h3", {}, ["Families"]));
+                children.push(h("h3", {}, ["Fonts"]));
                 let families = this.fontCatalog.getFamilies(value.category);
                 if (this.maxFamilies) {
                     families = families.slice(0, this.maxFamilies);
@@ -68,7 +68,7 @@ namespace SketchBuilder {
             if (value.family) {
                 const variants = this.fontCatalog.getVariants(value.family);
                 if (variants.length > 1) {
-                    children.push(h("h3", {}, ["Variants"]));
+                    children.push(h("h3", {}, ["Font Styles"]));
 
                     const variantOptions = variants.map(variant => {
                         return <ControlHelpers.Choice>{

@@ -1,6 +1,7 @@
 #pageContainer {
     display: flex;
     flex: 1;
+    height: 100%;
 }
 
 #templateControls {
@@ -14,6 +15,11 @@
 #previewCanvasContainer {
     flex: 1;
     min-width: 400px;
+}
+
+#previewCanvas {
+    max-height: 800px;
+    max-width: 800px;
 }
 
 #templateControls input,

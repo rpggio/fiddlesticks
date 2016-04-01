@@ -12,6 +12,10 @@
     <script type="text/javascript" src="lib/jquery-2.2.0.min.js"></script>
     <script type="text/javascript" src="lib/paper-full.js"></script>
     <script type="text/javascript" src="lib/opentype.js"></script>
+    <script type="text/javascript" src="lib/filesaver.min.js"></script>
+
+    <script type="text/javascript" src="lib/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
 
     <script type="text/javascript" src="lib/client-deps.js"></script>
     <script type="text/javascript" src="lib/font-shape.js"></script>
@@ -28,7 +32,10 @@
         <div id="builderContainer"></div>
 
         <div id="previewCanvasContainer">
-            <canvas id="previewCanvas" resize></canvas>
+            <canvas id="previewCanvas"></canvas>
+            <div id="belowCanvasContainer">
+                <div id="belowCanvas"></div>
+            </div>
         </div>
 
     </div>
@@ -38,7 +45,8 @@
         const module = new SketchBuilder.Module(
             document.getElementById("builderContainer"),
             document.getElementById("previewCanvas"),
-            document.getElementById("renderCanvas"));
+            document.getElementById("renderCanvas"),
+            document.getElementById("belowCanvas"));
         module.start();
     </script>
 

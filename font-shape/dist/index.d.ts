@@ -139,7 +139,7 @@ declare namespace FontShape {
 }
 declare namespace FontShape {
     class VerticalBoundsStretchPath extends paper.Group {
-        static POINTS_PER_PATH: number;
+        static pointsPerPath: number;
         private _boundaries;
         private _content;
         private _warped;
