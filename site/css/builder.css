@@ -1,10 +1,19 @@
 #pageContainer {
     display: flex;
+    flex: 1;
 }
 
 #templateControls {
-    flex-basis: 500px;
+    flex: 1;
+    min-width: 200px;
     margin: 10px;
+    overflow-y: scroll;
+    font-size: 16px;
+}
+
+#previewCanvasContainer {
+    flex: 1;
+    min-width: 400px;
 }
 
 #templateControls input,
@@ -16,14 +25,6 @@
 #templateControls textarea {
     width: 500px;
     resize: none;
-}
-
-#templateControls {
-    font-size: 16px;
-}
-
-#previewCanvasContainer {
-    min-width: 400px;
 }
 
 ul, menu, dir {
