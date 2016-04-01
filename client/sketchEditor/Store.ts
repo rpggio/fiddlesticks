@@ -46,7 +46,7 @@ namespace SketchEditor {
         setupState() {
             this.state.browserId = Cookies.get(Store.BROWSER_ID_KEY);
             if (!this.state.browserId) {
-                this.state.browserId = newid();
+                this.state.browserId = Framework.newid();
                 Cookies.set(Store.BROWSER_ID_KEY, this.state.browserId, { expires: 2 * 365 });
             }
         }
@@ -147,7 +147,7 @@ namespace SketchEditor {
 
             actions.sketch.clone.subscribe(() => {
                 const clone = _.clone(this.state.sketch);
-                clone._id = newid();
+                clone._id = Framework.newid();
                 clone.browserId = this.state.browserId;
                 clone.savedAt = null;
                 this.loadSketch(clone);
@@ -179,7 +179,7 @@ namespace SketchEditor {
                     if (!patch.text || !patch.text.length) {
                         return;
                     }
-                    let block = { _id: newid() } as TextBlock;
+                    let block = { _id: Framework.newid() } as TextBlock;
                     this.merge(block, patch);
 
                     block.textColor = this.state.sketch.defaultTextBlockAttr.textColor;
@@ -309,7 +309,7 @@ namespace SketchEditor {
         private loadGreetingSketch(): JQueryPromise<any> {
             return S3Access.getJson(Store.GREETING_SKETCH_ID + ".json")
                 .done((sketch: Sketch) => {
-                    sketch._id = newid();
+                    sketch._id = Framework.newid();
                     sketch.browserId = this.state.browserId;
                     this.loadSketch(sketch);
                 });
@@ -381,7 +381,7 @@ namespace SketchEditor {
 
         private newSketch(attr?: SketchAttr): Sketch {
             const sketch = <Sketch>this.defaultSketchAttr();
-            sketch._id = newid();
+            sketch._id = Framework.newid();
             if (attr) {
                 this.merge(sketch, attr);
             }

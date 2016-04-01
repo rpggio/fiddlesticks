@@ -15,7 +15,8 @@ namespace SketchBuilder.Templates {
                     shape: "narrow",
                     font: {
                         family: defaultFontRecord.family
-                    }
+                    },
+                    seed: Math.random()
                 },
                 fontCategory: defaultFontRecord.category
             }
@@ -74,6 +75,8 @@ namespace SketchBuilder.Templates {
                 let lower: paper.Path;
                 let remaining = blocks.length;
 
+                const seedRandom = new Framework.SeedRandom(
+                    design.seed == null ? Math.random() : design.seed);
                 for (const block of blocks) {
                     if (--remaining <= 0) {
                         const mid = upper.bounds.center;
@@ -83,7 +86,7 @@ namespace SketchBuilder.Templates {
                             new paper.Point(maxWidth, mid.y + lineHeight)
                         ]);
                     } else {
-                        lower = this.randomLowerPathFor(upper, lineHeight);
+                        lower = this.randomLowerPathFor(upper, lineHeight, seedRandom);
                     }
                     const stretch = new FontShape.VerticalBoundsStretchPath(
                         block, { upper, lower });
@@ -104,13 +107,13 @@ namespace SketchBuilder.Templates {
             });
         }
 
-        private randomLowerPathFor(upper: paper.Path, avgHeight: number): paper.Path {
+        private randomLowerPathFor(upper: paper.Path, avgHeight: number, seedRandom: Framework.SeedRandom): paper.Path {
             const points: paper.Point[] = [];
             let upperCenter = upper.bounds.center;
             let x = 0;
             const numPoints = 4;
             for (let i = 0; i < numPoints; i++) {
-                const y = upperCenter.y + (Math.random() - 0.5) * this.lineHeightVariation * avgHeight;
+                const y = upperCenter.y + (seedRandom.random() - 0.5) * this.lineHeightVariation * avgHeight;
                 points.push(new paper.Point(x, y));
                 x += upper.bounds.width / (numPoints - 1);
             }

@@ -56,7 +56,7 @@ namespace App {
             this.cookies = cookies;
             this.router = router;
             
-            const browserId = this.cookies.browserId || newid();
+            const browserId = this.cookies.browserId || Framework.newid();
             // init or refresh cookie
             this.cookies.browserId = browserId;
         }
