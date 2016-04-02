@@ -45,6 +45,9 @@ namespace SketchBuilder.Templates {
                     case "narrow":
                         lines = this.splitWordsNarrow(words);
                         break;
+                    case "balanced":
+                        lines = this.splitWordsBalanced(words);
+                        break;
                     case "wide":
                         lines = this.splitWordsWide(words);
                         break;
@@ -129,6 +132,11 @@ namespace SketchBuilder.Templates {
             return this.balanceLines(words, targetLength);
         }
 
+        private splitWordsBalanced(words: string[]) {
+            const targetLength = 2 * Math.sqrt(_.sum(words.map(w => w.length + 1)));
+            return this.balanceLines(words, targetLength);
+        }
+
         private splitWordsWide(words: string[]) {
             const numLines = 3;
             const targetLength = _.sum(words.map(w => w.length + 1)) / numLines;
@@ -187,7 +195,13 @@ namespace SketchBuilder.Templates {
             const value$ = new Rx.Subject<TemplateStateChange>();
             return <BuilderControl>{
                 createNode: (ts: TemplateState) => {
-                    const choices = ["narrow", "wide"].map(shape => <ControlHelpers.Choice>{
+                    const shapes = ["narrow"];
+                    // balanced only available for >= N words
+                    if(ts.design.text.split(/\s/).length >= 7){
+                        shapes.push("balanced");
+                    }
+                    shapes.push("wide");
+                    const choices = shapes.map(shape => <ControlHelpers.Choice>{
                         node: h("span",
                             {},
                             [shape]),
