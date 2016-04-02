@@ -125,10 +125,20 @@ namespace SketchBuilder.Templates {
         }
 
         private splitWordsNarrow(words: string[]): string[] {
+            const targetLength = _.max(words.map(w => w.length));
+            return this.balanceLines(words, targetLength);
+        }
+
+        private splitWordsWide(words: string[]) {
+            const numLines = 3;
+            const targetLength = _.sum(words.map(w => w.length + 1)) / numLines;
+            return this.balanceLines(words, targetLength);
+        }
+
+        private balanceLines(words: string[], targetLength: number) {
             const lines: string[] = [];
-            const ideal = _.max(words.map(w => w.length));
             const calcScore = (text: string) =>
-                Math.pow(Math.abs(ideal - text.length), 2);
+                Math.pow(Math.abs(targetLength - text.length), 2);
 
             let currentLine = null;
             let currentScore = 10000;
@@ -152,22 +162,6 @@ namespace SketchBuilder.Templates {
             }
             lines.push(currentLine);
             return lines;
-        }
-
-        private splitWordsWide(words: string[]) {
-            const targetLength = _.sum(words.map(w => w.length + 1)) / 2;
-            const firstLine = words;
-            const secondLine = [];
-            let secondLineLength = 0;
-            while (secondLineLength < targetLength) {
-                const word = words.pop();
-                secondLine.unshift(word);
-                secondLineLength += word.length + 1;
-            }
-            return [
-                firstLine.join(" "),
-                secondLine.join(" ")
-            ];
         }
 
         private createTextEntry(): BuilderControl {
