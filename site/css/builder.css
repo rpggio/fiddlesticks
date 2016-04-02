@@ -36,6 +36,12 @@
     resize: none;
 }
 
+#templateControls > div {
+    display: inline-block;
+    margin-right: 20px;
+    vertical-align: top;
+}
+
 ul, menu, dir {
     -webkit-padding-start: inherit;
 }

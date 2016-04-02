@@ -26,6 +26,7 @@ namespace SketchBuilder.Templates {
             return [
                 this.createTextEntry(),
                 this.createShapeChooser(context),
+                this.createVariationControl(),
                 context.createFontChooser(),
                 this.createPaletteChooser()
             ];
@@ -54,7 +55,7 @@ namespace SketchBuilder.Templates {
 
                 let textColor = design.palette && design.palette.color || "black";
                 let backgroundColor = "white";
-                if(design.palette && design.palette.invert){
+                if (design.palette && design.palette.invert) {
                     [textColor, backgroundColor] = [backgroundColor, textColor];
                 }
 
@@ -206,6 +207,35 @@ namespace SketchBuilder.Templates {
                         [
                             h("h3", {}, ["Shape"]),
                             ControlHelpers.chooser(choices)
+                        ]);
+                    return node;
+
+                },
+                value$: value$.asObservable()
+            };
+        }
+
+        private createVariationControl(): BuilderControl {
+            const value$ = new Rx.Subject<TemplateStateChange>();
+            return <BuilderControl>{
+                createNode: (ts: TemplateState) => {
+
+                    const button = h("button.btn",
+                        {
+                            attrs: {
+                                type: "button"
+                            },
+                            on: {
+                                click: () => value$.onNext({ design: { seed: Math.random() } })
+                            }
+                        },
+                        ["Next"]
+                    );
+
+                    const node = h("div",
+                        [
+                            h("h3", {}, ["Variation"]),
+                            button
                         ]);
                     return node;
 
