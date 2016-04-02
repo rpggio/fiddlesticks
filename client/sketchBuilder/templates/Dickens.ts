@@ -64,24 +64,28 @@ namespace SketchBuilder.Templates {
 
                 const box = new paper.Group();
 
-                const blocks = lines.map(l => {
-                    const pathData = font.getPath(l, 0, 0, this.defaultFontSize).toPathData();
-                    return new paper.CompoundPath(pathData);
+                const layoutItems = lines.map(line => {
+                    const pathData = font.getPath(line, 0, 0, this.defaultFontSize).toPathData();
+                    return {
+                        block: new paper.CompoundPath(pathData),
+                        line
+                    };
                 });
 
-                const maxWidth = _.max(blocks.map(b => b.bounds.width));
-                const lineHeight = blocks[0].bounds.height;
+                const maxWidth = _.max(layoutItems.map(b => b.block.bounds.width));
+                const arrangePathPoints = Math.min(4, Math.round(maxWidth / 2));
+                const lineHeight = layoutItems[0].block.bounds.height;
 
                 let upper = new paper.Path([
                     new paper.Point(0, 0),
                     new paper.Point(maxWidth, 0)
                 ]);
                 let lower: paper.Path;
-                let remaining = blocks.length;
+                let remaining = layoutItems.length;
 
                 const seedRandom = new Framework.SeedRandom(
                     design.seed == null ? Math.random() : design.seed);
-                for (const block of blocks) {
+                for (const layoutItem of layoutItems) {
                     if (--remaining <= 0) {
                         const mid = upper.bounds.center;
                         // last lower line is level
@@ -90,10 +94,12 @@ namespace SketchBuilder.Templates {
                             new paper.Point(maxWidth, mid.y + lineHeight)
                         ]);
                     } else {
-                        lower = this.randomLowerPathFor(upper, lineHeight, seedRandom);
+                        lower = this.randomLowerPathFor(upper, lineHeight, 
+                            arrangePathPoints, seedRandom);
                     }
                     const stretch = new FontShape.VerticalBoundsStretchPath(
-                        block, { upper, lower });
+                        layoutItem.block, 
+                        { upper, lower });
                     stretch.fillColor = textColor;
                     box.addChild(stretch);
                     upper = lower;
@@ -111,11 +117,15 @@ namespace SketchBuilder.Templates {
             });
         }
 
-        private randomLowerPathFor(upper: paper.Path, avgHeight: number, seedRandom: Framework.SeedRandom): paper.Path {
+        private randomLowerPathFor(
+            upper: paper.Path, 
+            avgHeight: number,
+            numPoints,
+            seedRandom: Framework.SeedRandom
+            ): paper.Path {
             const points: paper.Point[] = [];
             let upperCenter = upper.bounds.center;
             let x = 0;
-            const numPoints = 4;
             for (let i = 0; i < numPoints; i++) {
                 const y = upperCenter.y + (seedRandom.random() - 0.5) * this.lineHeightVariation * avgHeight;
                 points.push(new paper.Point(x, y));
