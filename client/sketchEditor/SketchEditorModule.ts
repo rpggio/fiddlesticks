@@ -26,8 +26,8 @@ namespace SketchEditor {
             const selectedItemEditor = new SelectedItemEditor(document.getElementById("editorOverlay"), this.store);
             const helpDialog = new HelpDialog(document.getElementById("help-dialog"), this.store);
 
-            // events.subscribe(m => console.log("event", m.type, m.data));
-            // actions.subscribe(m => console.log("action", m.type, m.data));
+            // this.store.events.subscribe(m => console.log("event", m.type, m.data));
+            // this.store.actions.subscribe(m => console.log("action", m.type, m.data));
         }
 
         start() {

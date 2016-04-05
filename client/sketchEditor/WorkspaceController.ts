@@ -16,6 +16,7 @@ namespace SketchEditor {
         private store: Store;
         private _sketch: Sketch;
         private _textBlockItems: { [textBlockId: string]: TextWarp } = {};
+        private _workspace: paper.Item;
 
         constructor(store: Store, fallbackFont: opentype.Font) {
             this.store = store;
@@ -87,8 +88,10 @@ namespace SketchEditor {
             store.events.sketch.loaded.subscribe(
                 ev => {
                     this._sketch = ev.data;
+
                     this.project.clear();
                     this.project.deselectAll();
+                    this._workspace = new paper.Group();
                     this._textBlockItems = {};
                 }
             );
@@ -151,21 +154,13 @@ namespace SketchEditor {
 
         zoomToFit() {
             const bounds = this.getViewableBounds();
-            this.viewZoom.zoomTo(bounds.scale(1.2));
+            if(bounds.width > 0 && bounds.height > 0){
+                this.viewZoom.zoomTo(bounds.scale(1.2));
+            }
         }
 
         private getViewableBounds(): paper.Rectangle {
-            let bounds: paper.Rectangle;
-            _.forOwn(this._textBlockItems, (item) => {
-                bounds = bounds
-                    ? bounds.unite(item.bounds)
-                    : item.bounds;
-            });
-            if (!bounds) {
-                bounds = new paper.Rectangle(new paper.Point(0, 0),
-                    this.defaultSize.multiply(this.defaultScale));
-            }
-            return bounds;
+            return this._workspace.bounds;
         }
 
         /**
@@ -173,7 +168,7 @@ namespace SketchEditor {
          */
         private getSnapshotPNG(dpi: number): string {
             const background = this.insertBackground();
-            const raster = this.project.activeLayer.rasterize(dpi, false);
+            const raster = this._workspace.rasterize(dpi, false);
             const data = raster.toDataURL();
             background.remove();
             return data;
@@ -181,7 +176,7 @@ namespace SketchEditor {
 
         private downloadPNG() {
             // Half of max DPI produces approx 4200x4200.
-            const dpi = 0.5 * PaperHelpers.getMaxExportDpi(this.project.activeLayer.bounds.size);
+            const dpi = 0.5 * PaperHelpers.getMaxExportDpi(this._workspace.bounds.size);
             const data = this.getSnapshotPNG(dpi);
             
             const fileName = SketchHelpers.getSketchFileName(
@@ -196,6 +191,7 @@ namespace SketchEditor {
                 background = this.insertBackground();
             }
 
+            this.project.deselectAll();
             var dataUrl = "data:image/svg+xml;utf8," + encodeURIComponent(
                 <string>this.project.exportSVG({ asString: true }));
             const blob = DomHelpers.dataURLToBlob(dataUrl);
@@ -220,6 +216,7 @@ namespace SketchEditor {
                 bounds.bottomRight.add(margin));
             background.fillColor = this.store.state.sketch.backgroundColor;
             background.sendToBack();
+            this._workspace.insertChild(0, background);
             return background;
         }
 
@@ -266,6 +263,8 @@ namespace SketchEditor {
                     fillColor: textBlock.textColor || "red",    // textColor should have been set elsewhere 
                     backgroundColor: textBlock.backgroundColor
                 });
+
+            this._workspace.addChild(item);
 
             paperExt.extendMouseEvents(item);
 

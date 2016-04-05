@@ -24,16 +24,15 @@ namespace paperExt {
         constructor(project: paper.Project) {
             this.project = project;
 
-            const view = this.project.view;
-
-            (<any>$(view.element)).mousewheel((event) => {
+            (<any>$(this.project.view.element)).mousewheel((event) => {
                 const mousePosition = new paper.Point(event.offsetX, event.offsetY);
                 this.changeZoomCentered(event.deltaY, mousePosition);
             });
 
             let didDrag = false;
 
-            view.on(paper.EventType.mouseDrag, ev => {
+            this.project.view.on(paper.EventType.mouseDrag, ev => {
+                const view = this.project.view;
                 const hit = project.hitTest(ev.point);
                 if (!this._viewCenterStart) {  // not already dragging
                     if (hit) {
@@ -59,7 +58,8 @@ namespace paperExt {
                 }
             });
 
-            view.on(paper.EventType.mouseUp, ev => {
+            this.project.view.on(paper.EventType.mouseUp, ev => {
+                const view = this.project.view;
                 if (this._mouseNativeStart) {
                     this._mouseNativeStart = null;
                     this._viewCenterStart = null;
@@ -106,11 +106,16 @@ namespace paperExt {
         }
 
         zoomTo(rect: paper.Rectangle) {
+            if(rect.isEmpty() || rect.width === 0 || rect.height === 0){
+                console.warn("skipping zoom to", rect);
+                return;
+            }
             const view = this.project.view;
             view.center = rect.center;
-            view.zoom = Math.min(
+            const zoomLevel = Math.min(
                 view.viewSize.height / rect.height,
                 view.viewSize.width / rect.width);
+            view.zoom = zoomLevel;
             this._viewChanged.notify(view.bounds);
         }
 
