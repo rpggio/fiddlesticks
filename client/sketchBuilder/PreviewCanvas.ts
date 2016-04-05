@@ -10,12 +10,14 @@ namespace SketchBuilder {
         private lastReceived: Design;
         private rendering = false;
         private project: paper.Project;
+        private workspace: paper.Group;
 
         constructor(canvas: HTMLCanvasElement, store: Store) {
             this.store = store;
 
             paper.setup(canvas);
             this.project = paper.project;
+            this.workspace = new paper.Group();
 
             FontShape.VerticalBoundsStretchPath.pointsPerPath = 300;
 
@@ -52,8 +54,8 @@ namespace SketchBuilder {
                 return;
             }
             // Half of max DPI produces approx 4200x4200.
-            const dpi = 0.5 * PaperHelpers.getMaxExportDpi(this.project.activeLayer.bounds.size);
-            const raster = this.project.activeLayer.rasterize(dpi, false);
+            const dpi = 0.5 * PaperHelpers.getMaxExportDpi(this.workspace.bounds.size);
+            const raster = this.workspace.rasterize(dpi, false);
             const data = raster.toDataURL();
             const fileName = Fstx.Framework.createFileName(this.store.design.text, 40, "png");
             const blob = DomHelpers.dataURLToBlob(data);
@@ -74,6 +76,7 @@ namespace SketchBuilder {
             }
             this.rendering = true;
             paper.project.activeLayer.removeChildren();
+            this.workspace = new paper.Group();
             return this.store.template.build(design, this.context).then(item => {
                 try {
                     if (!item) {
@@ -83,6 +86,7 @@ namespace SketchBuilder {
 
                     item.fitBounds(this.project.view.bounds);
                     item.bounds.point = this.project.view.bounds.topLeft;
+                    this.workspace.addChild(item);
                 }
                 finally {
                     this.rendering = false;
