@@ -32,6 +32,8 @@ namespace SketchEditor {
         events = new Events();
 
         private appStore: App.Store;
+        private _operation$ = new Rx.Subject<Operation>();
+        private _transparency$ = new Rx.Subject<boolean>();
 
         constructor(appStore: App.Store) {
             this.appStore = appStore;
@@ -261,6 +263,50 @@ namespace SketchEditor {
                         this.changedSketchContent();
                     }
                 });
+        }
+
+        get operation$() {
+            return this._operation$.asObservable();
+        }
+
+        get transparency$() {
+            return this._transparency$.asObservable();
+        }
+        
+        public showOperation(operation: Operation){
+            this.state.operation = operation;
+            operation.onClose = () => {
+                if(this.state.operation === operation){
+                    this.hideOperation(); 
+                }
+            }
+            this._operation$.onNext(operation);
+        }
+        
+        public hideOperation() {
+            this.state.operation = null;
+            this._operation$.onNext(null);                    
+        }
+
+        public imageUploaded(src: string){
+            this.state.uploadedImage = src;
+            this.events.sketch.imageUploaded.dispatch(src);
+            if(!this.state.transparency){
+                this.setTransparency(true);
+            }  
+        }
+
+        public removeUploadedImage(){
+            this.state.uploadedImage = null;
+            this.events.sketch.imageUploaded.dispatch(null);
+            if(this.state.transparency){
+                this.setTransparency(false);
+            }
+        }
+
+        public setTransparency(value?: boolean) {
+            this.state.transparency = value;
+            this._transparency$.onNext(this.state.transparency);
         }
 
         private openSketch(id: string): JQueryPromise<Sketch> {

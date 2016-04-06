@@ -56,6 +56,7 @@ namespace SketchEditor {
             selectionChanged: this.topic<WorkspaceObjectRef>("sketch.selectionChanged"),
             saveLocalRequested: this.topic<void>("sketch.savelocal.saveLocalRequested"),
             cloned: this.topic<Sketch>("sketch.cloned"),
+            imageUploaded: this.topic<string>("sketch.imageUploaded"),
         };
 
         textblock = {

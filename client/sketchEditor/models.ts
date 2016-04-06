@@ -1,5 +1,13 @@
 namespace SketchEditor {
 
+    export interface VControl {
+        render(): VNode;
+    }
+    
+    export interface Operation extends VControl {
+        onClose: () => void; 
+    }
+
     export interface EditorState {
         browserId?: string;
         editingItem?: PositionedObjectRef;
@@ -9,6 +17,9 @@ namespace SketchEditor {
         sketch?: Sketch;
         showHelp?: boolean;
         sketchIsDirty?: boolean;
+        operation?: Operation;
+        transparency?: boolean;
+        uploadedImage?: string;
     }
 
     export interface StoreResources {

@@ -54,6 +54,17 @@ ul.dropdown-menu > li {
     padding: 5px;
 }
 
+#operationPanel {
+    color: white;
+    background-color: #888888;
+    padding: 8px;
+}
+
+#operationPanel h3 {
+    margin-top: 0;
+    font-size: 20px;
+}
+
 #designer > * {
     display: inline-block;
     margin: 3px 5px;

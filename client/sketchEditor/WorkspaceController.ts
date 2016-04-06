@@ -1,3 +1,7 @@
+interface Window {
+    webkitURL: URL;
+}
+
 namespace SketchEditor {
 
     export class WorkspaceController {
@@ -17,6 +21,7 @@ namespace SketchEditor {
         private _sketch: Sketch;
         private _textBlockItems: { [textBlockId: string]: TextWarp } = {};
         private _workspace: paper.Item;
+        private _backgroundImage: paper.Raster;
 
         constructor(store: Store, fallbackFont: opentype.Font) {
             this.store = store;
@@ -134,7 +139,7 @@ namespace SketchEditor {
                 if (item) {
                     item.font = data.font;
                 }
-            })
+            });
 
             store.events.textblock.removed.subscribe(m => {
                 let item = this._textBlockItems[m.data._id];
@@ -149,7 +154,16 @@ namespace SketchEditor {
                 if (item) {
                     item.updateTextPath();
                 }
+            });
+            
+            store.events.sketch.imageUploaded.sub(url => {
+                this.setBackgroundImage(url);
+            });
+            
+            store.transparency$.subscribe(value => {
+                this._workspace.opacity = value ? 0.75 : 1;
             })
+            
         }
 
         zoomToFit() {
@@ -160,7 +174,13 @@ namespace SketchEditor {
         }
 
         private getViewableBounds(): paper.Rectangle {
-            return this._workspace.bounds;
+            const bounds = this._workspace.bounds;
+            if(!bounds || bounds.width === 0 || bounds.height === 0){
+                return new paper.Rectangle(
+                    new paper.Point(0,0), 
+                    this.defaultSize.multiply(0.05));
+            }
+            return bounds;
         }
 
         /**
@@ -341,6 +361,25 @@ namespace SketchEditor {
                 position: [item.position.x, item.position.y],
                 outline: { top, bottom }
             }
+        }
+        
+        private setBackgroundImage(url: string){
+            if(!url){
+                if(this._backgroundImage){
+                    this._backgroundImage.remove();
+                }
+                this._backgroundImage = null;
+            }
+            
+            const raster = new paper.Raster(url);
+            (<any>raster).onLoad = () => {
+                raster.sendToBack();
+                raster.fitBounds(this.getViewableBounds());
+                if(this._backgroundImage){
+                    this._backgroundImage.remove();
+                }
+                this._backgroundImage = raster;
+            };
         }
     }
 

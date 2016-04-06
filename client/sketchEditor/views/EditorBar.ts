@@ -108,6 +108,39 @@ namespace SketchEditor {
                             }
                         },
                         {
+                            content: "Toggle transparency",
+                            options: {
+                                attrs: {
+                                    title: "See through text to elements behind"
+                                },
+                                on: {
+                                    click: () => this.store.setTransparency(!this.store.state.transparency)
+                                }
+                            }
+                        },
+                        {
+                            content: "Upload tracing image",
+                            options: {
+                                attrs: {
+                                    title: "Upload image into workspace for tracing"
+                                },
+                                on: {
+                                    click: () => this.store.showOperation(new UploadImage(this.store))
+                                }
+                            }
+                        },
+                        {
+                            content: "Remove tracing image",
+                            options: {
+                                attrs: {
+                                    title: "Remove background tracing image"
+                                },
+                                on: {
+                                    click: () => this.store.removeUploadedImage()
+                                }
+                            }
+                        },
+                        {
                             content: "Export image",
                             options: {
                                 attrs: {
