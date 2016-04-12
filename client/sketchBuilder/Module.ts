@@ -10,6 +10,8 @@ namespace SketchBuilder {
             renderCanvas: HTMLCanvasElement,
             belowCanvas: HTMLElement) {
 
+            FontShape.VerticalBoundsStretchPath.pointsPerPath = 400;
+
             this.store = new Store();
             this.builder = new Builder(builderContainer, this.store);
 
@@ -26,7 +28,11 @@ namespace SketchBuilder {
                 this.store.setTemplate("Dickens");
                 this.store.updateTemplateState(
                     { design:
-                        { text: "The rain in Spain falls mainly in the plain"}
+                        { 
+                            content: { 
+                                text: "The rain in Spain falls mainly in the plain"
+                            } 
+                        }
                     });
             })
 

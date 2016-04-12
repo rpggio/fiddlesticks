@@ -21,10 +21,10 @@ namespace SketchBuilder {
 
             // async observe
             store.template$.observeOn(Rx.Scheduler.default).subscribe(t => {
-                const currentText = store.design.text;
+                const currentContent = store.design.content;
                 const newTemplateState = t.createNew(context);
-                if (currentText && currentText.length) {
-                    newTemplateState.design.text = currentText;
+                if (currentContent && currentContent.text && currentContent.text.length) {
+                    newTemplateState.design.content = currentContent;
                 }
                 store.setTemplateState(newTemplateState);
             });

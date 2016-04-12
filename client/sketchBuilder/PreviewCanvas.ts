@@ -50,14 +50,16 @@ namespace SketchBuilder {
         }
 
         private downloadPNG() {
-            if (!this.store.design.text || !this.store.design.text.length) {
+            if (!this.store.design.content 
+                || !this.store.design.content.text 
+                || !this.store.design.content.text.length) {
                 return;
             }
             // Half of max DPI produces approx 4200x4200.
             const dpi = 0.5 * PaperHelpers.getMaxExportDpi(this.workspace.bounds.size);
             const raster = this.workspace.rasterize(dpi, false);
             const data = raster.toDataURL();
-            const fileName = Fstx.Framework.createFileName(this.store.design.text, 40, "png");
+            const fileName = Fstx.Framework.createFileName(this.store.design.content.text, 40, "png");
             const blob = DomHelpers.dataURLToBlob(data);
             saveAs(blob, fileName);
         }

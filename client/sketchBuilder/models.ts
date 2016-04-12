@@ -30,7 +30,7 @@ namespace SketchBuilder {
     }
     
     export interface Design {
-        text?: string;
+        content?: any;
         shape?: string;
         font?: FontShape.FontSpecifier;
         palette?: DesignPalette;

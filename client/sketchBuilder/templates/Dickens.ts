@@ -33,28 +33,30 @@ namespace SketchBuilder.Templates {
         }
 
         build(design: Design, context: TemplateBuildContext): Promise<paper.Item> {
-            if (!design.text) {
+            if (!design.content || !design.content.text) {
                 return Promise.resolve(null);
             }
 
             return context.getFont(design.font).then(font => {
-                const words = design.text.toLocaleUpperCase().split(/\s/);
+                const words = design.content.text.toLocaleUpperCase().split(/\s/);
 
-                let lines: string[];
+                const seedRandom = new Framework.SeedRandom(
+                    design.seed == null ? Math.random() : design.seed);
+                let targetLength: number;
                 switch (design.shape) {
-                    case "narrow":
-                        lines = this.splitWordsNarrow(words);
-                        break;
                     case "balanced":
-                        lines = this.splitWordsBalanced(words);
+                        targetLength = 2 * Math.sqrt(_.sum(words.map(w => w.length + 1)));
                         break;
                     case "wide":
-                        lines = this.splitWordsWide(words);
+                        const numLines = 3
+                        targetLength = _.sum(words.map(w => w.length + 1)) / numLines;
                         break;
                     default:
-                        lines = this.splitWordsNarrow(words);
+                        targetLength = <number>_.max(words.map(w => w.length));
                         break;
                 }
+                targetLength *= (1 + seedRandom.random() * 0.5);
+                const lines = this.balanceLines(words, targetLength);
 
                 let textColor = design.palette && design.palette.color || "black";
                 let backgroundColor = "white";
@@ -64,12 +66,15 @@ namespace SketchBuilder.Templates {
 
                 const box = new paper.Group();
 
+                const createTextBlock = (s: string, size = this.defaultFontSize) => {
+                    const pathData = font.getPath(s, 0, 0, size).toPathData();
+                    return new paper.CompoundPath(pathData);
+                };
                 const layoutItems = lines.map(line => {
-                    const pathData = font.getPath(line, 0, 0, this.defaultFontSize).toPathData();
                     return {
-                        block: new paper.CompoundPath(pathData),
+                        block: createTextBlock(line),
                         line
-                    };
+                    }
                 });
 
                 const maxWidth = _.max(layoutItems.map(b => b.block.bounds.width));
@@ -83,8 +88,6 @@ namespace SketchBuilder.Templates {
                 let lower: paper.Path;
                 let remaining = layoutItems.length;
 
-                const seedRandom = new Framework.SeedRandom(
-                    design.seed == null ? Math.random() : design.seed);
                 for (const layoutItem of layoutItems) {
                     if (--remaining <= 0) {
                         const mid = upper.bounds.center;
@@ -94,16 +97,32 @@ namespace SketchBuilder.Templates {
                             new paper.Point(maxWidth, mid.y + lineHeight)
                         ]);
                     } else {
-                        lower = this.randomLowerPathFor(upper, lineHeight, 
+                        lower = this.randomLowerPathFor(upper, lineHeight,
                             arrangePathPoints, seedRandom);
                     }
                     const stretch = new FontShape.VerticalBoundsStretchPath(
-                        layoutItem.block, 
+                        layoutItem.block,
                         { upper, lower });
                     stretch.fillColor = textColor;
                     box.addChild(stretch);
                     upper = lower;
                     lower = null;
+                }
+
+                if (design.content.source) {
+                    const sourceBlock = createTextBlock(design.content.source, this.defaultFontSize * 0.33);
+                    sourceBlock.fillColor = textColor;
+                    sourceBlock.translate(
+                        upper.bounds.bottomLeft.add(
+                            new paper.Point(
+                                maxWidth - sourceBlock.bounds.width, // right-align
+                                sourceBlock.bounds.height * 1.1 // shift height plus top margin
+                                )));
+                    if(sourceBlock.bounds.left < 0){
+                        // adjust for long source line
+                        sourceBlock.bounds.left = 0;
+                    }
+                    box.addChild(sourceBlock);
                 }
 
                 const bounds = box.bounds.clone();
@@ -118,11 +137,11 @@ namespace SketchBuilder.Templates {
         }
 
         private randomLowerPathFor(
-            upper: paper.Path, 
+            upper: paper.Path,
             avgHeight: number,
             numPoints,
             seedRandom: Framework.SeedRandom
-            ): paper.Path {
+        ): paper.Path {
             const points: paper.Point[] = [];
             let upperCenter = upper.bounds.center;
             let x = 0;
@@ -135,22 +154,6 @@ namespace SketchBuilder.Templates {
             path.smooth();
             path.bounds.center = upper.bounds.center.add(new paper.Point(0, avgHeight));
             return path;
-        }
-
-        private splitWordsNarrow(words: string[]): string[] {
-            const targetLength = _.max(words.map(w => w.length));
-            return this.balanceLines(words, targetLength);
-        }
-
-        private splitWordsBalanced(words: string[]) {
-            const targetLength = 2 * Math.sqrt(_.sum(words.map(w => w.length + 1)));
-            return this.balanceLines(words, targetLength);
-        }
-
-        private splitWordsWide(words: string[]) {
-            const numLines = 3;
-            const targetLength = _.sum(words.map(w => w.length + 1)) / numLines;
-            return this.balanceLines(words, targetLength);
         }
 
         private balanceLines(words: string[], targetLength: number) {
@@ -183,21 +186,29 @@ namespace SketchBuilder.Templates {
         }
 
         private createTextEntry(): BuilderControl {
-            const textInput = new TextInput();
+            const mainTextInput = new TextInput();
+            const sourceTextInput = new TextInput();
             return {
                 createNode: (value: TemplateState) => {
                     return h("div",
                         [
                             h("h3", {}, ["Message"]),
-                            textInput.createNode(
-                                value && value.design.text,
+                            mainTextInput.createNode(
+                                value && value.design.content && value.design.content.text,
                                 "What do you want to say?",
+                                true),
+                            sourceTextInput.createNode(
+                                value && value.design.content && value.design.content.source,
+                                "Source (author, passage, etc)",
                                 true)
                         ]);
                 },
-                value$: textInput.value$.map(v => {
-                    return <TemplateStateChange>{ design: { text: v } };
-                })
+                value$: Rx.Observable.merge(
+                    mainTextInput.value$.map(t =>
+                        <TemplateStateChange>{ design: { content: { text: t } } })
+                    , sourceTextInput.value$.map(t =>
+                        <TemplateStateChange>{ design: { content: { source: t } } })
+                )
             }
         }
 
@@ -207,7 +218,7 @@ namespace SketchBuilder.Templates {
                 createNode: (ts: TemplateState) => {
                     const shapes = ["narrow"];
                     // balanced only available for >= N words
-                    if(ts.design.text.split(/\s/).length >= 7){
+                    if (ts.design.content && ts.design.content.text && ts.design.content.text.split(/\s/).length >= 7) {
                         shapes.push("balanced");
                     }
                     shapes.push("wide");

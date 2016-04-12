@@ -92,8 +92,7 @@ namespace SketchBuilder {
         }
 
         setDesign(value: Design) {
-            this.state.templateState = { design: value };
-            this._templateState$.onNext(this.state.templateState);
+            this.setTemplateState({ design: value })
         }
 
         updateTemplateState(change: TemplateStateChange) {
@@ -113,7 +112,6 @@ namespace SketchBuilder {
             this._state.templateState = state;
             this._templateState$.onNext(state);
         }
-
 
         render(request: RenderRequest) {
             this._render$.onNext(request);
