@@ -107,50 +107,35 @@ namespace SketchEditor {
                                 }
                             }
                         },
+                        
                         {
-                            content: "Toggle transparency",
-                            options: {
-                                attrs: {
-                                    title: "See through text to elements behind"
-                                },
-                                on: {
-                                    click: () => this.store.setTransparency(!this.store.state.transparency)
-                                }
-                            }
-                        },
-                        {
-                            content: "Upload tracing image",
-                            options: {
-                                attrs: {
-                                    title: "Upload image into workspace for tracing"
-                                },
-                                on: {
-                                    click: () => this.store.showOperation(new UploadImage(this.store))
-                                }
-                            }
-                        },
-                        {
-                            content: "Remove tracing image",
-                            options: {
-                                attrs: {
-                                    title: "Remove background tracing image"
-                                },
-                                on: {
-                                    click: () => this.store.removeUploadedImage()
-                                }
-                            }
-                        },
-                        {
-                            content: "Export image",
+                            content: "Export small image",
                             options: {
                                 attrs: {
                                     title: "Export sketch as PNG",
                                 },
                                 on: {
-                                    click: () => this.store.actions.editor.exportPNG.dispatch()
+                                    click: () => this.store.actions.editor.exportPNG.dispatch({
+                                        pixels: 100 * 1000
+                                    })
                                 }
                             }
                         },
+                        
+                        {
+                            content: "Export medium image",
+                            options: {
+                                attrs: {
+                                    title: "Export sketch as PNG",
+                                },
+                                on: {
+                                    click: () => this.store.actions.editor.exportPNG.dispatch({
+                                        pixels: 500 * 1000
+                                    })
+                                }
+                            }
+                        },
+
                         {
                             content: "Export SVG",
                             options: {
@@ -163,7 +148,7 @@ namespace SketchEditor {
                             }
                         },
                         {
-                            content: "Duplicate sketch",
+                            content: "Duplicate sketch (new URL)",
                             options: {
                                 attrs: {
                                     title: "Copy contents into a sketch with a new address"
@@ -174,7 +159,7 @@ namespace SketchEditor {
                             }
                         },
                         {
-                            content: "Open sample sketch",
+                            content: "Load sample sketch",
                             options: {
                                 attrs: {
                                     title: "Open a sample sketch to play with"
@@ -186,6 +171,40 @@ namespace SketchEditor {
                         },
                     ]
                 }),
+
+                {
+                    content: "Upload tracing image",
+                    options: {
+                        attrs: {
+                            title: "Upload image into workspace for tracing"
+                        },
+                        on: {
+                            click: () => this.store.showOperation(new UploadImage(this.store))
+                        }
+                    }
+                },
+                {
+                    content: "Remove tracing image",
+                    options: {
+                        attrs: {
+                            title: "Remove background tracing image"
+                        },
+                        on: {
+                            click: () => this.store.removeUploadedImage()
+                        }
+                    }
+                },
+                {
+                    content: "Toggle transparency",
+                    options: {
+                        attrs: {
+                            title: "See through text to elements behind"
+                        },
+                        on: {
+                            click: () => this.store.setTransparency(!this.store.state.transparency)
+                        }
+                    }
+                },
 
 
 

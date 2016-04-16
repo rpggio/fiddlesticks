@@ -85,6 +85,10 @@ namespace SketchEditor {
         segments: SegmentRecord[];
     }
 
+    export interface ImageExportOptions {
+        pixels?: number;
+    }
+
     /**
      * Single-point segments are stored as number[2]
      */

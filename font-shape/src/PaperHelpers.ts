@@ -19,10 +19,15 @@ namespace PaperHelpers {
     /**
      * Determine the max dpi that can supported by Canvas.
      * Using Safari as the measure, because it seems to have the smallest limit.
+     * Max DPI in Chrome produces approx 8000x8000.
      */
     export function getMaxExportDpi(itemSize: paper.Size){
+        return getExportDpi(itemSize, SAFARI_MAX_CANVAS_AREA);
+    }
+
+    export function getExportDpi(itemSize: paper.Size, pixels: number){
         const itemArea = itemSize.width * itemSize.height;
-        return 0.999 * Math.sqrt(SAFARI_MAX_CANVAS_AREA) 
+        return 0.999 * Math.sqrt(pixels)
                 * (paper.view.resolution) 
                 /  Math.sqrt(itemArea);
     }

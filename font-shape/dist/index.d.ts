@@ -35,8 +35,10 @@ declare namespace PaperHelpers {
     /**
      * Determine the max dpi that can supported by Canvas.
      * Using Safari as the measure, because it seems to have the smallest limit.
+     * Max DPI in Chrome produces approx 8000x8000.
      */
     function getMaxExportDpi(itemSize: paper.Size): number;
+    function getExportDpi(itemSize: paper.Size, pixels: number): number;
     const importOpenTypePath: (openPath: opentype.Path) => paper.CompoundPath;
     const tracePathItem: (path: paper.PathItem, pointsPerPath: number) => paper.PathItem;
     const traceCompoundPath: (path: paper.CompoundPath, pointsPerPath: number) => paper.CompoundPath;

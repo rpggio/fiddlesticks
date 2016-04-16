@@ -80,8 +80,8 @@ namespace SketchEditor {
                 this.downloadSVG();
             });
 
-            store.events.editor.exportPNGRequested.sub(() => {
-                this.downloadPNG();
+            store.events.editor.exportPNGRequested.sub(options => {
+                this.downloadPNG(options);
             });
 
             store.events.editor.snapshotExpired.sub(() => {
@@ -200,9 +200,9 @@ namespace SketchEditor {
             });
         }
 
-        private downloadPNG() {
-            // Half of max DPI produces approx 4000x4000.
-            const dpi = 0.5 * PaperHelpers.getMaxExportDpi(this._workspace.bounds.size);
+        private downloadPNG(options: ImageExportOptions) {
+            const dpi = PaperHelpers.getExportDpi(this._workspace.bounds.size, 
+                options.pixels || 600 * 600);
             this.getSnapshotPNG(dpi).then(data => {;
                 const fileName = SketchHelpers.getSketchFileName(
                     this.store.state.sketch, 40, "png");
