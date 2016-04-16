@@ -11,6 +11,7 @@ namespace SketchBuilder {
         private rendering = false;
         private project: paper.Project;
         private workspace: paper.Group;
+        private mark: Fstx.Framework.Watermark;
 
         constructor(canvas: HTMLCanvasElement, store: Store) {
             this.store = store;
@@ -35,6 +36,8 @@ namespace SketchBuilder {
                 }
             };
 
+            this.mark = new Fstx.Framework.Watermark(this.project, "img/spiral-logo.svg", 0.06);
+
             store.templateState$.subscribe((ts: TemplateState) => {
                 // only process one request at a time
                 if (this.rendering) {
@@ -55,6 +58,12 @@ namespace SketchBuilder {
                 || !this.store.design.content.text.length) {
                 return;
             }
+            
+            // very fragile way to get bg color
+            const shape = this.workspace.getItem({class: paper.Shape });
+            const bgColor = <paper.Color>shape.fillColor;
+            this.mark.placeInto(this.workspace, bgColor);            
+            
             // Half of max DPI produces approx 4200x4200.
             const dpi = 0.5 * PaperHelpers.getMaxExportDpi(this.workspace.bounds.size);
             const raster = this.workspace.rasterize(dpi, false);
@@ -62,6 +71,8 @@ namespace SketchBuilder {
             const fileName = Fstx.Framework.createFileName(this.store.design.content.text, 40, "png");
             const blob = DomHelpers.dataURLToBlob(data);
             saveAs(blob, fileName);
+            
+            this.mark.remove();
         }
 
         private renderLastReceived() {

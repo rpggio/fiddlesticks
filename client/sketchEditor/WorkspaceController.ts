@@ -22,7 +22,7 @@ namespace SketchEditor {
         private _textBlockItems: { [textBlockId: string]: TextWarp } = {};
         private _workspace: paper.Item;
         private _backgroundImage: paper.Raster;
-        private _watermark: paper.Item;
+        private _mark: Fstx.Framework.Watermark;
 
         constructor(store: Store, fallbackFont: opentype.Font) {
             this.store = store;
@@ -64,10 +64,7 @@ namespace SketchEditor {
 
             const keyHandler = new DocumentKeyHandler(store);
 
-            this.project.importSVG("img/spiral-logo.svg", (watermark: paper.Item) => {
-                this._watermark = watermark;
-                this._watermark.remove();
-            });
+            this._mark = new Fstx.Framework.Watermark(this.project, "img/spiral-logo.svg");
 
             // ----- Designer -----
 
@@ -249,22 +246,9 @@ namespace SketchEditor {
             fill.fillColor = this.store.state.sketch.backgroundColor;
 
             const background = new paper.Group([fill]);
-                
-            if(watermark) {
-                const watermarkDim = Math.sqrt(imageBounds.size.width * imageBounds.size.height) * 0.1;
-                this._watermark.bounds.size = new paper.Size(watermarkDim, watermarkDim);
-                this._watermark.position = imageBounds.bottomRight.subtract(watermarkDim);
 
-                const watermarkPath = this._watermark.getItem({class: paper.CompoundPath});
-                const backgroundColor = <paper.Color>fill.fillColor;
-                if(backgroundColor.lightness > 0.4){
-                    watermarkPath.fillColor = "black";
-                    watermarkPath.opacity = 0.05;
-                } else {
-                    watermarkPath.fillColor = "white";
-                    watermarkPath.opacity = 0.2;
-                }
-                background.addChild(this._watermark);
+            if(watermark) {
+                this._mark.placeInto(background, <paper.Color>fill.fillColor);
             }
            
             this._workspace.insertChild(0, background);
