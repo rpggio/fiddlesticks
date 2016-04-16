@@ -6,6 +6,10 @@ namespace Fstx.Framework {
         private _mark: paper.CompoundPath;
         private _scaleFactor: number;
         
+        get item() {
+            return this._mark;
+        }
+        
         constructor(project: paper.Project, path: string, scaleFactor = 0.1){
             
             this._project = project;

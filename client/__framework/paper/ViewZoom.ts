@@ -21,7 +21,8 @@ namespace paperExt {
         private _viewCenterStart: paper.Point;
         private _viewChanged = new ObservableEvent<paper.Rectangle>();
 
-        constructor(project: paper.Project) {
+        constructor(project: paper.Project,
+            getBackgroundItems?: () => paper.Item[]) {
             this.project = project;
 
             (<any>$(this.project.view.element)).mousewheel((event) => {
@@ -36,8 +37,13 @@ namespace paperExt {
                 const hit = project.hitTest(ev.point);
                 if (!this._viewCenterStart) {  // not already dragging
                     if (hit) {
-                        // don't start dragging
-                        return;
+                        const backgroundItems = getBackgroundItems && getBackgroundItems() || [];
+                        // if hit is on nothing or on a non-background item
+                        if(!hit.item || !backgroundItems.some(bi => 
+                            bi === hit.item || bi.isAncestor(hit.item))){
+                                // then don't use dragging
+                                return;   
+                            }
                     }
                     this._viewCenterStart = view.center;
                     // Have to use native mouse offset, because ev.delta 

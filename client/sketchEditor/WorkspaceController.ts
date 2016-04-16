@@ -42,7 +42,7 @@ namespace SketchEditor {
                 canvasSel.css("background-color", ev.data.backgroundColor)
                 );
 
-            this.viewZoom = new paperExt.ViewZoom(this.project);
+            this.viewZoom = new paperExt.ViewZoom(this.project, () => [this._backgroundImage]);
             this.viewZoom.setZoomRange([
                 this.defaultSize.multiply(this.defaultScale * 0.1),
                 this.defaultSize.multiply(0.5)]);
