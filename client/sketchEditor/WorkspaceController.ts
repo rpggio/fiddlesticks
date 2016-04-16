@@ -22,6 +22,7 @@ namespace SketchEditor {
         private _textBlockItems: { [textBlockId: string]: TextWarp } = {};
         private _workspace: paper.Item;
         private _backgroundImage: paper.Raster;
+        private _watermark: paper.Item;
 
         constructor(store: Store, fallbackFont: opentype.Font) {
             this.store = store;
@@ -63,6 +64,11 @@ namespace SketchEditor {
 
             const keyHandler = new DocumentKeyHandler(store);
 
+            this.project.importSVG("img/spiral-logo.svg", (watermark: paper.Item) => {
+                this._watermark = watermark;
+                this._watermark.remove();
+            });
+
             // ----- Designer -----
 
             store.events.editor.workspaceInitialized.sub(() => {
@@ -82,9 +88,10 @@ namespace SketchEditor {
             });
 
             store.events.editor.snapshotExpired.sub(() => {
-                const data = this.getSnapshotPNG(72);
-                store.actions.editor.updateSnapshot.dispatch({
-                    sketchId: this.store.state.sketch._id, pngDataUrl: data
+                this.getSnapshotPNG(72).then(data => {
+                    store.actions.editor.updateSnapshot.dispatch({
+                        sketchId: this.store.state.sketch._id, pngDataUrl: data
+                    });
                 });
             });
 
@@ -155,29 +162,29 @@ namespace SketchEditor {
                     item.updateTextPath();
                 }
             });
-            
+
             store.events.sketch.imageUploaded.sub(url => {
                 this.setBackgroundImage(url);
             });
-            
+
             store.transparency$.subscribe(value => {
                 this._workspace.opacity = value ? 0.75 : 1;
             })
-            
+
         }
 
         zoomToFit() {
             const bounds = this.getViewableBounds();
-            if(bounds.width > 0 && bounds.height > 0){
+            if (bounds.width > 0 && bounds.height > 0) {
                 this.viewZoom.zoomTo(bounds.scale(1.2));
             }
         }
 
         private getViewableBounds(): paper.Rectangle {
             const bounds = this._workspace.bounds;
-            if(!bounds || bounds.width === 0 || bounds.height === 0){
+            if (!bounds || bounds.width === 0 || bounds.height === 0) {
                 return new paper.Rectangle(
-                    new paper.Point(0,0), 
+                    new paper.Point(0, 0),
                     this.defaultSize.multiply(0.05));
             }
             return bounds;
@@ -186,41 +193,44 @@ namespace SketchEditor {
         /**
          * @returns data URL
          */
-        private getSnapshotPNG(dpi: number): string {
-            const background = this.insertBackground();
-            const raster = this._workspace.rasterize(dpi, false);
-            const data = raster.toDataURL();
-            background.remove();
-            return data;
+        private getSnapshotPNG(dpi: number): Promise<string> {
+            return new Promise<string>(callback => {
+                const background = this.insertBackground(true);
+                const raster = this._workspace.rasterize(dpi, false);
+                const data = raster.toDataURL();
+                background.remove();
+                callback(data);
+            });
         }
 
         private downloadPNG() {
-            // Half of max DPI produces approx 4200x4200.
+            // Half of max DPI produces approx 4000x4000.
             const dpi = 0.5 * PaperHelpers.getMaxExportDpi(this._workspace.bounds.size);
-            const data = this.getSnapshotPNG(dpi);
-            
-            const fileName = SketchHelpers.getSketchFileName(
-                this.store.state.sketch, 40, "png");
-            const blob = DomHelpers.dataURLToBlob(data);
-            saveAs(blob, fileName);
+            this.getSnapshotPNG(dpi).then(data => {;
+                const fileName = SketchHelpers.getSketchFileName(
+                    this.store.state.sketch, 40, "png");
+                const blob = DomHelpers.dataURLToBlob(data);
+                saveAs(blob, fileName);
+            });
         }
 
         private downloadSVG() {
-            let background: paper.Item;
+            const completeDownload = () => {
+                this.project.deselectAll();
+                var dataUrl = "data:image/svg+xml;utf8," + encodeURIComponent(
+                    <string>this._workspace.exportSVG({ asString: true }));
+                const blob = DomHelpers.dataURLToBlob(dataUrl);
+                const fileName = SketchHelpers.getSketchFileName(
+                    this.store.state.sketch, 40, "svg");
+                saveAs(blob, fileName);
+            };
+
             if (this.store.state.sketch.backgroundColor) {
-                background = this.insertBackground();
-            }
-
-            this.project.deselectAll();
-            var dataUrl = "data:image/svg+xml;utf8," + encodeURIComponent(
-                <string>this.project.exportSVG({ asString: true }));
-            const blob = DomHelpers.dataURLToBlob(dataUrl);
-            const fileName = SketchHelpers.getSketchFileName(
-                this.store.state.sketch, 40, "svg");
-            saveAs(blob, fileName);
-
-            if (background) {
+                const background = this.insertBackground(false);
+                completeDownload();
                 background.remove();
+            } else {
+                completeDownload();
             }
         }
 
@@ -228,14 +238,35 @@ namespace SketchEditor {
          * Insert sketch background to provide background fill (if necessary)
          *   and add margin around edges.
          */
-        private insertBackground(): paper.Item {
-            const bounds = this.getViewableBounds();
-            const margin = Math.max(bounds.width, bounds.height) * 0.02;
-            const background = paper.Shape.Rectangle(
-                bounds.topLeft.subtract(margin),
-                bounds.bottomRight.add(margin));
-            background.fillColor = this.store.state.sketch.backgroundColor;
-            background.sendToBack();
+        private insertBackground(watermark: boolean): paper.Item {
+            const sketchBounds = this.getViewableBounds();
+            const margin = Math.max(sketchBounds.width, sketchBounds.height) * 0.02;
+            const imageBounds = new paper.Rectangle(
+                sketchBounds.topLeft.subtract(margin),
+                sketchBounds.bottomRight.add(margin));
+            
+            const fill = paper.Shape.Rectangle(imageBounds);
+            fill.fillColor = this.store.state.sketch.backgroundColor;
+
+            const background = new paper.Group([fill]);
+                
+            if(watermark) {
+                const watermarkDim = Math.sqrt(imageBounds.size.width * imageBounds.size.height) * 0.1;
+                this._watermark.bounds.size = new paper.Size(watermarkDim, watermarkDim);
+                this._watermark.position = imageBounds.bottomRight.subtract(watermarkDim);
+
+                const watermarkPath = this._watermark.getItem({class: paper.CompoundPath});
+                const backgroundColor = <paper.Color>fill.fillColor;
+                if(backgroundColor.lightness > 0.4){
+                    watermarkPath.fillColor = "black";
+                    watermarkPath.opacity = 0.05;
+                } else {
+                    watermarkPath.fillColor = "white";
+                    watermarkPath.opacity = 0.2;
+                }
+                background.addChild(this._watermark);
+            }
+           
             this._workspace.insertChild(0, background);
             return background;
         }
@@ -362,20 +393,20 @@ namespace SketchEditor {
                 outline: { top, bottom }
             }
         }
-        
-        private setBackgroundImage(url: string){
-            if(!url){
-                if(this._backgroundImage){
+
+        private setBackgroundImage(url: string) {
+            if (!url) {
+                if (this._backgroundImage) {
                     this._backgroundImage.remove();
                 }
                 this._backgroundImage = null;
             }
-            
+
             const raster = new paper.Raster(url);
             (<any>raster).onLoad = () => {
                 raster.sendToBack();
                 raster.fitBounds(this.getViewableBounds());
-                if(this._backgroundImage){
+                if (this._backgroundImage) {
                     this._backgroundImage.remove();
                 }
                 this._backgroundImage = raster;
