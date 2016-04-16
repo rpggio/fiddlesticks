@@ -60,7 +60,7 @@ namespace SketchEditor {
                                     SketchHelpers.colorsInUse(this.store.state.sketch),
                                     color => {
                                         this.store.actions.sketch.attrUpdate.dispatch(
-                                            { backgroundColor: color && color.toHexString() });
+                                            { backgroundColor: color && color.toHexString() || "" });
                                     }
                                 ),
                             update: (oldVnode, vnode) => {
