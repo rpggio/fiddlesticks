@@ -26,7 +26,7 @@ namespace SketchBuilder {
         }
 
         events = {
-            downloadPNGRequested: this._eventsChannel.topic<void>("downloadPNGRequested")
+            downloadPNGRequested: this._eventsChannel.topic<number>("downloadPNGRequested")
         }
 
         get state() {
@@ -75,7 +75,7 @@ namespace SketchBuilder {
             })
         }
 
-        downloadPNG(){
+        downloadPNG(pixels: number){
             this.events.downloadPNGRequested.dispatch();
         }
 

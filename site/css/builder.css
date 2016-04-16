@@ -103,3 +103,7 @@ ul.chooser img {
     height: 50px;
     margin: 0;
 }
+
+.controls > * {
+    margin: 5px;
+}

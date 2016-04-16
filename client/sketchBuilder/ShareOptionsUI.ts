@@ -12,15 +12,27 @@ module SketchBuilder {
         }
         
         createDom(): VNode {
-            return h("button.btn.btn-primary", {
-                attrs: {
-                    type: "button"
+            return h("div.controls", [ 
+                h("button.btn.btn-primary", {
+                    attrs: {
+                        type: "button"
+                    },
+                    on: {
+                        click: () => this.store.downloadPNG(100 * 1000)
+                    }
                 },
-                on: {
-                    click: () => this.store.downloadPNG()
-                }
-            },
-            ["Download"]);
+                ["Download small"]),
+                
+                h("button.btn.btn-primary", {
+                    attrs: {
+                        type: "button"
+                    },
+                    on: {
+                        click: () => this.store.downloadPNG(500 * 1000)
+                    }
+                },
+                ["Download medium"]),
+            ]);
         }
         
     }
