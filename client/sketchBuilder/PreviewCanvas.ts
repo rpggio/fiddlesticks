@@ -19,7 +19,7 @@ namespace SketchBuilder {
             this.project = paper.project;
             this.workspace = new paper.Group();
 
-            FontShape.VerticalBoundsStretchPath.pointsPerPath = 300;
+            FontShape.VerticalBoundsStretchPath.pointsPerPath = 400;
 
             this.context = {
                 getFont: specifier => {

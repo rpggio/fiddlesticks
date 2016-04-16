@@ -10,8 +10,6 @@ namespace SketchBuilder {
             renderCanvas: HTMLCanvasElement,
             belowCanvas: HTMLElement) {
 
-            FontShape.VerticalBoundsStretchPath.pointsPerPath = 400;
-
             this.store = new Store();
             this.builder = new Builder(builderContainer, this.store);
 

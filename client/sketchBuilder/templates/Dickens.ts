@@ -7,6 +7,7 @@ namespace SketchBuilder.Templates {
         image: string;
         lineHeightVariation = 0.8;
         defaultFontSize = 128;
+        marginFactor = 0.14;
 
         createNew(context: TemplateUIContext): TemplateState {
             const defaultFontRecord = context.fontCatalog.getList(1)[0];
@@ -126,7 +127,7 @@ namespace SketchBuilder.Templates {
                 }
 
                 const bounds = box.bounds.clone();
-                bounds.size = bounds.size.multiply(1.1);
+                bounds.size = bounds.size.multiply(1 + this.marginFactor);
                 bounds.center = box.bounds.center;
                 const background = paper.Shape.Rectangle(bounds);
                 background.fillColor = backgroundColor;
