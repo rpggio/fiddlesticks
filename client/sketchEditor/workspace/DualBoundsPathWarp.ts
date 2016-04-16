@@ -151,8 +151,6 @@ namespace SketchEditor {
                         closed: true,
                         clockwise: path.clockwise
                     });
-                    //xPath.simplify(1);
-                    //xPath.reduce();
                     return xPath;
                 })
             this._warped.removeChildren();
@@ -160,7 +158,6 @@ namespace SketchEditor {
             for(const c of this._warped.children){
                 (<paper.Path>c).simplify(0.002);
             }
-            //this._warped.reduce();
         }
 
         private updateOutlineShape() {
