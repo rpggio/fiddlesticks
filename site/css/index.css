@@ -1,0 +1,98 @@
+
+span {
+    color: #444444;
+}
+
+h1, h2, h3, h4, h5 {
+    font-family: 'Montserrat', sans-serif;
+    color: #444444;
+}
+
+h1 {
+    font-size: 34pt;
+}
+
+.navbar {
+    background: #333333;
+    color: white;
+    margin-bottom: 0;
+}
+
+.navbar .logo {
+    height: 50px;
+    margin: 8px;
+}
+
+.navbar h2 {
+    font-size: 16px;
+    color: lightgray;
+}
+
+footer {
+    margin-top: 40px;
+    color: #888888;
+}
+
+
+.hero-row h3 {
+    color: #666666;
+}
+
+img.hero {
+    max-height: 450px;
+    margin: 1px 0;
+    opacity: 0.65;
+}
+
+.hero-img-container:after {
+  content:'';
+  position:absolute;
+  left:0; top:0;
+  width:150%; height:100%;
+  display:inline-block;
+  background: -moz-linear-gradient(top, rgba(0,0,0,0) 0%, rgba(255,255,255,0.65) 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,0.65)), color-stop(100%,rgba(0,0,0,0))); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(255,255,255,0.65) 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(255,255,255,0.65) 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(255,255,255,0.65) 100%); /* IE10+ */
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(255,255,255,0.65) 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a6000000', endColorstr='#00000000',GradientType=0 ); /* IE6-9 */
+}
+
+.products {
+    background-color: #7b839d;
+    padding: 40px 0;
+}
+
+.products img {
+    width: 100%;
+    border: 6px solid #eeeeee;
+}
+
+.product {
+    margin: 40px;
+    position: relative;
+}
+
+.product .overlay {
+    position: absolute;
+    left: 0;
+    top: 20%;
+    width: 100%;
+    height: 60%;
+}
+
+.product .overlay.bg {
+    background-color: white;
+    opacity: 0.85;
+}
+
+.product .overlay.text {
+    font-weight: bold;
+    font-size: 40pt;
+    color: #434e70;
+    padding: 20px;
+    padding-top: 80px;
+    vertical-align: middle;
+    text-align: center;
+}

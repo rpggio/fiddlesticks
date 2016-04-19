@@ -25,12 +25,14 @@ var startServer = function() {
     app.use("/img", express.static(path.join(sitePath, "img")));
     app.use("/content", express.static(path.join(sitePath, "content")));
 
-    var indexPath = path.join(sitePath, "index.html");
     app.get("/", function(req, res) {
-        res.sendFile(indexPath);
+        res.sendFile(path.join(sitePath, "index.html"));
+    });
+    app.get("/sketch", function(req, res) {
+        res.sendFile(path.join(sitePath, "sketch.html"));
     });
     app.get("/sketch/*", function(req, res) {
-        res.sendFile(indexPath);
+        res.sendFile(path.join(sitePath, "sketch.html"));
     });
     app.get("/demo", function(req, res) {
         res.sendFile(path.join(sitePath, "demo.html"));
