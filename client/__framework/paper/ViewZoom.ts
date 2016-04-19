@@ -37,10 +37,10 @@ namespace paperExt {
                 const hit = project.hitTest(ev.point);
                 if (!this._viewCenterStart) {  // not already dragging
                     if (hit) {
-                        const backgroundItems = getBackgroundItems && getBackgroundItems() || [];
+                        const backgroundItems = (getBackgroundItems && getBackgroundItems()) || [];
                         // if hit is on nothing or on a non-background item
                         if(!hit.item || !backgroundItems.some(bi => 
-                            bi === hit.item || bi.isAncestor(hit.item))){
+                            bi && (bi === hit.item || bi.isAncestor(hit.item)))){
                                 // then don't use dragging
                                 return;   
                             }
