@@ -23,6 +23,22 @@ namespace SketchEditor {
             const self = this;
 
             return h("div", [
+                
+                h("a", 
+                {
+                  attrs: {
+                      href: "/"
+                  }  
+                },
+                [
+                    h("img.logo",
+                    {
+                        attrs: {
+                            src: "img/spiral-logo.white.50.png"
+                        }
+                    })
+                ]),
+                
                 h("label", "Add text: "),
                 h("input.add-text", {
                     on: {

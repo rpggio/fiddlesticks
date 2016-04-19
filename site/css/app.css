@@ -84,6 +84,10 @@ ul.dropdown-menu > li {
     color: ghostwhite;
 }
 
+#designer img.logo {
+    margin-right: 10px;
+}
+
 #designer > input {
     margin-left: 3px;
     margin-right: 10px;
