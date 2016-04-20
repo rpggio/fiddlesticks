@@ -56,7 +56,7 @@ namespace SketchBuilder.Templates {
                         targetLength = <number>_.max(words.map(w => w.length));
                         break;
                 }
-                targetLength *= (1 + seedRandom.random() * 0.5);
+                targetLength *= (0.8 + seedRandom.random() * 0.4);
                 const lines = this.balanceLines(words, targetLength);
 
                 let textColor = design.palette && design.palette.color || "black";

@@ -28,7 +28,10 @@ namespace SketchBuilder {
                     { design:
                         { 
                             content: { 
-                                text: "The rain in Spain falls mainly in the plain"
+                                text: "Don't gobblefunk around with words.",
+                                source: "― Roald Dahl, The BFG",
+                                seed: 0.538289428087052,
+                                shape: "narrow"
                             } 
                         }
                     });
