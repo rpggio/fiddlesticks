@@ -29,11 +29,19 @@ namespace SketchBuilder {
                         { 
                             content: { 
                                 text: "Don't gobblefunk around with words.",
-                                source: "― Roald Dahl, The BFG",
-                                seed: 0.538289428087052,
-                                shape: "narrow"
-                            } 
-                        }
+                                source: "- Roald Dahl, The BFG",
+                            },
+                            seed: 0.538289428087052,
+                            shape: "narrow",
+                            font: {
+                                family: "Architects Daughter",
+                                variant: "regular"
+                            },
+                            palette: {
+                                color: "#854442" 
+                            }
+                        },
+                        fontCategory: "handwriting",
                     });
             })
 
