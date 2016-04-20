@@ -106,6 +106,7 @@ namespace SketchEditor {
                 this.setSelection(null);
                 this.setEditingItem(null);
                 events.editor.exportPNGRequested.dispatch(m.data);
+                this.sendGAExport(m.data.pixels);
             });
 
             actions.editor.exportSVG.subscribe(m => {
@@ -525,6 +526,15 @@ namespace SketchEditor {
             return _.find(this.state.sketch.textBlocks, tb => tb._id === id);
         }
 
+        private sendGAExport(value: number){
+            let label = SketchHelpers.getSketchFileName(this.state.sketch, 30);
+            gaEvent({
+                eventCategory: "Design",
+                eventAction: "export-image",
+                eventLabel: label,
+                eventValue: value
+            });
+        }
     }
 
 }

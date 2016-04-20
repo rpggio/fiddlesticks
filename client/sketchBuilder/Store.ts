@@ -62,7 +62,7 @@ namespace SketchBuilder {
         }
 
         init(): Promise<Store> {
-            if(this.initialized){
+            if (this.initialized) {
                 throw new Error("Store is already initalized");
             }
             return new Promise<Store>(callback => {
@@ -75,8 +75,23 @@ namespace SketchBuilder {
             })
         }
 
-        downloadPNG(pixels: number){
+        downloadPNG(pixels: number) {
             this.events.downloadPNGRequested.dispatch();
+            this.sendDesignGAEvent("export", pixels);
+        }
+
+        sendDesignGAEvent(action: string, value: number) {
+            let label = this._state.template.name;
+            const font = this._state.templateState.design.font;
+            if (font) {
+                label += ";" + font.family + " " + font.variant;
+            }
+            gaEvent({
+                eventCategory: "Design",
+                eventAction: action,
+                eventLabel: label,
+                eventValue: value
+            });
         }
 
         setTemplate(name: string) {
@@ -97,18 +112,18 @@ namespace SketchBuilder {
 
         updateTemplateState(change: TemplateStateChange) {
             _.merge(this.state.templateState, change);
-            
+
             const design = this.state.templateState.design;
-            if(design && design.font && design.font.family && !design.font.variant) {
-               // set default variant
+            if (design && design.font && design.font.family && !design.font.variant) {
+                // set default variant
                 design.font.variant = FontShape.FontCatalog.defaultVariant(
                     this._fontCatalog.getRecord(design.font.family));
             }
-            
+
             this._templateState$.onNext(this.state.templateState);
         }
-        
-        setTemplateState(state: TemplateState){
+
+        setTemplateState(state: TemplateState) {
             this._state.templateState = state;
             this._templateState$.onNext(state);
         }

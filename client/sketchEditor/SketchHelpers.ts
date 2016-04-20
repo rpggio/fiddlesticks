@@ -13,7 +13,7 @@ namespace SketchEditor {
             return colors;
         }
         
-        static getSketchFileName(sketch: Sketch, length: number, extension: string): string {
+        static getSketchFileName(sketch: Sketch, length: number, extension?: string): string {
             let name = "";
             outer:
             for (const block of sketch.textBlocks) {
@@ -31,7 +31,7 @@ namespace SketchEditor {
             if (!name.length) {
                 name = "fiddle";
             }
-            return name + "." + extension;
+            return extension ? name + "." + extension : name;
         }
 
     }
