@@ -259,7 +259,7 @@ namespace SketchBuilder.Templates {
                                 click: () => value$.onNext({ design: { seed: Math.random() } })
                             }
                         },
-                        ["Next"]
+                        ["Try another variation"]
                     );
 
                     const node = h("div",

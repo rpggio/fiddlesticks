@@ -31,14 +31,15 @@ namespace SketchBuilder {
                                 text: "Don't gobblefunk around with words.",
                                 source: "- Roald Dahl, The BFG",
                             },
-                            seed: 0.538289428087052,
+                            seed: 0.9959176457803123,
                             shape: "narrow",
                             font: {
-                                family: "Architects Daughter",
+                                family: "Amatic SC",
                                 variant: "regular"
                             },
                             palette: {
-                                color: "#854442" 
+                                color: "#854442",
+                                invert: true 
                             }
                         },
                         fontCategory: "handwriting",
