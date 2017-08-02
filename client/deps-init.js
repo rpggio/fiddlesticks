@@ -26,4 +26,8 @@ window.Cookies = require("js-cookie");
 
 window.StackTrace = require("stacktrace-js");
 
+if (!window.paper.Item.prototype.setRampPoint) {
+    window.paper.Item.prototype.setRampPoint = function () {};
+}
+
 //window.inversify = require("inversify"); // IoC
