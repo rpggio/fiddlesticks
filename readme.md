@@ -13,4 +13,4 @@ npm install
 npm start
 ```
 
-[logo]: /fstx-demo.gif
+![Animated demo](/fstx-demo.gif?raw=true "Animated demo")
