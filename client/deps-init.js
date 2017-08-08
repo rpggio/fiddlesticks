@@ -2,12 +2,12 @@
 window.Rx = require ("rx");
 
 window.snabbdom = require("snabbdom"); // virtual DOM implementation
-window.patch = snabbdom.init([ // Init patch function with choosen modules
-  require("snabbdom/modules/attributes"), // makes it easy to toggle classes
-  require("snabbdom/modules/class"), // makes it easy to toggle classes
-  require("snabbdom/modules/props"), // for setting properties on DOM elements
-  require("snabbdom/modules/style"), // handles styling on elements with support for animations
-  require("snabbdom/modules/eventlisteners"), // attaches event listeners
+window.patch = snabbdom.init([
+  require("snabbdom/modules/attributes"),
+  require("snabbdom/modules/class"),
+  require("snabbdom/modules/props"), 
+  require("snabbdom/modules/style"),
+  require("snabbdom/modules/eventlisteners"),
 ]);
 window.h = require("snabbdom/h"); // helper function for creating VNodes
 
@@ -30,4 +30,3 @@ if (!window.paper.Item.prototype.setRampPoint) {
     window.paper.Item.prototype.setRampPoint = function () {};
 }
 
-//window.inversify = require("inversify"); // IoC

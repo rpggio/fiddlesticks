@@ -66,8 +66,4 @@ namespace SketchBuilder {
         createNode(choices: T[], value?: T): VNode;
     }
     
-    // export interface VNodeChooser {
-    //     createNode(choices: VNode[], chosenKey: string): VNode;
-    //     chosen$: Rx.Observable<VNode>;
-    // }
 }
