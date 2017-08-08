@@ -1,6 +1,8 @@
 # Fiddlesticks
 
-## Web based typography for word art, logos, and just fun.
+Web based typography for word art, logos, and just fun.
+
+## Usage
 
 This version of the application is designed to use S3 bucket for storage. 
 Until a disk storage option is available for localhost, you can use this:
