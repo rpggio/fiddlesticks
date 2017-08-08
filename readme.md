@@ -13,4 +13,6 @@ npm install
 npm start
 ```
 
-![Animated demo](/fstx-demo.gif?raw=true "Animated demo")
+![Editor demo](/fstx-demo.gif?raw=true "Editor demo")
+
+![Builder demo](/fstx-builder-demo.gif?raw=true "Builder demo")
