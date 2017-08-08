@@ -13,6 +13,10 @@ npm install
 npm start
 ```
 
+#### Editor tool
+
 ![Editor demo](/fstx-demo.gif?raw=true "Editor demo")
+
+#### Builder tool
 
 ![Builder demo](/fstx-builder-demo.gif?raw=true "Builder demo")
