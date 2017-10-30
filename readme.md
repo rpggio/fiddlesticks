@@ -2,7 +2,9 @@
 
 Web based typography for word art, logos, and fun. This is the first web-based application to provide free-form text warp (AFAIK).
 
-### Drawing app
+<img src="/fstx sketch - obstacles.png?raw=true" height="400">
+
+## Drawing app
 
 <img src="/fstx-demo.gif?raw=true" height="400">
 
@@ -17,7 +19,7 @@ The drawing app provides a number of features to allow drawing with text.
 
 Both apps are built using Snabbdom (alternative to React DOM) and RxJS state channels inspired by Flux and Redux. The [Store object](./client/sketchEditor/Store.ts) coordinates state transitions and actions.
 
-### Builder app
+## Builder app
 
 <img src="/fstx-builder-demo.gif?raw=true" height="400">
 
