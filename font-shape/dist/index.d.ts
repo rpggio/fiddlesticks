@@ -30,7 +30,7 @@ interface Console {
     log(...optionalParams: any[]): void;
 }
 declare namespace PaperHelpers {
-    const SAFARI_MAX_CANVAS_AREA: number;
+    const SAFARI_MAX_CANVAS_AREA = 67108864;
     var shouldLogInfo: boolean;
     /**
      * Determine the max dpi that can supported by Canvas.
@@ -84,10 +84,7 @@ declare namespace FontShape {
         };
         _fontLoaded: (parsed: ParsedFont) => void;
         constructor(fontLoaded?: (parsed: ParsedFont) => void);
-        get(url: string): Promise<{
-            url: string;
-            font: opentype.Font;
-        }>;
+        get(url: string): Promise<ParsedFont>;
     }
 }
 declare namespace FontShape {
@@ -130,14 +127,17 @@ declare namespace FontShape {
          * @param unitOffset: value 0 to 1
          */
         slide(unitOffset: number): void;
-        private static incrementOffset(offset, delta);
+        private static incrementOffset;
     }
     /**
      * Path offsets on region for corners of SnapPath content,
      *   starting with topLeft and proceeding clockwise
      *   to bottomLeft.
      */
-    type CornerOffsets = [number, number, number, number];
+    type CornerOffsets = [number, // topLeft
+    number, // topRight
+    number, // bottomRight
+    number];
 }
 declare namespace FontShape {
     class VerticalBoundsStretchPath extends paper.Group {

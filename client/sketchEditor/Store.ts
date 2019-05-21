@@ -161,6 +161,7 @@ namespace SketchEditor {
 
             actions.sketch.attrUpdate.subscribe(ev => {
                 this.merge(this.state.sketch, ev.data);
+                this.state.sketch.backgroundColor = ev.data.backgroundColor;
                 events.sketch.attrChanged.dispatch(
                     this.state.sketch);
                 this.changedSketchContent();

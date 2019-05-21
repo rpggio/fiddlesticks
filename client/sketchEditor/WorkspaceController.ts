@@ -38,9 +38,9 @@ namespace SketchEditor {
             store.events.mergeTyped(
                 store.events.sketch.loaded,
                 store.events.sketch.attrChanged
-            ).subscribe(ev =>
-                canvasSel.css("background-color", ev.data.backgroundColor)
-                );
+            ).subscribe(ev => {
+                canvasSel.css("background-color", ev.data.backgroundColor || "");
+            });
 
             this.viewZoom = new paperExt.ViewZoom(this.project, () => [this._backgroundImage]);
             this.viewZoom.setZoomRange([
@@ -192,11 +192,19 @@ namespace SketchEditor {
          */
         private getSnapshotPNG(dpi: number): Promise<string> {
             return new Promise<string>(callback => {
-                const background = this.insertBackground(true);
-                const raster = this._workspace.rasterize(dpi, false);
-                const data = raster.toDataURL();
-                background.remove();
-                callback(data);
+                const complete = () => {
+                    const raster = this.project.activeLayer.rasterize(dpi, false);
+                    const data = raster.toDataURL();
+                    callback(data);
+                }
+
+                if(this.store.state.sketch.backgroundColor){
+                    const background = this.insertBackground(true);
+                    complete();
+                    background.remove();
+                } else {
+                    complete();
+                }
             });
         }
 
@@ -215,7 +223,7 @@ namespace SketchEditor {
             const completeDownload = () => {
                 this.project.deselectAll();
                 var dataUrl = "data:image/svg+xml;utf8," + encodeURIComponent(
-                    <string>this._workspace.exportSVG({ asString: true }));
+                    <string>this.project.exportSVG({ asString: true }));
                 const blob = DomHelpers.dataURLToBlob(dataUrl);
                 const fileName = SketchHelpers.getSketchFileName(
                     this.store.state.sketch, 40, "svg");
@@ -248,7 +256,7 @@ namespace SketchEditor {
             const background = new paper.Group([fill]);
 
             if(watermark) {
-                this._mark.placeInto(background, <paper.Color>fill.fillColor);
+                this._mark.placeInto(background, <paper.Color><any>fill.fillColor);
             }
            
             this._workspace.insertChild(0, background);
@@ -389,7 +397,6 @@ namespace SketchEditor {
             const raster = new paper.Raster(url);
             (<any>raster).onLoad = () => {
                 raster.sendToBack();
-                raster.fitBounds(this.getViewableBounds());
                 if (this._backgroundImage) {
                     this._backgroundImage.remove();
                 }

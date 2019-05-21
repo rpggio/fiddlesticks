@@ -68,7 +68,7 @@ namespace SketchEditor {
 
             // for each palette group
             const defaultPaletteGroups = ColorPicker.DEFAULT_PALETTE_GROUPS.map(group => {
-                let parsedGroup = group.map(c => new paper.Color(c));
+                let parsedGroup = group.map(c => new paper.Color(<any>c));
                 // create light variants of darkest three
                 const addColors = _.sortBy(parsedGroup, c => c.lightness)
                     .slice(0, 3)

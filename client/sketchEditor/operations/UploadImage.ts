@@ -32,7 +32,7 @@ namespace SketchEditor {
         private upload(file) {
             var img = new Image();
             var url = window.URL || window.webkitURL;
-            var src = url.createObjectURL(file);
+            var src = (<any>url).createObjectURL(file);
             this.store.imageUploaded(src);
             this.onClose && this.onClose();
         }

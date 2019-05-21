@@ -13,7 +13,7 @@ namespace paperExt {
     export class ViewZoom {
 
         project: paper.Project;
-        factor = 1.25;
+        factor = 1.1;
 
         private _minZoom: number;
         private _maxZoom: number;

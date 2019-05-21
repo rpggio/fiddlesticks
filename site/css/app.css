@@ -126,13 +126,6 @@ ul.dropdown-menu > li {
 
 #canvasContainer > canvas {
     background-color: white;
-    z-index: 20;    
-    opacity: 0.985;
-}
-
-#canvas-watermark {
-    position:absolute;
-    padding: 10%;
 }
 
 #canvasContainer {

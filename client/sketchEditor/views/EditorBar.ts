@@ -76,7 +76,7 @@ namespace SketchEditor {
                                     SketchHelpers.colorsInUse(this.store.state.sketch),
                                     color => {
                                         this.store.actions.sketch.attrUpdate.dispatch(
-                                            { backgroundColor: color && color.toHexString() || "white" });
+                                            { backgroundColor: color ? color.toHexString() : null });
                                     }
                                 ),
                             update: (oldVnode, vnode) => {
@@ -220,8 +220,7 @@ namespace SketchEditor {
                                     click: () => this.store.setTransparency(!this.store.state.transparency)
                                 }
                             }
-                        },
-
+                        }
                     ]
                 }),
 

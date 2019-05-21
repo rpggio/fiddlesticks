@@ -23,9 +23,9 @@
   },
   "devDependencies": {},
   "scripts": {
-    "compile-ts": "tsc -d -p ./font-shape && tsc -p ./client && tsc -p ./server && copy .\\font-shape\\dist\\index.js .\\site\\lib\\font-shape.js",
+    "compile-ts": "tsc -d -p ./font-shape && tsc -p ./client && tsc -p ./server && cp font-shape/dist/index.js site/lib/font-shape.js",
     "bundle-client": "browserify client/deps-init.js -o site/lib/client-deps.js",
-    "compile-content": "kramdown -i markdown -o html < site\\content\\help.md > site\\content\\help.html",
+    "compile-content": "kramdown -i markdown -o html < site/content/help.md > site/content/help.html",
     "start": "node server/dist/index.js"
   },
   "repository": {
