@@ -9,7 +9,7 @@
     "bootstrap-select": "1.10.0",
     "express": "4.13.4",
     "js-cookie": "2.1.0",
-    "lodash": "4.3.0",
+    "lodash": "4.17.13",
     "opentype": "0.1.2",
     "paper": "0.9.25",
     "router5": "3.0.0",
