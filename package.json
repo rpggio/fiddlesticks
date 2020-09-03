@@ -6,7 +6,7 @@
   "dependencies": {
     "aws-sdk": "2.2.42",
     "body-parser": "1.15.0",
-    "bootstrap-select": "1.10.0",
+    "bootstrap-select": "1.13.6",
     "express": "4.13.4",
     "js-cookie": "2.1.0",
     "lodash": "4.17.13",
