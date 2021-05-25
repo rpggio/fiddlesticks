@@ -25,12 +25,21 @@ Both apps are built using Snabbdom (alternative to React DOM) and RxJS state cha
 
 The builder app generates a pre-formatted drawing based on parameters the user provides. The app is designed to support  templates for formatting and user interaction, essentially self-contained tools. There is currently just one template implemented, [source here](./client/sketchBuilder/templates/Dickens.ts).
 
-## Usage
-
-This version of the application is designed to use S3 bucket for storage. 
-Until a disk storage option is available for localhost, you can use this:
+## Setup
 
 ```
-npm run install
+npm install
+```
+
+## Usage
+
+```
+npm run start
+```
+
+The Quote Builder should run fine locally.
+
+To use the Sketch Editor, you will need to configure S3 bucket access:
+```
 S3_BUCKET=yourbucket AWS_ACCESS_KEY=youraccess AWS_SECRET_KEY=yoursecret npm run start
 ```
