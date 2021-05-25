@@ -21,6 +21,9 @@
     "stacktrace-js": "1.0.4",
     "webfontloader": "1.6.22"
   },
+  "devDependencies": {
+    "typescript": "^4.2.4"
+  },
   "scripts": {
     "compile-ts": "tsc -d -p ./font-shape && tsc -p ./client && tsc -p ./server && cp font-shape/dist/index.js site/lib/font-shape.js",
     "bundle-client": "browserify client/deps-init.js -o site/lib/client-deps.js",

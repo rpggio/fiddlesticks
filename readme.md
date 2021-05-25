@@ -37,9 +37,9 @@ npm install
 npm run start
 ```
 
-The Quote Builder should run fine locally.
+### Config
 
-To use the Sketch Editor, you will need to configure S3 bucket access:
+To enable auto-save in the Sketch Editor, you will need to configure S3 bucket access:
 ```
 S3_BUCKET=yourbucket AWS_ACCESS_KEY=youraccess AWS_SECRET_KEY=yoursecret npm run start
 ```

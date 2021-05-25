@@ -1,15 +1,15 @@
 
-type ItemChangeHandler = (flags: PaperNotify.ChangeFlag) => void;
-type Callback = () => void;
+type ItemChangeHandler = (flags: PaperNotify.ChangeFlag) => void
+type Callback = () => void
 
 declare module paper {
     export interface Item {
         /**
          * Subscribe to all changes in item. Returns un-subscribe function.
          */
-        subscribe(handler: ItemChangeHandler): Callback;
-        
-        _changed(flags: PaperNotify.ChangeFlag): void;
+        subscribe(handler: ItemChangeHandler): Callback
+
+        _changed(flags: PaperNotify.ChangeFlag): void
     }
 }
 
@@ -63,41 +63,41 @@ namespace PaperNotify {
     };
 
     export function initialize() {
-        
+
         // Inject Item.subscribe
-        const itemProto = (<any>paper).Item.prototype;
-        itemProto.subscribe = function(handler: ItemChangeHandler): Callback {
+        const itemProto = (<any>paper).Item.prototype
+        itemProto.subscribe = function (handler: ItemChangeHandler): Callback {
             if (!this._subscribers) {
-                this._subscribers = [];
+                this._subscribers = []
             }
             if (this._subscribers.indexOf(handler) < 0) {
-                this._subscribers.push(handler);
+                this._subscribers.push(handler)
             }
             return () => {
-                let index = this._subscribers.indexOf(handler, 0);
+                let index = this._subscribers.indexOf(handler, 0)
                 if (index > -1) {
-                    this._subscribers.splice(index, 1);
+                    this._subscribers.splice(index, 1)
                 }
             }
         }
 
         // Wrap Item.remove
-        const itemRemove = itemProto.remove;
-        itemProto.remove = function() {
-            itemRemove.apply(this, arguments);
-            this._subscribers = null;
+        const itemRemove = itemProto.remove
+        itemProto.remove = function () {
+            itemRemove.apply(this, arguments)
+            this._subscribers = null
         }
 
         // Wrap Project._changed
-        const projectProto = <any>paper.Project.prototype;
-        const projectChanged = projectProto._changed;
-        projectProto._changed = function(flags: ChangeFlag, item: paper.Item) {
-            projectChanged.apply(this, arguments);
+        const projectProto = <any>paper.Project.prototype
+        const projectChanged = projectProto._changed
+        projectProto._changed = function (flags: ChangeFlag, item: paper.Item) {
+            projectChanged.apply(this, arguments)
             if (item) {
-                const subs = (<any>item)._subscribers;
+                const subs = (<any>item)._subscribers
                 if (subs) {
                     for (let s of subs) {
-                        s.call(item, flags);
+                        s.call(item, flags)
                     }
                 }
             }
@@ -105,34 +105,33 @@ namespace PaperNotify {
     }
 
     export function describe(flags: ChangeFlag) {
-        let flagList: string[] = [];
+        let flagList: string[] = []
         _.forOwn(ChangeFlag, (value, key) => {
-            if ((typeof value) === "number" && (value & flags)) {
-                flagList.push(key);
+            if ((typeof value) === "number" && ((value as number) & flags)) {
+                flagList.push(key)
             }
-        });
-        return flagList.join(' | ');
+        })
+        return flagList.join(' | ')
     }
-    
-    export function observe(item: paper.Item, flags: ChangeFlag): 
-        Rx.Observable<ChangeFlag> 
-    {
-        let unsub: () => void;
+
+    export function observe(item: paper.Item, flags: ChangeFlag):
+        Rx.Observable<ChangeFlag> {
+        let unsub: () => void
         return Rx.Observable.fromEventPattern<ChangeFlag>(
             addHandler => {
                 unsub = item.subscribe(f => {
-                    if(f & flags){
-                        addHandler(f);
+                    if (f & flags) {
+                        addHandler(f)
                     }
-                });
-            }, 
+                })
+            },
             removeHandler => {
-                if(unsub){
-                    unsub();
+                if (unsub) {
+                    unsub()
                 }
-            });
+            })
     }
 
 }
 
-PaperNotify.initialize();
+PaperNotify.initialize()

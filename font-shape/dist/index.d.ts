@@ -97,7 +97,7 @@ declare namespace FontShape {
          * Start and end are unit lengths: 0 to 1.
          */
         constructor(path: paper.Path, unitStart: number, unitLength: number, clockwise?: boolean);
-        readonly length: number;
+        get length(): number;
         /**
          * @param offset: length offset relative to this section.
          */
@@ -134,10 +134,12 @@ declare namespace FontShape {
      *   starting with topLeft and proceeding clockwise
      *   to bottomLeft.
      */
-    type CornerOffsets = [number, // topLeft
-    number, // topRight
-    number, // bottomRight
-    number];
+    type CornerOffsets = [
+        number,
+        number,
+        number,
+        number
+    ];
 }
 declare namespace FontShape {
     class VerticalBoundsStretchPath extends paper.Group {
