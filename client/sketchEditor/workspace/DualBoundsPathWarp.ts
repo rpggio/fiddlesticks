@@ -126,7 +126,7 @@ namespace SketchEditor {
             let orthWidth = this._source.bounds.width;
             let orthHeight = this._source.bounds.height;
 
-            let projection = PaperHelpers.dualBoundsPathProjection(
+            let projection = dualBoundsPathProjection(
                 this._upper.path, this._lower.path);
             let transform = new FontShape.PathTransform(point => {
                 if (!point) {
@@ -143,7 +143,7 @@ namespace SketchEditor {
             const newPaths = this._source.children
                 .map(item => {
                     const path = <paper.Path>item;
-                    const xPoints = PaperHelpers.tracePathAsPoints(path,
+                    const xPoints = tracePathAsPoints(path,
                         DualBoundsPathWarp.POINTS_PER_PATH)
                         .map(p => transform.transformPoint(p));
                     const xPath = new paper.Path({

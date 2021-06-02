@@ -65,7 +65,7 @@ namespace SketchBuilder {
             this.mark.placeInto(this.workspace, bgColor);            
             
             // Half of max DPI produces approx 4200x4200.
-            const dpi = 0.5 * PaperHelpers.getExportDpi(this.workspace.bounds.size, pixels);
+            const dpi = 0.5 * getExportDpi(this.workspace.bounds.size, pixels);
             const raster = this.workspace.rasterize(dpi, false);
             const data = raster.toDataURL();
             const fileName = Fstx.Framework.createFileName(this.store.design.content.text, 40, "png");

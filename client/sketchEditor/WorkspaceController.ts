@@ -209,7 +209,7 @@ namespace SketchEditor {
         }
 
         private downloadPNG(options: ImageExportOptions) {
-            const dpi = PaperHelpers.getExportDpi(this._workspace.bounds.size, 
+            const dpi = getExportDpi(this._workspace.bounds.size, 
                 options.pixels || 600 * 600);
             this.getSnapshotPNG(dpi).then(data => {;
                 const fileName = SketchHelpers.getSketchFileName(
