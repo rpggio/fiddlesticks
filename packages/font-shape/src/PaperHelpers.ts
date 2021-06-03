@@ -1,4 +1,5 @@
 import paper from 'paper'
+import {Curvelike} from './Curvelike'
 
 export const SAFARI_MAX_CANVAS_AREA = 67108864
 
@@ -67,7 +68,7 @@ export const tracePath = function (path: paper.Path, numPoints: number): paper.P
   })
 }
 
-export const dualBoundsPathProjection = function (topPath: paper.Curvelike, bottomPath: paper.Curvelike)
+export const dualBoundsPathProjection = function (topPath: Curvelike, bottomPath: Curvelike)
   : (unitPoint: paper.Point) => paper.Point {
   const topPathLength = topPath.length
   const bottomPathLength = bottomPath.length
@@ -103,13 +104,11 @@ export const markerLine = function (a: paper.Point, b: paper.Point): paper.Item 
 }
 
 export const marker = function (point: paper.Point, label: string): paper.Item {
-  //let marker = paper.Shape.Circle(point, 10);
   let marker = new paper.PointText(point)
   marker.fontSize = 36
   marker.content = label
   marker.strokeColor = new paper.Color('red')
   marker.bringToFront()
-  //markerGroup.addChild(marker);
   return marker
 }
 

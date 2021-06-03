@@ -1,4 +1,6 @@
-export class PathSection implements paper.Curvelike {
+import {Curvelike} from './Curvelike'
+
+export class PathSection implements Curvelike {
   path: paper.Path
   unitStart: number
   unitLength: number

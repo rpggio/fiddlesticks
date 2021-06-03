@@ -1,4 +1,12 @@
 {
   "private": true,
-  "workspaces": ["*"]
+  "workspaces": [
+    "*"
+  ],
+  "scripts": {
+    "compile": "tsc --project tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "^4.3.2"
+  }
 }
