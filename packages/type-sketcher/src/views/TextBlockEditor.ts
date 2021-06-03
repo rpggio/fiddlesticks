@@ -2,7 +2,7 @@ import {FontPicker} from './FontPicker'
 import {ColorPicker} from './ColorPicker'
 import {SketchStore} from '../SketchStore'
 import {TextBlock} from '../models'
-import {VNode} from 'snabbdom'
+import {h, VNode} from 'snabbdom'
 import {Component} from 'fstx-common/src/vdom/Component'
 import {KeyCodes} from 'fstx-common'
 import {SketchHelpers} from '../SketchHelpers'
@@ -36,10 +36,10 @@ export class TextBlockEditor extends Component<TextBlock> {
               keypress: (ev: KeyboardEvent) => {
                 if ((ev.which || ev.keyCode) === KeyCodes.Enter) {
                   ev.preventDefault()
-                  update({text: (<HTMLTextAreaElement>ev.target).value})
+                  update({text: (ev.target as HTMLTextAreaElement).value})
                 }
               },
-              change: ev => update({text: ev.target.value}),
+              change: ev => update({text: (ev.target as HTMLTextAreaElement).value}),
             },
           }),
 
@@ -112,7 +112,7 @@ export class TextBlockEditor extends Component<TextBlock> {
           {
             hook: {
               insert: (vnode) =>
-                new FontPicker(vnode.elm, this.store, textBlock),
+                new FontPicker(vnode.elm as HTMLElement, this.store, textBlock),
             },
           },
           [],

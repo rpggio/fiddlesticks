@@ -15,8 +15,8 @@ import {Subject} from 'rxjs'
 import * as _ from 'lodash'
 import {AppStore} from './app/AppStore'
 import {SketchActions, SketchEvents} from './channels'
-import getDefaultDrawing = SketchEditor.getDefaultDrawing
-import S3Access = SketchEditor.S3Access
+import { S3Access } from './services/S3Access'
+import {getDefaultDrawing} from './data/defaultDrawing'
 
 /**
  * The singleton Store controls all application state.
@@ -83,45 +83,37 @@ export class SketchStore {
   setupSubscriptions() {
     const actions = this.actions, events = this.events
 
-    // ----- App -----
-
-    this.appStore.events.routeChanged.sub(route => {
-      const routeSketchId = route.params.sketchId
-      if (route.name === 'sketch' && routeSketchId !== this.state.sketch._id) {
-        this.openSketch(routeSketchId)
-      }
-    })
-
     // ----- Editor -----
 
-    actions.editor.initWorkspace.observe()
-      .pausableBuffered(events.editor.resourcesReady.observe().map(m => m.data))
-      .subscribe(m => {
-        this.setSelection(null, true)
-        this.setEditingItem(null, true)
-
-        const sketchId = this.appStore.state.route.params.sketchId
-          || this.appStore.state.lastSavedSketchId
-        let promise: Promise<any>
-        if (sketchId) {
-          promise = this.openSketch(sketchId)
-        } else {
-          promise = this.loadGreetingSketch()
-        }
-        promise.then(() => events.editor.workspaceInitialized.dispatch())
-
-        // on any action, update save delay timer
-        this.actions.observe().debounce(SketchStore.SERVER_SAVE_DELAY_MS)
-          .subscribe(() => {
-            const sketch = this.state.sketch
-            if (!this.state.loadingSketch
-              && this.state.sketchIsDirty
-              && sketch._id
-              && sketch.textBlocks.length) {
-              this.saveSketch(sketch)
-            }
-          })
-      })
+    // todo: change drawing init
+    // actions.editor.initWorkspace.observe()
+    //   .pausableBuffered(events.editor.resourcesReady.observe().map(m => m.data))
+    //   .subscribe(m => {
+    //     this.setSelection(null, true)
+    //     this.setEditingItem(null, true)
+    //
+    //     const sketchId = this.appStore.state.route.params.sketchId
+    //       || this.appStore.state.lastSavedSketchId
+    //     let promise: Promise<any>
+    //     if (sketchId) {
+    //       promise = this.openSketch(sketchId)
+    //     } else {
+    //       promise = this.loadGreetingSketch()
+    //     }
+    //     promise.then(() => events.editor.workspaceInitialized.dispatch())
+    //
+    //     // on any action, update save delay timer
+    //     this.actions.observe().debounce(SketchStore.SERVER_SAVE_DELAY_MS)
+    //       .subscribe(() => {
+    //         const sketch = this.state.sketch
+    //         if (!this.state.loadingSketch
+    //           && this.state.sketchIsDirty
+    //           && sketch._id
+    //           && sketch.textBlocks.length) {
+    //           this.saveSketch(sketch)
+    //         }
+    //       })
+    //   })
 
     actions.editor.loadFont.subscribe(m =>
       this.resources.parsedFonts.get(m.data))

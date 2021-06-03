@@ -1,3 +1,7 @@
+export * from './bootscript'
+export * from './paper'
+export * from './vdom'
+export * from './events'
 export * from './Helpers'
 export * from './Watermark'
 export * from './DomHelpers'

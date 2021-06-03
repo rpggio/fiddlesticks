@@ -1,4 +1,4 @@
-// --- Core types ---
+// --- Core ext-types ---
 
 import {Observable, Observer, Subject} from 'rxjs'
 import {filter} from 'rxjs/operators'

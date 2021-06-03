@@ -1,11 +1,8 @@
 import {SketchStore} from './SketchStore'
-import {AppStore} from './app/AppStore'
+import {AppStore} from './app'
 import {initErrorHandler} from 'fstx-common'
 import {WorkspaceController} from './WorkspaceController'
-import {SelectedItemEditor} from './views/SelectedItemEditor'
-import {EditorBar} from './views/EditorBar'
-import {HelpDialog} from './views/HelpDialog'
-import {OperationPanel} from './views/OperationPanel'
+import {EditorBar, HelpDialog, OperationPanel, SelectedItemEditor} from './views'
 import {first} from 'rxjs/operators'
 
 export class SketchEditorModule {

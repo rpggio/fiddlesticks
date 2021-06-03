@@ -1,5 +1,6 @@
 import {SketchStore} from '../SketchStore'
 import {Operation} from '../models'
+import { h } from 'snabbdom'
 
 export class UploadImage implements Operation {
 

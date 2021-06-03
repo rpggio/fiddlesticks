@@ -24,7 +24,7 @@ export function dataURLToBlob(dataURL): Blob {
 
   const uInt8Array = new Uint8Array(rawLength)
 
-  for (const i = 0; i < rawLength; ++i) {
+  for (let i = 0; i < rawLength; ++i) {
     uInt8Array[i] = raw.charCodeAt(i)
   }
 

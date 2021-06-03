@@ -5,9 +5,10 @@ import {Component} from 'fstx-common/src/vdom/Component'
 import {ColorPicker} from './ColorPicker'
 import {SketchHelpers} from '../SketchHelpers'
 import {dropdown} from 'fstx-common/src/bootscript'
-import {UploadImage} from '../operations/UploadImage'
+import {UploadImage} from '../operations'
 import {KeyCodes} from 'fstx-common'
 import {map} from 'rxjs/operators'
+import {h} from 'snabbdom'
 
 export class EditorBar extends Component<EditorState> {
 
@@ -53,10 +54,11 @@ export class EditorBar extends Component<EditorState> {
           on: {
             keypress: (ev) => {
               if ((ev.which || ev.keyCode) === KeyCodes.Enter) {
-                const text = ev.target && ev.target.value
+                const target = ev.target as HTMLInputElement
+                const text = target.value
                 if (text.length) {
                   this.store.actions.textBlock.add.dispatch({text: text})
-                  ev.target.value = ''
+                  target.value = ''
                 }
               }
             },
@@ -88,7 +90,7 @@ export class EditorBar extends Component<EditorState> {
                   },
                 ),
               update: (oldVnode, vnode) => {
-                ColorPicker.set(vnode.elm, sketch.backgroundColor)
+                ColorPicker.set(vnode.elm as HTMLElement, sketch.backgroundColor)
               },
               destroy: (vnode) => ColorPicker.destroy(vnode.elm),
             },

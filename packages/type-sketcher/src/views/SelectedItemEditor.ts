@@ -4,6 +4,7 @@ import {PositionedObjectRef} from '../models'
 import {map} from 'rxjs/operators'
 import {TextBlockEditor} from './TextBlockEditor'
 import _ from 'lodash'
+import {h} from 'snabbdom'
 
 export class SelectedItemEditor {
 
@@ -33,7 +34,7 @@ export class SelectedItemEditor {
             style: {
               // left: posItem.clientX + "px",
               // top: posItem.clientY + "px",
-              'z-index': 1,
+              'z-index': '1',
             },
           },
           [

@@ -1,15 +1,19 @@
 {
   "name": "type-sketcher",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/index.ts",
   "license": "MIT",
+  "private": true,
+  "scripts": {
+    "compile": "tsc --project tsconfig.json"
+  },
   "dependencies": {
     "file-saver": "^2.0.5",
     "jquery": "^3.6.0",
     "js-cookie": "^2.2.1",
     "lodash": "^4.17.21",
     "paper": "^0.12.15",
-    "router5": "^8.0.1",
+    "router5-plugin-browser": "^8.0.1",
     "rxjs": "^7.1.0",
     "snabbdom": "^3.0.2",
     "spectrum-colorpicker": "^1.8.1"

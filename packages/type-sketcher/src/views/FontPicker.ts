@@ -9,10 +9,6 @@ import {ReactiveDom} from 'fstx-common/src/vdom'
 import {SketchStore} from '../SketchStore'
 import $ from 'jquery'
 
-interface JQuery {
-  selectpicker(...args: any[]);
-}
-
 export class FontPicker {
 
   defaultFontFamily = 'Roboto'
