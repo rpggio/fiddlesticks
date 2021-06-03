@@ -1,4 +1,3 @@
-
 /// <reference path="../typings/es6-promise/es6-promise.d.ts" />
 /// <reference path="../typings/custom/jquery.d.ts" />
 /// <reference path="../typings/custom/paper.d.ts" />

@@ -1,4 +1,3 @@
-
 declare type GAEvent = {
   eventCategory?: string,
   eventAction?: string,
@@ -8,6 +7,6 @@ declare type GAEvent = {
 
 declare function ga(command: string, hitType: string, event: GAEvent)
 
-function gaEvent(event: GAEvent){
-    ga("send", "event", event);
+function gaEvent(event: GAEvent) {
+  ga('send', 'event', event)
 }

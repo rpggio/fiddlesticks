@@ -6,28 +6,28 @@ import {PaperEventType} from './PaperEventType'
  *   on the item.
  */
 export const ExtendedEventType = {
-    mouseDragStart: 'mouseDragStart',
-    mouseDragEnd: 'mouseDragEnd',
+  mouseDragStart: 'mouseDragStart',
+  mouseDragEnd: 'mouseDragEnd',
 }
 
 export function extendMouseEvents(item: paper.Item) {
 
-    let dragging = false
+  let dragging = false
 
-    item.on(PaperEventType.mouseDrag, ev => {
-        if (!dragging) {
-            dragging = true
-            item.emit(ExtendedEventType.mouseDragStart, ev)
-        }
-    })
+  item.on(PaperEventType.mouseDrag, ev => {
+    if (!dragging) {
+      dragging = true
+      item.emit(ExtendedEventType.mouseDragStart, ev)
+    }
+  })
 
-    item.on(PaperEventType.mouseUp, ev => {
-        if (dragging) {
-            dragging = false
-            item.emit(ExtendedEventType.mouseDragEnd, ev)
-            // prevent click
-            ev.stop()
-        }
-    })
+  item.on(PaperEventType.mouseUp, ev => {
+    if (dragging) {
+      dragging = false
+      item.emit(ExtendedEventType.mouseDragEnd, ev)
+      // prevent click
+      ev.stop()
+    }
+  })
 
 }

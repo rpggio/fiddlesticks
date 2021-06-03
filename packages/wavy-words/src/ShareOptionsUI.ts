@@ -6,39 +6,39 @@ import {WavyStore} from './WavyStore'
 
 export class ShareOptionsUI {
 
-    private store: WavyStore
+  private store: WavyStore
 
-    constructor(container: HTMLElement, store: WavyStore) {
-        this.store = store
+  constructor(container: HTMLElement, store: WavyStore) {
+    this.store = store
 
-        const state = of(null)
-        ReactiveDom.renderStream(
-            state.pipe(map(() => this.createDom())),
-            container,
-        )
-    }
+    const state = of(null)
+    ReactiveDom.renderStream(
+      state.pipe(map(() => this.createDom())),
+      container,
+    )
+  }
 
-    createDom(): VNode {
-        return h('div.controls', [
-            h('button.btn.btn-primary', {
-                    attrs: {
-                        type: 'button',
-                    },
-                    on: {
-                        click: () => this.store.downloadPNG(100 * 1000),
-                    },
-                },
-                ['Download small']),
+  createDom(): VNode {
+    return h('div.controls', [
+      h('button.btn.btn-primary', {
+          attrs: {
+            type: 'button',
+          },
+          on: {
+            click: () => this.store.downloadPNG(100 * 1000),
+          },
+        },
+        ['Download small']),
 
-            h('button.btn.btn-primary', {
-                    attrs: {
-                        type: 'button',
-                    },
-                    on: {
-                        click: () => this.store.downloadPNG(500 * 1000),
-                    },
-                },
-                ['Download medium']),
-        ])
-    }
+      h('button.btn.btn-primary', {
+          attrs: {
+            type: 'button',
+          },
+          on: {
+            click: () => this.store.downloadPNG(500 * 1000),
+          },
+        },
+        ['Download medium']),
+    ])
+  }
 }
