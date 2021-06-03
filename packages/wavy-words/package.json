@@ -1,0 +1,14 @@
+{
+  "name": "wavy-words",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "file-saver": "^2.0.5",
+    "lodash": "^4.17.21",
+    "paper": "^0.12.15",
+    "rxjs": "^7.1.0",
+    "snabbdom": "^3.0.2"
+  }
+}
