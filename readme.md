@@ -1,45 +1,48 @@
 # Fiddlesticks
 
-Web based typography for word art, logos, and fun. This is the first web-based application to provide free-form text warp (AFAIK).
+Web based typography for word art, logos, and fun.
 
-<img src="/fstx sketch - obstacles.png?raw=true" height="400">
+[comment]: <> (<img src="/fstx sketch - obstacles.png?raw=true" height="400">)
 
-## Drawing app
+[comment]: <> (## Drawing app)
 
-<img src="/fstx-demo.gif?raw=true" height="400">
+[comment]: <> (<img src="/fstx-demo.gif?raw=true" height="400">)
 
-The drawing app provides a number of features to allow drawing with text.
+[comment]: <> (The drawing app provides a number of features to allow drawing with text.)
 
-* Warp text region to match any shape
-* Change text font and foreground/background color
-* Intuitive drag and zoom movement
-* Auto-save to Amazon S3
-* Upload tracing image to draw text upon
-* Export to SVG or PNG (multiple resolutions)
+[comment]: <> (* Warp text region to match any shape)
 
-Both apps are built using Snabbdom (alternative to React DOM) and RxJS state channels inspired by Flux and Redux. The [Store object](./client/sketchEditor/Store.ts) coordinates state transitions and actions.
+[comment]: <> (* Change text font and foreground/background color)
 
-## Builder app
+[comment]: <> (* Intuitive drag and zoom movement)
+
+[comment]: <> (* Auto-save to Amazon S3)
+
+[comment]: <> (* Upload tracing image to draw text upon)
+
+[comment]: <> (* Export to SVG or PNG &#40;multiple resolutions&#41;)
+
+[comment]: <> (Both apps are built using Snabbdom &#40;alternative to React DOM&#41; and RxJS state channels inspired by Flux and Redux. The [Store object]&#40;./client/sketchEditor/Store.ts&#41; coordinates state transitions and actions.)
+
+[comment]: <> (## Wavy Words)
 
 <img src="/fstx-builder-demo.gif?raw=true" height="400">
 
-The builder app generates a pre-formatted drawing based on parameters the user provides. The app is designed to support  templates for formatting and user interaction, essentially self-contained tools. There is currently just one template implemented, [source here](./client/sketchBuilder/templates/Dickens.ts).
+The builder app generates a pre-formatted drawing based on parameters the user provides. The app is designed to support  templates for formatting and user interaction, essentially self-contained tools. 
+There is currently just one template implemented, [source here](./packages/wavy-words/src/templates/Dickens.ts).
 
 ## Setup
 
 ```
-npm install
+cd packages
+yarn
+cd ../app
+yarn
 ```
 
 ## Usage
 
 ```
-npm run start
-```
-
-### Config
-
-To enable auto-save in the Sketch Editor, you will need to configure S3 bucket access:
-```
-S3_BUCKET=yourbucket AWS_ACCESS_KEY=youraccess AWS_SECRET_KEY=yoursecret npm run start
+# ./app
+yarn start
 ```

@@ -4,20 +4,31 @@
     height: 100%;
 }
 
-.navbar {
+.head {
     background: #333333;
     color: white;
     margin-bottom: 0;
 }
 
-.navbar .logo {
+.head .logo {
     height: 50px;
     margin: 8px;
 }
 
-.navbar h2 {
+.head h2 {
     font-size: 16px;
+    font-family: "Arial Black";
+    font-weight: 400;
+    text-transform: uppercase;
     color: lightgray;
+    margin: 0;
+    padding: 8px 12px;
+}
+
+h3 {
+    text-transform: uppercase;
+    color: #777;
+    font-size: 18px;
 }
 
 #templateControls {
