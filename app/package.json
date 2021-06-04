@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "license": "MIT",
   "scripts": {
-    "build": "parcel build public/index.html public/wavy-words.html --no-content-hash --dist-dir ../docs",
+    "build": "rm ../docs/* && parcel build public/index.html public/wavy-words.html --no-content-hash --public-url ./ --dist-dir ../docs",
     "start": "parcel serve public/wavy-words.html"
   },
   "devDependencies": {
