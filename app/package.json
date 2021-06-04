@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "build": "parcel build public/wavy-words.html --dist-dir ../site",
+    "build": "parcel build public/wavy-words.html --no-content-hash --dist-dir ../site",
     "start": "parcel serve public/wavy-words.html"
   },
   "devDependencies": {
