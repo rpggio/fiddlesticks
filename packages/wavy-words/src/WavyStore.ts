@@ -2,7 +2,7 @@ import {Observable, Subject} from 'rxjs'
 import {Design, RenderRequest, Template, TemplateState, TemplateStateChange} from './models'
 import {FontCatalog, ParsedFonts} from 'font-shape'
 import {Channel} from 'fstx-common'
-import {Dickens} from './templates/Dickens'
+import {Dickens} from './templates'
 import _ from 'lodash'
 
 export class WavyStore {
@@ -38,12 +38,12 @@ export class WavyStore {
   private _render$ = new Subject<RenderRequest>()
 
   get render$() {
-    return this._render$//.observeOn(Scheduler.default);
+    return this._render$
   }
 
   private _state: {
-    template?: Template;
-    templateState: TemplateState;
+    template?: Template
+    templateState: TemplateState
   }
 
   get state() {
@@ -84,23 +84,8 @@ export class WavyStore {
     })
   }
 
-  downloadPNG(pixels: number) {
+  downloadPNG() {
     this.events.downloadPNGRequested.dispatch()
-    this.sendDesignGAEvent('export', pixels)
-  }
-
-  sendDesignGAEvent(action: string, value: number) {
-    // let label = this._state.template.name;
-    // const font = this._state.templateState.design.font;
-    // if (font) {
-    //     label += ";" + font.family + " " + font.variant;
-    // }
-    // gaEvent({
-    //     eventCategory: "Design",
-    //     eventAction: action,
-    //     eventLabel: label,
-    //     eventValue: value
-    // });
   }
 
   setTemplate(name: string) {

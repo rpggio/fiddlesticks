@@ -1,3 +1,4 @@
+import paper from 'paper'
 import {dualBoundsPathProjection, pathOffsetLength, tracePathAsPoints} from './PaperHelpers'
 import {PathSection} from './PathSection'
 import {PathTransform} from './PathTransform'

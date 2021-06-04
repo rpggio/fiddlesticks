@@ -18,8 +18,8 @@ export class Module {
 
     new PreviewCanvas(previewCanvas, this.store)
 
-    this.store.templateState$.subscribe(ts => console.log('templateState', ts))
-    this.store.template$.subscribe(t => console.log('template', t))
+    // this.store.templateState$.subscribe(ts => console.log('templateState', ts))
+    // this.store.template$.subscribe(t => console.log('template', t))
 
     new ShareOptionsUI(belowCanvas, this.store)
   }
@@ -48,6 +48,7 @@ export class Module {
             },
           fontCategory: 'handwriting',
         })
+
     })
 
   }

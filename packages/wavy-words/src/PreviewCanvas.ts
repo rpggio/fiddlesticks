@@ -44,6 +44,7 @@ export class PreviewCanvas {
     this.mark = new Watermark(this.project, 'img/spiral-logo.svg', 0.06)
 
     store.templateState$.subscribe((ts: TemplateState) => {
+
       // only process one request at a time
       if (this.rendering) {
         // always process the last received

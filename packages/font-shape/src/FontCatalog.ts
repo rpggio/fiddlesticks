@@ -1,8 +1,8 @@
 import {FamilyRecord} from './models'
-import * as _ from 'underscore'
+import _ from 'lodash'
 import WebFont from 'webfontloader'
 
-interface FontFamily {
+interface WebFontList {
   kind: string
   items: FamilyRecord[]
 }
@@ -31,7 +31,8 @@ export class FontCatalog {
 
   static async fromLocal(path: string) {
     const response = await fetch(path)
-    return await response.json() as FontCatalog
+    const list = await response.json() as WebFontList
+    return new FontCatalog(list.items)
   }
 
   static async fromRemote() {
@@ -42,7 +43,8 @@ export class FontCatalog {
     const req = url + opt + key
 
     const response = await fetch(req)
-    return await response.json() as FontCatalog
+    const list = await response.json() as WebFontList
+    return new FontCatalog(list.items)
   }
 
   static defaultVariant(record: FamilyRecord): string {

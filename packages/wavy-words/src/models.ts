@@ -1,6 +1,7 @@
 import {FontCatalog, FontSpecifier} from 'font-shape'
 import {Observable} from 'rxjs'
 import {VNode} from 'snabbdom'
+import paper from 'paper'
 
 export interface Template {
   name: string

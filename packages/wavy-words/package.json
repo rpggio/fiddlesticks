@@ -1,7 +1,7 @@
 {
   "name": "wavy-words",
   "version": "1.0.0",
-  "main": "src/index.ts",
+  "main": "src/browser.ts",
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -13,5 +13,8 @@
     "paper": "^0.12.15",
     "rxjs": "^7.1.0",
     "snabbdom": "^3.0.2"
+  },
+  "devDependencies": {
+    "esbuild": "^0.12.5"
   }
 }

@@ -1,3 +1,5 @@
+import opentypejs from 'opentype.js'
+
 export type ParsedFont = {
   url: string,
   font: opentypejs.Font
@@ -27,7 +29,7 @@ export class ParsedFonts {
         return
       }
 
-      opentype.load(url, (err, font) => {
+      opentypejs.load(url, (err, font) => {
         if (err) {
           console.error(err, {url})
           reject(err)

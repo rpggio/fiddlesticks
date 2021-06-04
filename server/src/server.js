@@ -26,7 +26,7 @@ var startServer = function () {
     app.use("/content", express.static(path.join(sitePath, "content")))
 
     app.get("/", function (req, res) {
-        res.sendFile(path.join(sitePath, "index.html"))
+        res.sendFile(path.join(sitePath, "index.old.html"))
     })
     app.get("/sketch", function (req, res) {
         res.sendFile(path.join(sitePath, "sketch.html"))

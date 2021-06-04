@@ -1,18 +1,19 @@
 import * as _ from 'lodash'
 import {fromEventPattern, Observable} from 'rxjs'
+import paper from 'paper'
 
 type ItemChangeHandler = (flags: ChangeFlag) => void
 type Callback = () => void
 
-declare module paper {
-  export interface Item {
-    /**
-     * Subscribe to all changes in item. Returns un-subscribe function.
-     */
-    subscribe(handler: ItemChangeHandler): Callback
+export interface NotifyItem {
+  /**
+   * Subscribe to all changes in item. Returns un-subscribe function.
+   */
+  subscribe(handler: ItemChangeHandler): Callback
 
-    _changed(flags: ChangeFlag): void
-  }
+  remove()
+
+  _changed(flags: ChangeFlag): void
 }
 
 export enum ChangeFlag {
@@ -64,8 +65,10 @@ export enum Changes {
 
 export function initialize() {
 
+  console.log('paper', paper)
+
   // Inject Item.subscribe
-  const itemProto = (<any>paper).Item.prototype
+  const itemProto = paper.Item.prototype as unknown as NotifyItem
   itemProto.subscribe = function (handler: ItemChangeHandler): Callback {
     if (!this._subscribers) {
       this._subscribers = []
@@ -119,7 +122,7 @@ export function observe(item: paper.Item, flags: ChangeFlag):
   let unsub: () => void
   return fromEventPattern<ChangeFlag>(
     addHandler => {
-      unsub = item.subscribe(f => {
+      unsub = (item as unknown as NotifyItem).subscribe(f => {
         if (f & flags) {
           addHandler(f)
         }

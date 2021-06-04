@@ -1,7 +1,7 @@
 {
   "include": ["*/src/**/*"],
   "compilerOptions": {
-    "target": "ES5",
+    "target": "es6",
     "moduleResolution": "Node",
     "esModuleInterop": true,
     "noEmit": true,
