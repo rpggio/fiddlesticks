@@ -3,6 +3,7 @@
 .idea
 .vscode
 .DS_Store
+.parcel-cache
 
 # Logs
 logs

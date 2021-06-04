@@ -1,0 +1,12 @@
+{
+  "name": "Fiddlesticks",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "build": "parcel build public/wavy-words.html --dist-dir ../site",
+    "start": "parcel serve public/wavy-words.html"
+  },
+  "devDependencies": {
+    "parcel": "^2.0.0-beta.3.1"
+  }
+}

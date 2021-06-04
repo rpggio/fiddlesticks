@@ -3,9 +3,9 @@ import paper from 'paper'
 
 window.paper = paper
 
-const module = new Module(
+const wavyModule = new Module(
   document.getElementById('builderContainer'),
   document.getElementById('previewCanvas') as HTMLCanvasElement,
   document.getElementById('renderCanvas') as HTMLCanvasElement,
   document.getElementById('belowCanvas'))
-module.start()
+wavyModule.start()

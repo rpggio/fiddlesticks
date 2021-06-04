@@ -4,15 +4,9 @@
     "*"
   ],
   "scripts": {
-    "compile": "tsc --project tsconfig.json",
-    "build": "esbuild wavy-words/src/browser.ts --bundle --outfile=../site/js/wavy-words.js",
-    "build:watch": "esbuild wavy-words/src/browser.ts --bundle --watch --outfile=../site/js/wavy-words.js",
-    "start": "chokidar ../site/**/* --initial -c \"http-server ../site\""
+    "compile": "tsc --project tsconfig.json"
   },
   "devDependencies": {
-    "chokidar-cli": "^2.1.0",
-    "esbuild": "^0.12.5",
-    "http-server": "^0.12.3",
     "typescript": "^4.3.2"
   }
 }

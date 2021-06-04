@@ -1,6 +1,7 @@
 import {FamilyRecord} from './models'
 import _ from 'lodash'
 import WebFont from 'webfontloader'
+import fontList from '../static/google-fonts.json'
 
 interface WebFontList {
   kind: string
@@ -29,10 +30,8 @@ export class FontCatalog {
     this.records = records
   }
 
-  static async fromLocal(path: string) {
-    const response = await fetch(path)
-    const list = await response.json() as WebFontList
-    return new FontCatalog(list.items)
+  static async fromLocal() {
+    return new FontCatalog((fontList as WebFontList).items)
   }
 
   static async fromRemote() {
