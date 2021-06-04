@@ -15,7 +15,7 @@ import {Subject} from 'rxjs'
 import * as _ from 'lodash'
 import {AppStore} from './app/AppStore'
 import {SketchActions, SketchEvents} from './channels'
-import { S3Access } from './services/S3Access'
+import {S3Access} from './services/S3Access'
 import {getDefaultDrawing} from './data/defaultDrawing'
 
 /**
@@ -380,19 +380,18 @@ export class SketchStore {
     this.resources.parsedFonts = new ParsedFonts(parsed =>
       this.events.editor.fontLoaded.dispatch(parsed.font))
 
-    FontCatalog.fromLocal('fonts/google-fonts.json')
-      .then(catalog => {
-        this.resources.fontCatalog = catalog
+    const catalog = FontCatalog.fromLocal()
 
-        // load fonts into browser for preview
-        FontCatalog.loadPreviewSubsets(
-          catalog.getList(this.fontListLimit).map(f => f.family))
+    this.resources.fontCatalog = catalog
 
-        this.resources.parsedFonts.get(SketchStore.FALLBACK_FONT_URL).then(({font}) =>
-          this.resources.fallbackFont = font)
+    // load fonts into browser for preview
+    FontCatalog.loadPreviewSubsets(
+      catalog.getList(this.fontListLimit).map(f => f.family))
 
-        this.events.editor.resourcesReady.dispatch(true)
-      })
+    this.resources.parsedFonts.get(SketchStore.FALLBACK_FONT_URL)
+      .then(({font}) => this.resources.fallbackFont = font)
+
+    this.events.editor.resourcesReady.dispatch(true)
   }
 
   private setUserMessage(message: string) {

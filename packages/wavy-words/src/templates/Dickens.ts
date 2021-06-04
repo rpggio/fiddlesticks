@@ -342,7 +342,7 @@ export class Dickens implements Template {
           h('label', [
             h('input',
               {
-                attrs: {
+                props: {
                   type: 'checkbox',
                   checked: palette && palette.invert,
                 },

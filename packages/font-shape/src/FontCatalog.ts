@@ -30,7 +30,7 @@ export class FontCatalog {
     this.records = records
   }
 
-  static async fromLocal() {
+  static fromLocal() {
     return new FontCatalog((fontList as WebFontList).items)
   }
 

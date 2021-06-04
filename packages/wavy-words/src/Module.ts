@@ -2,6 +2,7 @@ import {WavyStore} from './WavyStore'
 import {Builder} from './Builder'
 import {PreviewCanvas} from './PreviewCanvas'
 import {ShareOptionsUI} from './ShareOptionsUI'
+import {Dickens} from './templates'
 
 export class Module {
   store: WavyStore
@@ -13,7 +14,7 @@ export class Module {
     renderCanvas: HTMLCanvasElement,
     belowCanvas: HTMLElement) {
 
-    this.store = new WavyStore()
+    this.store = new WavyStore(new Dickens())
     this.builder = new Builder(builderContainer, this.store)
 
     new PreviewCanvas(previewCanvas, this.store)
@@ -25,31 +26,26 @@ export class Module {
   }
 
   start() {
-    this.store.init().then(s => {
-      this.store.setTemplate('Dickens')
-      this.store.updateTemplateState(
-        {
-          design:
-            {
-              content: {
-                text: 'Don\'t gobblefunk around with words.',
-                source: '- Roald Dahl, The BFG',
-              },
-              seed: 0.9959176457803123,
-              shape: 'narrow',
-              font: {
-                family: 'Amatic SC',
-                variant: 'regular',
-              },
-              palette: {
-                color: '#854442',
-                invert: true,
-              },
+    this.store.updateTemplateState(
+      {
+        design:
+          {
+            content: {
+              text: 'Don\'t gobblefunk around with words.',
+              source: '- Roald Dahl, The BFG',
             },
-          fontCategory: 'handwriting',
-        })
-
-    })
-
+            seed: 0.9959176457803123,
+            shape: 'narrow',
+            font: {
+              family: 'Amatic SC',
+              variant: 'regular',
+            },
+            palette: {
+              color: '#854442',
+              invert: true,
+            },
+          },
+        fontCategory: 'handwriting',
+      })
   }
 }

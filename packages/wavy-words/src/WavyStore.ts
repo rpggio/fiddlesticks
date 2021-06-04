@@ -6,14 +6,14 @@ import {Dickens} from './templates'
 import _ from 'lodash'
 
 export class WavyStore {
-  private initialized: boolean
   private _eventsChannel = new Channel()
   events = {
     downloadPNGRequested: this._eventsChannel.topic<number>('downloadPNGRequested'),
   }
 
-  constructor() {
+  constructor(template: Template) {
     this._state = {
+      template,
       templateState: {
         design: {},
       },
@@ -56,7 +56,7 @@ export class WavyStore {
     return this._parsedFonts
   }
 
-  private _fontCatalog: FontCatalog
+  private _fontCatalog = FontCatalog.fromLocal()
 
   get fontCatalog() {
     return this._fontCatalog
@@ -68,20 +68,6 @@ export class WavyStore {
 
   get design() {
     return this.state.templateState && this.state.templateState.design
-  }
-
-  init(): Promise<WavyStore> {
-    if (this.initialized) {
-      throw new Error('Store is already initalized')
-    }
-    return new Promise<WavyStore>(callback => {
-      FontCatalog.fromLocal('fonts/google-fonts.json')
-        .then(c => {
-          this._fontCatalog = c
-          this.initialized = true
-          callback(this)
-        })
-    })
   }
 
   downloadPNG() {
@@ -125,5 +111,4 @@ export class WavyStore {
   render(request: RenderRequest) {
     this._render$.next(request)
   }
-
 }

@@ -1,6 +1,6 @@
 import {WavyStore} from './WavyStore'
 import {Design, TemplateBuildContext, TemplateState} from './models'
-import {createFileName, dataURLToBlob, Watermark} from 'fstx-common'
+import {createFileName, dataURLToBlob} from 'fstx-common'
 import paper from 'paper'
 import {getExportDpi, VerticalBoundsStretchPath} from 'font-shape'
 import {Builder} from './Builder'
@@ -16,7 +16,6 @@ export class PreviewCanvas {
   private rendering = false
   private project: paper.Project
   private workspace: paper.Group
-  private mark: Watermark
 
   constructor(canvas: HTMLCanvasElement, store: WavyStore) {
     this.store = store
@@ -41,8 +40,6 @@ export class PreviewCanvas {
       },
     }
 
-    this.mark = new Watermark(this.project, 'img/spiral-logo.svg', 0.06)
-
     store.templateState$.subscribe((ts: TemplateState) => {
 
       // only process one request at a time
@@ -52,7 +49,7 @@ export class PreviewCanvas {
         return
       }
 
-      this.render(ts.design)
+      this.render(ts.design).then(() => undefined)
     })
 
     store.events.downloadPNGRequested.sub(pixels => this.downloadPNG(pixels))
@@ -65,11 +62,6 @@ export class PreviewCanvas {
       return
     }
 
-    // very fragile way to get bg color
-    const shape = this.workspace.getItem({class: paper.Shape})
-    const bgColor = <paper.Color>shape.fillColor
-    this.mark.placeInto(this.workspace, bgColor)
-
     // Half of max DPI produces approx 4200x4200.
     const dpi = 0.5 * getExportDpi(this.workspace.bounds.size, pixels)
     const raster = this.workspace.rasterize({resolution: dpi, insert: false})
@@ -77,15 +69,13 @@ export class PreviewCanvas {
     const fileName = createFileName(this.store.design.content.text, 40, 'png')
     const blob = dataURLToBlob(data)
     saveAs(blob, fileName)
-
-    this.mark.remove()
   }
 
   private renderLastReceived() {
     if (this.lastReceived) {
       const rendering = this.lastReceived
       this.lastReceived = null
-      this.render(rendering)
+      this.render(rendering).then(() => undefined)
     }
   }
 
