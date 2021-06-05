@@ -1,16 +1,18 @@
 {
   "name": "wavy-words",
   "version": "1.0.0",
-  "main": "src/browser.ts",
   "license": "MIT",
   "private": true,
   "scripts": {
-    "compile": "tsc --project tsconfig.json"
+    "compile": "tsc --project tsconfig.json",
+    "start": "parcel serve public/index.html",
+    "build": "rm ../../docs/wavy-words/* ; parcel build public/index.html --no-content-hash --public-url ./ --dist-dir ../../docs/wavy-words"
   },
   "dependencies": {
     "file-saver": "^2.0.5",
     "lodash": "^4.17.21",
     "paper": "^0.12.15",
+    "parcel": "^2.0.0-beta.3.1",
     "rxjs": "^7.1.0",
     "snabbdom": "^3.0.2"
   },
