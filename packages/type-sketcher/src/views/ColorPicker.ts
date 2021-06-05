@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import $ from 'jquery'
+import paper from 'paper'
 import 'spectrum-colorpicker'
 
 export class ColorPicker {

@@ -1,3 +1,5 @@
+import paper from 'paper'
+
 /**
  * Measures offsets of text glyphs.
  */

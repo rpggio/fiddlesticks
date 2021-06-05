@@ -1,3 +1,4 @@
+import paper from 'paper'
 import {ImageExportOptions, PositionedObjectRef, Sketch, SketchAttr, TextBlock, WorkspaceObjectRef} from './models'
 import {Channel} from 'fstx-common'
 
@@ -20,7 +21,6 @@ export class SketchActions extends Channel {
     create: this.topic<SketchAttr>('sketch.create'),
     clear: this.topic<void>('sketch.clear'),
     clone: this.topic<SketchAttr>('sketch.clone'),
-    open: this.topic<string>('sketch.open'),
     attrUpdate: this.topic<SketchAttr>('sketch.attrUpdate'),
     setSelection: this.topic<WorkspaceObjectRef>('sketch.setSelection'),
   }

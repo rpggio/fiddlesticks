@@ -1,3 +1,4 @@
+import paper from 'paper'
 import {ChangeFlag, ExtendedEventType, extendMouseEvents} from 'fstx-common/src/paper'
 import {PaperEventType} from 'fstx-common/src/paper/PaperEventType'
 import {ObservableEvent} from 'fstx-common/src/events'

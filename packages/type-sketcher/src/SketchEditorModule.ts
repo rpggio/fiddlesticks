@@ -14,24 +14,12 @@ export class SketchEditorModule {
   constructor(appStore: AppStore) {
     this.appStore = appStore
 
-    initErrorHandler(errorData => {
-      const content = JSON.stringify(errorData)
-      return fetch('/api/client-errors',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: content,
-        })
-    })
-
     this.store = new SketchStore(appStore)
 
-    const bar = new EditorBar(document.getElementById('designer'), this.store)
-    const selectedItemEditor = new SelectedItemEditor(document.getElementById('editorOverlay'), this.store)
-    const helpDialog = new HelpDialog(document.getElementById('help-dialog'), this.store)
-    const operationPanel = new OperationPanel(document.getElementById('operationPanel'), this.store)
+    new EditorBar(document.getElementById('designer'), this.store)
+    new SelectedItemEditor(document.getElementById('editorOverlay'), this.store)
+    new HelpDialog(document.getElementById('help-dialog'), this.store)
+    new OperationPanel(document.getElementById('operationPanel'), this.store)
 
     // this.store.events.subscribe(m => console.log("event", m.type, m.data));
     // this.store.actions.subscribe(m => console.log("action", m.type, m.data));
@@ -55,9 +43,5 @@ export class SketchEditorModule {
           })
       })
     })
-  }
-
-  openSketch(id: string) {
-    this.store.actions.sketch.open.dispatch(id)
   }
 }

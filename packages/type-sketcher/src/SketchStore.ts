@@ -1,6 +1,6 @@
 import {FontCatalog, ParsedFonts} from 'font-shape'
 import Cookies from 'js-cookie'
-import {dataURLToBlob, newid} from 'fstx-common'
+import {newid} from 'fstx-common'
 import {
   EditorState,
   Operation,
@@ -11,12 +11,12 @@ import {
   TextBlock,
   WorkspaceObjectRef,
 } from './models'
-import {Subject} from 'rxjs'
+import {interval, Subject} from 'rxjs'
 import * as _ from 'lodash'
 import {AppStore} from './app/AppStore'
 import {SketchActions, SketchEvents} from './channels'
-import {S3Access} from './services/S3Access'
 import {getDefaultDrawing} from './data/defaultDrawing'
+import {debounce} from 'rxjs/operators'
 
 /**
  * The singleton Store controls all application state.
@@ -40,6 +40,7 @@ export class SketchStore {
   static LOCAL_CACHE_DELAY_MS = 1000
   static SERVER_SAVE_DELAY_MS = 10000
   static GREETING_SKETCH_ID = 'im2ba92i1714i'
+  static LOCAL_SKETCH_KEY = 'sketch'
 
   fontListLimit = 250
 
@@ -85,35 +86,28 @@ export class SketchStore {
 
     // ----- Editor -----
 
-    // todo: change drawing init
-    // actions.editor.initWorkspace.observe()
-    //   .pausableBuffered(events.editor.resourcesReady.observe().map(m => m.data))
-    //   .subscribe(m => {
-    //     this.setSelection(null, true)
-    //     this.setEditingItem(null, true)
-    //
-    //     const sketchId = this.appStore.state.route.params.sketchId
-    //       || this.appStore.state.lastSavedSketchId
-    //     let promise: Promise<any>
-    //     if (sketchId) {
-    //       promise = this.openSketch(sketchId)
-    //     } else {
-    //       promise = this.loadGreetingSketch()
-    //     }
-    //     promise.then(() => events.editor.workspaceInitialized.dispatch())
-    //
-    //     // on any action, update save delay timer
-    //     this.actions.observe().debounce(SketchStore.SERVER_SAVE_DELAY_MS)
-    //       .subscribe(() => {
-    //         const sketch = this.state.sketch
-    //         if (!this.state.loadingSketch
-    //           && this.state.sketchIsDirty
-    //           && sketch._id
-    //           && sketch.textBlocks.length) {
-    //           this.saveSketch(sketch)
-    //         }
-    //       })
-    //   })
+    actions.editor.initWorkspace
+      // .observe()
+      // .pausableBuffered(events.editor.resourcesReady.observe().map(m => m.data))
+      .subscribe(async m => {
+        this.setSelection(null, true)
+        this.setEditingItem(null, true)
+
+        await this.loadInitialSketch()
+        events.editor.workspaceInitialized.dispatch()
+
+        // on any action, update save delay timer
+        actions.observe().pipe(debounce(() => interval(SketchStore.SERVER_SAVE_DELAY_MS)))
+          .subscribe(() => {
+            const sketch = this.state.sketch
+            if (!this.state.loadingSketch
+              && this.state.sketchIsDirty
+              && sketch._id
+              && sketch.textBlocks.length) {
+              this.saveSketch(sketch)
+            }
+          })
+      })
 
     actions.editor.loadFont.subscribe(m =>
       this.resources.parsedFonts.get(m.data))
@@ -138,14 +132,6 @@ export class SketchStore {
       events.editor.viewChanged.dispatch(m.data)
     })
 
-    actions.editor.updateSnapshot.sub(({sketchId, pngDataUrl}) => {
-      if (sketchId === this.state.sketch._id) {
-        const fileName = sketchId + '.png'
-        const blob = dataURLToBlob(pngDataUrl)
-        S3Access.putFile(fileName, 'image/png', blob)
-      }
-    })
-
     actions.editor.toggleHelp.subscribe(() => {
       this.state.showHelp = !this.state.showHelp
       events.editor.showHelpChanged.dispatch(this.state.showHelp)
@@ -154,10 +140,6 @@ export class SketchStore {
     actions.editor.openSample.sub(() => this.loadGreetingSketch())
 
     // ----- Sketch -----
-
-    actions.sketch.open.sub(id => {
-      this.openSketch(id)
-    })
 
     actions.sketch.create.sub((attr) => {
       this.newSketch(attr)
@@ -322,60 +304,6 @@ export class SketchStore {
     this._transparency$.next(this.state.transparency)
   }
 
-  private openSketch(id: string): Promise<Sketch> {
-    if (!id || !id.length) {
-      return
-    }
-    return S3Access.getJson(id + '.json')
-      .then(
-        (sketch: Sketch) => {
-          this.loadSketch(sketch)
-
-          console.log('Retrieved sketch', sketch._id)
-          if (sketch.browserId === this.state.browserId) {
-            console.log('Sketch was created in this browser')
-          } else {
-            console.log('Sketch was created in a different browser')
-          }
-
-          return sketch
-        },
-        err => {
-          console.warn('error getting remote sketch', err)
-          this.loadGreetingSketch()
-        }) as unknown as Promise<Sketch>
-
-  }
-
-  private loadSketch(sketch: Sketch) {
-    this.state.loadingSketch = true
-    this.state.sketch = sketch
-    this.state.sketchIsDirty = false
-    this.setDefaultUserMessage()
-
-    this.events.sketch.loaded.dispatch(this.state.sketch)
-    this.appStore.actions.editorLoadedSketch.dispatch(sketch._id)
-    for (const tb of this.state.sketch.textBlocks) {
-      this.events.textblock.loaded.dispatch(tb)
-      this.loadTextBlockFont(tb)
-    }
-
-    this.events.editor.zoomToFitRequested.dispatch()
-
-    this.state.loadingSketch = false
-  }
-
-  private loadGreetingSketch() {
-    this.loadSketch(getDefaultDrawing())
-    return Promise.resolve('greeting')
-  }
-
-  private clearSketch() {
-    const sketch = <Sketch>this.defaultSketchAttr()
-    sketch._id = this.state.sketch._id
-    this.loadSketch(sketch)
-  }
-
   private loadResources() {
     this.resources.parsedFonts = new ParsedFonts(parsed =>
       this.events.editor.fontLoaded.dispatch(parsed.font))
@@ -457,22 +385,59 @@ export class SketchStore {
   }
 
   private saveSketch(sketch: Sketch) {
-    const saving = _.clone(sketch)
-    const now = new Date()
-    saving.savedAt = now
     this.setUserMessage('Saving')
-    S3Access.putFile(sketch._id + '.json',
-      'application/json', JSON.stringify(saving))
-      .then(() => {
-          this.state.sketchIsDirty = false
-          this.state.sketch.savedAt = now
-          this.setDefaultUserMessage()
-          this.appStore.actions.editorSavedSketch.dispatch(sketch._id)
-          this.events.editor.snapshotExpired.dispatch(sketch)
-        },
-        () => {
-          this.setUserMessage('Unable to save')
-        })
+    const now = new Date()
+    sketch.savedAt = now
+    localStorage.setItem(SketchStore.LOCAL_SKETCH_KEY, JSON.stringify(sketch))
+    this.state.sketchIsDirty = false
+    this.setDefaultUserMessage()
+    this.appStore.actions.editorSavedSketch.dispatch(sketch._id)
+    this.events.editor.snapshotExpired.dispatch(sketch)
+  }
+
+  private loadInitialSketch(): Promise<any> {
+    const sketchJson = localStorage.getItem(SketchStore.LOCAL_SKETCH_KEY)
+    if (sketchJson) {
+      try {
+        const sketch = JSON.parse(sketchJson) as Sketch
+        if (sketch.textBlocks) {
+          this.loadSketch(sketch)
+          return Promise.resolve()
+        }
+      } catch (ex) {
+        console.warn(`Failed to load local sketch: ${ex}`)
+      }
+    }
+    return this.loadGreetingSketch()
+  }
+
+  private loadGreetingSketch() {
+    this.loadSketch(getDefaultDrawing())
+    return Promise.resolve('greeting')
+  }
+
+  private loadSketch(sketch: Sketch) {
+    this.state.loadingSketch = true
+    this.state.sketch = sketch
+    this.state.sketchIsDirty = false
+    this.setDefaultUserMessage()
+
+    this.events.sketch.loaded.dispatch(this.state.sketch)
+    this.appStore.actions.editorLoadedSketch.dispatch(sketch._id)
+    for (const tb of this.state.sketch.textBlocks) {
+      this.events.textblock.loaded.dispatch(tb)
+      this.loadTextBlockFont(tb)
+    }
+
+    this.events.editor.zoomToFitRequested.dispatch()
+
+    this.state.loadingSketch = false
+  }
+
+  private clearSketch() {
+    const sketch = <Sketch>this.defaultSketchAttr()
+    sketch._id = this.state.sketch._id
+    this.loadSketch(sketch)
   }
 
   private setSelection(item: WorkspaceObjectRef, force: boolean = true) {

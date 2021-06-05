@@ -1,3 +1,4 @@
+import paper from 'paper'
 import {DualBoundsPathWarp} from './DualBoundsPathWarp'
 import {SketchItemStyle} from './interfaces'
 

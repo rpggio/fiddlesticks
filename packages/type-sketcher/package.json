@@ -1,11 +1,12 @@
 {
   "name": "type-sketcher",
   "version": "1.0.0",
-  "main": "src/index.ts",
+  "main": "src/browser.ts",
   "license": "MIT",
   "private": true,
   "scripts": {
-    "compile": "tsc --project tsconfig.json"
+    "compile": "tsc --project tsconfig.json",
+    "start": "parcel serve public/index.html"
   },
   "dependencies": {
     "file-saver": "^2.0.5",
@@ -18,6 +19,7 @@
     "spectrum-colorpicker": "^1.8.1"
   },
   "devDependencies": {
-    "@types/jquery": "^3.5.5"
+    "@types/jquery": "^3.5.5",
+    "parcel": "^2.0.0-beta.3.1"
   }
 }

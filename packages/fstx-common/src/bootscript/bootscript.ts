@@ -15,7 +15,7 @@ export function dropdown(
   return h('div.dropdown', [
     h('button.btn.btn-default.dropdown-toggle',
       {
-        'attrs': {
+        props: {
           id: args.id,
           type: 'button',
           'data-toggle': 'dropdown',
