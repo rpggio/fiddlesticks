@@ -24,6 +24,7 @@ export class EditorBar extends Component<EditorState> {
       store.events.sketch.attrChanged,
       store.events.editor.userMessageChanged)
       .pipe(map(m => this.render(store.state)))
+
     ReactiveDom.renderStream(sketchDom$, container)
 
   }

@@ -13,7 +13,8 @@ export class SelectedItemEditor {
     const dom$ = store.events.sketch.editingItemChanged.observe()
       .pipe(map(i => {
 
-        const posItem = <PositionedObjectRef>i.data
+        // PositionedObjectRef
+        const posItem = i.data
 
         const block = posItem
           && posItem.itemType === 'TextBlock'

@@ -42,7 +42,7 @@ export class WorkspaceController {
     this.fallbackFont = fallbackFont
     paper.settings.handleSize = 1
 
-    this.canvas = <HTMLCanvasElement>document.getElementById('mainCanvas')
+    this.canvas = document.getElementById('mainCanvas') as HTMLCanvasElement
     paper.setup(this.canvas)
     this.project = paper.project
     window.onresize = () => this.project.view.update()
@@ -239,7 +239,7 @@ export class WorkspaceController {
     const completeDownload = () => {
       this.project.deselectAll()
       const dataUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(
-        <string>this.project.exportSVG({asString: true}))
+        this.project.exportSVG({asString: true}) as string)
       const blob = dataURLToBlob(dataUrl)
       const fileName = SketchHelpers.getSketchFileName(
         this.store.state.sketch, 40, 'svg')
@@ -272,7 +272,7 @@ export class WorkspaceController {
     const background = new paper.Group([fill])
 
     if (watermark) {
-      this._mark.placeInto(background, <paper.Color><any>fill.fillColor)
+      this._mark.placeInto(background, fill.fillColor)
     }
 
     this._workspace.insertChild(0, background)
@@ -334,7 +334,7 @@ export class WorkspaceController {
     item.on(PaperEventType.click, ev => {
       if (item.selected) {
         // select next item behind
-        let otherHits = (<TextWarp[]>_.values(this._textBlockItems))
+        let otherHits = _.values(this._textBlockItems)
           .filter(i => i.id !== item.id && !!i.hitTest(ev.point))
         const otherItem = _.sortBy(otherHits, i => i.index)[0]
         if (otherItem) {
@@ -363,7 +363,7 @@ export class WorkspaceController {
     })
 
     item.on(ExtendedEventType.mouseDragEnd, ev => {
-      let block = <TextBlock>this.getBlockArrangement(item)
+      let block = this.getBlockArrangement(item) as TextBlock
       block._id = textBlock._id
       this.store.actions.textBlock.updateArrange.dispatch(block)
       if (!item.selected) {
@@ -377,7 +377,7 @@ export class WorkspaceController {
     itemChange$
       .pipe(debounce(() => interval(WorkspaceController.BLOCK_BOUNDS_CHANGE_THROTTLE_MS)))
       .subscribe(() => {
-        let block = <TextBlock>this.getBlockArrangement(item)
+        let block = this.getBlockArrangement(item) as TextBlock
         block._id = textBlock._id
         this.store.actions.textBlock.updateArrange.dispatch(block)
       })
@@ -412,7 +412,7 @@ export class WorkspaceController {
     }
 
     const raster = new paper.Raster(url);
-    (<any>raster).onLoad = () => {
+    raster.onLoad = () => {
       raster.sendToBack()
       if (this._backgroundImage) {
         this._backgroundImage.remove()

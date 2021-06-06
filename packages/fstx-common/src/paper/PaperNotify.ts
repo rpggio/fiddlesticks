@@ -92,12 +92,12 @@ export function initialize() {
   }
 
   // Wrap Project._changed
-  const projectProto = <any>paper.Project.prototype
+  const projectProto = paper.Project.prototype as any
   const projectChanged = projectProto._changed
   projectProto._changed = function (flags: ChangeFlag, item: paper.Item) {
     projectChanged.apply(this, arguments)
     if (item) {
-      const subs = (<any>item)._subscribers
+      const subs = (item as any)._subscribers
       if (subs) {
         for (let s of subs) {
           s.call(item, flags)

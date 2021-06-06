@@ -205,13 +205,13 @@ export class SketchStore {
       .subscribe(ev => {
         let block = this.getBlock(ev.data._id)
         if (block) {
-          let patch = <TextBlock>{
+          let patch = {
             text: ev.data.text,
             backgroundColor: ev.data.backgroundColor,
             textColor: ev.data.textColor,
             fontFamily: ev.data.fontFamily,
             fontVariant: ev.data.fontVariant,
-          }
+          } as TextBlock
           const fontChanged = patch.fontFamily !== block.fontFamily
             || patch.fontVariant !== block.fontVariant
           this.merge(block, patch)
@@ -362,7 +362,7 @@ export class SketchStore {
   }
 
   private newSketch(attr?: SketchAttr): Sketch {
-    const sketch = <Sketch>this.defaultSketchAttr()
+    const sketch = this.defaultSketchAttr() as Sketch
     sketch._id = newid()
     if (attr) {
       this.merge(sketch, attr)
@@ -372,7 +372,7 @@ export class SketchStore {
   }
 
   private defaultSketchAttr() {
-    return <SketchAttr>{
+    return {
       browserId: this.state.browserId,
       defaultTextBlockAttr: {
         fontFamily: 'Roboto',
@@ -380,8 +380,8 @@ export class SketchStore {
         textColor: 'gray',
       },
       backgroundColor: 'white',
-      textBlocks: <TextBlock[]>[],
-    }
+      textBlocks: [] as TextBlock[],
+    } as SketchAttr
   }
 
   private saveSketch(sketch: Sketch) {
@@ -435,7 +435,7 @@ export class SketchStore {
   }
 
   private clearSketch() {
-    const sketch = <Sketch>this.defaultSketchAttr()
+    const sketch = this.defaultSketchAttr() as Sketch
     sketch._id = this.state.sketch._id
     this.loadSketch(sketch)
   }

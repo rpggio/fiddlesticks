@@ -25,9 +25,9 @@ export const importOpenTypePath = function (openPath: opentypejs.Path): paper.Co
 
 export const tracePathItem = function (path: paper.PathItem, pointsPerPath: number): paper.PathItem {
   if (path.className === 'CompoundPath') {
-    return this.traceCompoundPath(<paper.CompoundPath>path, pointsPerPath)
+    return this.traceCompoundPath(path as paper.CompoundPath, pointsPerPath)
   } else {
-    return this.tracePath(<paper.Path>path, pointsPerPath)
+    return this.tracePath(path as paper.Path, pointsPerPath)
   }
 }
 
@@ -36,7 +36,7 @@ export const traceCompoundPath = function (path: paper.CompoundPath, pointsPerPa
     return null
   }
   let paths = path.children.map(p =>
-    this.tracePath(<paper.Path>p, pointsPerPath))
+    this.tracePath(p, pointsPerPath))
   return new paper.CompoundPath({
     children: paths,
     clockwise: path.clockwise,
@@ -115,10 +115,10 @@ export const marker = function (point: paper.Point, label: string): paper.Item {
 export const simplify = function (path: paper.PathItem, tolerance?: number) {
   if (path.className === 'CompoundPath') {
     for (let p of path.children) {
-      simplify(<paper.PathItem>p, tolerance)
+      simplify(p as paper.PathItem, tolerance)
     }
   } else {
-    (<paper.Path>path).simplify(tolerance)
+    path.simplify(tolerance)
   }
 }
 

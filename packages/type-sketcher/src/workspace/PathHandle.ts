@@ -18,11 +18,11 @@ export class PathHandle extends paper.Group {
     let position: paper.Point
     let path: paper.Path
     if (attach instanceof paper.Segment) {
-      this._segment = <paper.Segment>attach
+      this._segment = attach as paper.Segment
       position = this._segment.point
       path = this._segment.path
     } else if (attach instanceof paper.Curve) {
-      this._curve = <paper.Curve>attach
+      this._curve = attach as paper.Curve
       position = this._curve.getPointAt(this._curve.length * 0.5)
       path = this._curve.path
     } else {

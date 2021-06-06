@@ -71,7 +71,7 @@ export class ColorPicker {
 
     // for each palette group
     const defaultPaletteGroups = ColorPicker.DEFAULT_PALETTE_GROUPS.map(group => {
-      let parsedGroup = group.map(c => new paper.Color(<any>c))
+      let parsedGroup = group.map(c => new paper.Color(c))
       // create light variants of darkest three
       const addColors = _.sortBy(parsedGroup, c => c.lightness)
         .slice(0, 3)
@@ -88,8 +88,8 @@ export class ColorPicker {
     const palette = featuredGroups.concat(defaultPaletteGroups)
     palette.push(ColorPicker.MONO_PALETTE)
 
-    let sel = <any>$(elem);
-    (<any>$(elem)).spectrum({
+    let sel = $(elem) as any;
+    sel.spectrum({
       showInput: true,
       allowEmpty: true,
       preferredFormat: 'hex',
@@ -104,10 +104,10 @@ export class ColorPicker {
   };
 
   static set(elem: HTMLElement, value: string) {
-    (<any>$(elem)).spectrum('set', value)
+    ($(elem) as any).spectrum('set', value)
   }
 
   static destroy(elem) {
-    (<any>$(elem)).spectrum('destroy')
+    ($(elem) as any).spectrum('destroy')
   }
 }

@@ -316,7 +316,7 @@ export class Dickens implements Template {
   }
 
   private createPaletteChooser(): BuilderControl {
-    const parsedColors = this.paletteColors.map(c => new paper.Color(<any>c))
+    const parsedColors = this.paletteColors.map(c => new paper.Color(c))
     const colors = _.sortBy(parsedColors, c => c.hue)
       .map(c => c.toCSS(true))
 

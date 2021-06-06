@@ -6,6 +6,7 @@
     "moduleResolution": "Node",
     "esModuleInterop": true,
     "noEmit": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "jsx": "react"
   }
 }

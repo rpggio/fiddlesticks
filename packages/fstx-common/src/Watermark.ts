@@ -8,7 +8,7 @@ export class Watermark {
 
     this._project = project
     this._project.importSVG(path, (imported: paper.Item) => {
-      this._mark = <paper.CompoundPath>imported.getItem({class: paper.CompoundPath})
+      this._mark = imported.getItem({class: paper.CompoundPath}) as paper.CompoundPath
       if (!this._mark) {
         throw new Error(`Could not load CompoundPath from ${path}`)
       }

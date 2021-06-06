@@ -155,7 +155,7 @@ export class DualBoundsPathWarp extends paper.Group {
 
     const newPaths = this._source.children
       .map(item => {
-        const path = <paper.Path>item
+        const path = item as paper.Path
         const xPoints = tracePathAsPoints(path,
           DualBoundsPathWarp.POINTS_PER_PATH)
           .map(p => transform.transformPoint(p))

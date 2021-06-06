@@ -11,15 +11,15 @@ export class PathTransform {
 
   transformPathItem(path: paper.PathItem) {
     if (path.className === 'CompoundPath') {
-      this.transformCompoundPath(<paper.CompoundPath>path)
+      this.transformCompoundPath(path as paper.CompoundPath)
     } else {
-      this.transformPath(<paper.Path>path)
+      this.transformPath(path as paper.Path)
     }
   }
 
   transformCompoundPath(path: paper.CompoundPath) {
     for (let p of path.children) {
-      this.transformPath(<paper.Path>p)
+      this.transformPath(p as paper.Path)
     }
   }
 

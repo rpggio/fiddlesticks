@@ -4,6 +4,9 @@ import {initErrorHandler} from 'fstx-common'
 import {WorkspaceController} from './WorkspaceController'
 import {EditorBar, HelpDialog, OperationPanel, SelectedItemEditor} from './views'
 import {first} from 'rxjs/operators'
+import {render} from 'react-dom'
+import {EditorBar2} from './views/EditorBar2'
+import {createElement} from 'react'
 
 export class SketchEditorModule {
 
@@ -17,6 +20,8 @@ export class SketchEditorModule {
     this.store = new SketchStore(appStore)
 
     new EditorBar(document.getElementById('designer'), this.store)
+    // render(createElement(EditorBar2), document.getElementById('designer'))
+
     new SelectedItemEditor(document.getElementById('editorOverlay'), this.store)
     new HelpDialog(document.getElementById('help-dialog'), this.store)
     new OperationPanel(document.getElementById('operationPanel'), this.store)

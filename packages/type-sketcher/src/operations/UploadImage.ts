@@ -22,7 +22,7 @@ export class UploadImage implements Operation {
             },
             on: {
               change: ev => {
-                const file = (<HTMLInputElement>ev.target).files[0]
+                const file = (ev.target as HTMLInputElement).files[0]
                 this.upload(file)
               },
             },
@@ -33,7 +33,7 @@ export class UploadImage implements Operation {
 
   private upload(file) {
     const url = window.URL || window.webkitURL
-    const src = (<any>url).createObjectURL(file)
+    const src = url.createObjectURL(file)
     this.store.imageUploaded(src)
     this.onClose && this.onClose()
   }

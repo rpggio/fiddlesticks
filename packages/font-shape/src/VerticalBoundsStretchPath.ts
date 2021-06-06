@@ -53,7 +53,7 @@ export class VerticalBoundsStretchPath extends paper.Group {
 
     const newPaths = this._content.children
       .map(item => {
-        const path = <paper.Path>item
+        const path = item as paper.Path
         const xPoints = tracePathAsPoints(path, VerticalBoundsStretchPath.pointsPerPath)
           .map(p => transform.transformPoint(p))
         const xPath = new paper.Path({
