@@ -1,11 +1,9 @@
 import {FontPicker} from './FontPicker'
-import {ColorPicker} from './ColorPicker'
 import {SketchStore} from '../SketchStore'
 import {TextBlock} from '../models'
 import {h, VNode} from 'snabbdom'
 import {Component} from 'fstx-common/src/vdom/Component'
 import {KeyCodes} from 'fstx-common'
-import {SketchHelpers} from '../SketchHelpers'
 
 export class TextBlockEditor extends Component<TextBlock> {
   store: SketchStore
@@ -57,13 +55,13 @@ export class TextBlockEditor extends Component<TextBlock> {
                   value: textBlock.textColor,
                 },
                 hook: {
-                  insert: (vnode) =>
-                    ColorPicker.setup(
-                      vnode.elm,
-                      SketchHelpers.colorsInUse(this.store.state.sketch),
-                      color => update({textColor: color && color.toHexString()}),
-                    ),
-                  destroy: (vnode) => ColorPicker.destroy(vnode.elm),
+                  // insert: (vnode) =>,
+                  //   ColorPicker.setup(
+                  //     vnode.elm,
+                  //     SketchHelpers.colorsInUse(this.store.state.sketch),
+                  //     color => update({textColor: color && color.toHexString()}),
+                  //   ),
+                  // destroy: (vnode) => ColorPicker.destroy(vnode.elm),
                 },
               }),
           ]),
@@ -82,13 +80,13 @@ export class TextBlockEditor extends Component<TextBlock> {
                   value: textBlock.backgroundColor,
                 },
                 hook: {
-                  insert: (vnode) =>
-                    ColorPicker.setup(
-                      vnode.elm,
-                      SketchHelpers.colorsInUse(this.store.state.sketch),
-                      color => update({backgroundColor: color && color.toHexString()}),
-                    ),
-                  destroy: (vnode) => ColorPicker.destroy(vnode.elm),
+                  // insert: (vnode) =>
+                  //   ColorPicker.setup(
+                  //     vnode.elm,
+                  //     SketchHelpers.colorsInUse(this.store.state.sketch),
+                  //     color => update({backgroundColor: color && color.toHexString()}),
+                  //   ),
+                  // destroy: (vnode) => ColorPicker.destroy(vnode.elm),
                 },
               }),
           ]),

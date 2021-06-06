@@ -214,7 +214,7 @@ export class WorkspaceController {
       }
 
       if (this.store.state.sketch.backgroundColor) {
-        const background = this.insertBackground(true)
+        const background = this.insertBackground(false)
         complete()
         background.remove()
       } else {
