@@ -12,7 +12,7 @@ export const getDefaultDrawing = () => ({
   'textBlocks': [
     {
       '_id': 'ilz7swqec4bo6r',
-      'text': 'FIDDLESTICKS.IO',
+      'text': 'TYPE SKETCHER',
       'textColor': '#fff4e6',
       'fontFamily': 'Shadows Into Light Two',
       'fontVariant': 'regular',

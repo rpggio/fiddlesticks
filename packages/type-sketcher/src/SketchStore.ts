@@ -35,9 +35,6 @@ export class SketchStore {
 
   static BROWSER_ID_KEY = 'browserId'
   static FALLBACK_FONT_URL = '/fonts/Roboto-500.ttf'
-  static DEFAULT_FONT_NAME = 'Roboto'
-  static SKETCH_LOCAL_CACHE_KEY = 'fiddlesticks.io.lastSketch'
-  static LOCAL_CACHE_DELAY_MS = 1000
   static SERVER_SAVE_DELAY_MS = 10000
   static GREETING_SKETCH_ID = 'im2ba92i1714i'
   static LOCAL_SKETCH_KEY = 'sketch'

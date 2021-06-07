@@ -10,7 +10,6 @@ import {useObservableState} from '../lib/useObservable'
 import {HStack, VStack} from '@chakra-ui/react'
 import {ColorSelect} from './ColorSelect'
 import {SketchHelpers} from '../SketchHelpers'
-import {KeyCodes} from 'fstx-common'
 import {DeleteIcon} from '@chakra-ui/icons'
 
 export function ItemEditor({state$, store}: {
@@ -37,6 +36,7 @@ export function ItemEditor({state$, store}: {
   }
 
   return <VStack
+    key={block._id}
     padding={2}
     alignItems="flex-end"
     border="1px solid gray"
@@ -44,11 +44,9 @@ export function ItemEditor({state$, store}: {
     <HStack>
       <textarea
         defaultValue={block.text}
-        onKeyPress={ev => {
-          if ((ev.which || ev.keyCode) === KeyCodes.Enter) {
-            ev.preventDefault()
-            updateBlock({text: (ev.target as HTMLTextAreaElement).value})
-          }
+        onChange={ev => {
+          // setText(ev.currentTarget.value)
+          updateBlock({text: ev.currentTarget.value})
         }}
       />
       <DeleteIcon

@@ -1,7 +1,7 @@
 import {SketchStore} from './SketchStore'
 import {AppStore} from './app'
 import {WorkspaceController} from './WorkspaceController'
-import {HelpDialog, mountItemEditor, OperationPanel} from './views'
+import {mountItemEditor, OperationPanel} from './views'
 import {first} from 'rxjs/operators'
 import {mountEditorBar} from './views/EditorBar'
 
@@ -19,7 +19,6 @@ export class SketchEditorModule {
     mountEditorBar(document.getElementById('editorBar'), this.store)
     mountItemEditor(document.getElementById('editorOverlay'), this.store)
 
-    new HelpDialog(document.getElementById('help-dialog'), this.store)
     new OperationPanel(document.getElementById('operationPanel'), this.store)
 
     // this.store.events.subscribe(m => console.log("event", m.type, m.data));

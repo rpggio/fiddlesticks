@@ -1,5 +1,4 @@
 export * from './EditorBar'
 export * from './FontPicker'
-export * from './HelpDialog'
 export * from './OperationPanel'
 export * from './ItemEditor'
