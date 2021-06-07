@@ -5,7 +5,7 @@ import {PaperEventType} from 'fstx-common/src/paper/PaperEventType'
 import {SketchStore} from './SketchStore'
 import {getExportDpi} from 'font-shape'
 import {BlockArrangement, ImageExportOptions, PathRecord, PointRecord, Sketch, TextBlock} from './models'
-import {dataURLToBlob, Watermark} from 'fstx-common'
+import {dataURLToBlob} from 'fstx-common'
 import {TextWarp} from './workspace'
 import {DocumentKeyHandler} from './DocumentKeyHandler'
 import {debounce, throttle} from 'rxjs/operators'
@@ -35,7 +35,6 @@ export class WorkspaceController {
   private _textBlockItems: { [textBlockId: string]: TextWarp } = {}
   private _workspace: paper.Item
   private _backgroundImage: paper.Raster
-  private _mark: Watermark
 
   constructor(store: SketchStore, fallbackFont: opentypejs.Font) {
     this.store = store
@@ -75,8 +74,6 @@ export class WorkspaceController {
     paper.view.on(ExtendedEventType.mouseDragStart, clearSelection)
 
     const keyHandler = new DocumentKeyHandler(store)
-
-    this._mark = new Watermark(this.project, 'img/spiral-logo.svg')
 
     // ----- Designer -----
 
@@ -270,10 +267,6 @@ export class WorkspaceController {
     fill.fillColor = new paper.Color(this.store.state.sketch.backgroundColor)
 
     const background = new paper.Group([fill])
-
-    if (watermark) {
-      this._mark.placeInto(background, fill.fillColor)
-    }
 
     this._workspace.insertChild(0, background)
     return background
