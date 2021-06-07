@@ -38,16 +38,15 @@ export function ItemEditor({state$, store}: {
   }
 
   return <VStack
-    key={block._id}
     padding={2}
     alignItems="flex-end"
     border="1px solid gray"
   >
     <HStack>
       <textarea
+        key={`${block._id}_textarea`}
         defaultValue={block.text}
         onChange={ev => {
-          // setText(ev.currentTarget.value)
           updateBlock({text: ev.currentTarget.value})
         }}
       />
@@ -76,7 +75,7 @@ export function ItemEditor({state$, store}: {
 
     <FontPicker
       apiKey="AIzaSyCTaIEefKc_NPZinxZuceLEUYH6pemDMyY"
-      limit={120}
+      limit={200}
       activeFontFamily={block.fontFamily}
       onChange={(nextFont) => {
         updateBlock({
