@@ -73,7 +73,7 @@ export class WorkspaceController {
     })
     paper.view.on(ExtendedEventType.mouseDragStart, clearSelection)
 
-    const keyHandler = new DocumentKeyHandler(store)
+    new DocumentKeyHandler(store)
 
     // ----- Designer -----
 
@@ -404,7 +404,7 @@ export class WorkspaceController {
       this._backgroundImage = null
     }
 
-    const raster = new paper.Raster(url);
+    const raster = new paper.Raster(url)
     raster.onLoad = () => {
       raster.sendToBack()
       if (this._backgroundImage) {
