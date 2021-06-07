@@ -11,6 +11,7 @@ import {KeyCodes} from 'fstx-common'
 import {ColorSelect} from './ColorSelect'
 import {SketchHelpers} from '../SketchHelpers'
 import { useObservableState } from '../lib/useObservable'
+import {ChevronDownIcon} from '@chakra-ui/icons'
 
 function EditorBar({editorState$, store}: {
   editorState$: Observable<EditorState>
@@ -49,7 +50,7 @@ function EditorBar({editorState$, store}: {
       <Spacer/>
       <input
         placeholder="Press [Enter] to add"
-        style={{height: '2em'}}
+        style={{height: '2em', width: '25ch'}}
         onKeyPress={ev => {
           if ((ev.which || ev.keyCode) === KeyCodes.Enter) {
             const target = ev.target as HTMLInputElement
@@ -65,7 +66,7 @@ function EditorBar({editorState$, store}: {
       <Spacer/>
 
       <Menu>
-        <MenuButton as={Button}>
+        <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
           Actions
         </MenuButton>
         <MenuList>
