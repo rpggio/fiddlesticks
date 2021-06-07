@@ -8,7 +8,7 @@ import {map} from 'rxjs/operators'
 
 export class Builder {
 
-  static defaultFontUrl = 'fonts/Roboto-500.ttf'
+  static defaultFontUrl = '/fonts/Roboto-500.ttf'
 
   constructor(container: HTMLElement, store: WavyStore) {
 
@@ -47,8 +47,7 @@ export class Builder {
           c.value$.subscribe(d => store.updateTemplateState(d))
         }
         const nodes = controls.map(c => c.createNode(ts))
-        const vnode = h('div#templateControls', {}, nodes)
-        return vnode
+        return h('div#templateControls', {}, nodes)
       }))
 
     ReactiveDom.renderStream(dom$, container)

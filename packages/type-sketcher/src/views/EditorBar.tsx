@@ -26,6 +26,7 @@ function EditorBar({editorState$, store}: {
   >
     <Heading as="h1" size="md" textTransform="uppercase" margin={0}
              fontFamily="Arial Black" fontWeight={400} color="#d3d3d3"
+             marginLeft="0.5em"
     >
       Type Sketcher
     </Heading>
