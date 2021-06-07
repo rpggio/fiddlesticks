@@ -1,8 +1,15 @@
 {
-  "include": ["*/src/**/*"],
+  "include": [
+    "*/src/**/*"
+  ],
   "compilerOptions": {
     "target": "es6",
-    "lib": ["es5", "es6", "es2019", "dom"],
+    "lib": [
+      "es5",
+      "es6",
+      "es2019",
+      "dom"
+    ],
     "moduleResolution": "Node",
     "esModuleInterop": true,
     "noEmit": true,

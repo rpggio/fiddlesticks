@@ -129,18 +129,18 @@ ul.dropdown-menu > li {
 }
 
 #canvasContainer {
-  position: relative;
-  width: 100%;
-  height: 100%;
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
 
-#editorOverlay  {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  opacity: 0.9;
-  background-color: #eeeeee;
-  padding: 1px;
+#editorOverlay {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    opacity: 0.9;
+    background-color: #eeeeee;
+    padding: 1px;
 }
 
 #editorOverlay textarea {
@@ -150,14 +150,14 @@ ul.dropdown-menu > li {
 }
 
 #help-dialog {
-  position: absolute;
-  top: 182px;
-  width: 250px;
-  right: 5px;
-  opacity: 0.9;
-  background-color: #eeeeee;
-  padding: 6px;
-  border: 1px solid gray;
+    position: absolute;
+    top: 182px;
+    width: 250px;
+    right: 5px;
+    opacity: 0.9;
+    background-color: #eeeeee;
+    padding: 6px;
+    border: 1px solid gray;
 }
 
 #help-dialog h3 {
@@ -174,11 +174,10 @@ ul.dropdown-menu > li {
     vertical-align: top;
 }
 
-.text-block-editor > input, 
+.text-block-editor > input,
 .text-block-editor > button,
-.text-block-editor > div, 
-.text-block-editor > textarea
-{
+.text-block-editor > div,
+.text-block-editor > textarea {
     display: inline-block;
     margin: 3px;
 }
@@ -187,7 +186,7 @@ ul.dropdown-menu > li {
     float: right;
 }
 
-.delete-textblock  {
+.delete-textblock {
     padding: 4px 6px;
 }
 

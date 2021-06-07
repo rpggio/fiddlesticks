@@ -10,6 +10,6 @@ export * from './WorkspaceController'
 
 const win = window as any
 
-const app = new AppModule();
+const app = new AppModule()
 win.app = app
 app.start()

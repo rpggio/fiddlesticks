@@ -1,4 +1,4 @@
-import React, {createElement, useState} from 'react'
+import React, {createElement} from 'react'
 import {Button, Flex, Heading, HStack, Menu, MenuButton, MenuItem, MenuList, Spacer, Text} from '@chakra-ui/react'
 import {map} from 'rxjs/operators'
 import {SketchStore} from '../SketchStore'
@@ -10,7 +10,7 @@ import {UploadImage} from '../operations'
 import {KeyCodes} from 'fstx-common'
 import {ColorSelect} from './ColorSelect'
 import {SketchHelpers} from '../SketchHelpers'
-import { useObservableState } from '../lib/useObservable'
+import {useObservableState} from '../lib/useObservable'
 import {ChevronDownIcon} from '@chakra-ui/icons'
 
 function EditorBar({editorState$, store}: {
@@ -66,7 +66,7 @@ function EditorBar({editorState$, store}: {
       <Spacer/>
 
       <Menu>
-        <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+        <MenuButton as={Button} rightIcon={<ChevronDownIcon/>}>
           Actions
         </MenuButton>
         <MenuList>

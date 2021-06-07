@@ -80,7 +80,7 @@ export function ItemEditor({state$, store}: {
       onChange={(nextFont) => {
         updateBlock({
           fontFamily: nextFont.family,
-          fontVariant: defaultVariant(nextFont.variants)
+          fontVariant: defaultVariant(nextFont.variants),
         })
       }}
     />

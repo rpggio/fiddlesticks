@@ -57,9 +57,9 @@ export function ColorSelect({featuredColors, color, onColorSelect}: Props) {
               height={25}
               margin={1}
               onClick={() => {
-              setLocalColor(null)
-              onColorSelect(null)
-            }}
+                setLocalColor(null)
+                onColorSelect(null)
+              }}
             >Clear</Button>
             <PopoverCloseButton/>
           </div>

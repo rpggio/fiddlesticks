@@ -99,10 +99,10 @@ ul.chooser {
 }
 
 ul.chooser img {
-  float: left;
-  padding: 5px;
-  margin: 10px;
-  border: 3px solid lightgray;
+    float: left;
+    padding: 5px;
+    margin: 10px;
+    border: 3px solid lightgray;
 }
 
 .chooser img:hover {
@@ -115,7 +115,7 @@ ul.chooser img {
 
 .chooser .choice {
     /*flex-basis: content;*/
-    
+
     font-size: 30px;
     line-height: 50px;
 
@@ -123,7 +123,7 @@ ul.chooser img {
     padding: 0 8px;
     border: 2px solid lightgray;
 
-    cursor: pointer; 
+    cursor: pointer;
 }
 
 .fontChooser .chooser .choice {
