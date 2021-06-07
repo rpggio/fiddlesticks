@@ -1,21 +1,14 @@
-import {
-  Button,
-  Popover,
-  PopoverCloseButton,
-  PopoverContent,
-  PopoverHeader,
-  PopoverTrigger,
-  VStack,
-} from '@chakra-ui/react'
-import React, {useMemo, useState} from 'react'
-import {Color, ColorChangeHandler, SwatchesPicker} from 'react-color'
+import {Button, Popover, PopoverCloseButton, PopoverContent, PopoverTrigger, VStack} from '@chakra-ui/react'
+import React, {useEffect, useMemo, useState} from 'react'
+import {SwatchesPicker} from 'react-color'
 import _ from 'lodash'
 import paper from 'paper'
+import {CloseIcon} from '@chakra-ui/icons'
 
 type Props = {
   featuredColors: string[]
-  color: Color
-  onColorSelect: ColorChangeHandler
+  color: string
+  onColorSelect: (color: string | null) => void
 }
 
 export function ColorSelect({featuredColors, color, onColorSelect}: Props) {
@@ -29,18 +22,45 @@ export function ColorSelect({featuredColors, color, onColorSelect}: Props) {
     [featuredColors == null, isOpen],
   )
 
+  useEffect(() => {
+    setLocalColor(color)
+  }, [color])
+
   return (
     <Popover
       closeOnBlur={true}
       onOpen={() => setIsOpen(true)}
       onClose={() => setIsOpen(false)}
+      placement="bottom"
     >
       <PopoverTrigger>
-        <Button>Trigger</Button>
+        <Button border="solid 1px gray" width={30} padding={0}>
+          {localColor
+            ? <div
+              style={{
+                background: localColor,
+                height: 24,
+                width: 24,
+                border: '2px solid white',
+                borderRadius: '50%',
+              }}
+            >
+            </div>
+            : <CloseIcon/>
+          }
+        </Button>
       </PopoverTrigger>
       <PopoverContent>
         <VStack>
-          <div style={{width: '100%', height: 25}}>
+          <div style={{width: '100%'}}>
+            <Button
+              height={25}
+              margin={1}
+              onClick={() => {
+              setLocalColor(null)
+              onColorSelect(null)
+            }}
+            >Clear</Button>
             <PopoverCloseButton/>
           </div>
           <SwatchesPicker
@@ -49,7 +69,7 @@ export function ColorSelect({featuredColors, color, onColorSelect}: Props) {
             color={localColor ?? '#ffffff'}
             onChangeComplete={(c, e) => {
               setLocalColor(c.hex)
-              onColorSelect(c, e)
+              onColorSelect(c.hex)
             }}
           />
         </VStack>

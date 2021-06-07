@@ -23,7 +23,6 @@ function EditorBar({editorState$, store}: {
     background="#333"
     alignItems="center"
     padding="0.5em"
-    onClick={() => setFoo(foo + '.')}
   >
     <Heading as="h1" size="md" textTransform="uppercase" margin={0}
              fontFamily="Arial Black" fontWeight={400} color="#d3d3d3"
@@ -40,7 +39,7 @@ function EditorBar({editorState$, store}: {
       <ColorSelect
         featuredColors={store.state.sketch && SketchHelpers.colorsInUse(store.state.sketch)}
         color={editorState?.sketch.backgroundColor ?? '#ffffff'}
-        onColorSelect={color => actions.sketch.attrUpdate.dispatch({backgroundColor: color.hex})}
+        onColorSelect={color => actions.sketch.attrUpdate.dispatch({backgroundColor: color})}
       />
 
       <Spacer/>
@@ -97,8 +96,6 @@ export function mountEditorBar(container: HTMLElement, store: SketchStore) {
     store.events.sketch.attrChanged,
     store.events.editor.userMessageChanged,
   ).pipe(map(m => store.state))
-
-  editorState$.subscribe(s => console.log('ext state', s))
 
   const editorBar = createElement(EditorBar, {editorState$, store})
   const root = createElement(ReactModuleRoot, null, editorBar)

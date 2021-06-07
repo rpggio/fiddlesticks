@@ -1,7 +1,7 @@
 import {SketchStore} from './SketchStore'
 import {AppStore} from './app'
 import {WorkspaceController} from './WorkspaceController'
-import {HelpDialog, OperationPanel, SelectedItemEditor} from './views'
+import {HelpDialog, mountItemEditor, OperationPanel} from './views'
 import {first} from 'rxjs/operators'
 import {mountEditorBar} from './views/EditorBar'
 
@@ -16,11 +16,9 @@ export class SketchEditorModule {
 
     this.store = new SketchStore(appStore)
 
-    // new EditorBar(document.getElementById('designer'), this.store)
-    // render(createElement(EditorBar2), document.getElementById('designer'))
     mountEditorBar(document.getElementById('editorBar'), this.store)
+    mountItemEditor(document.getElementById('editorOverlay'), this.store)
 
-    new SelectedItemEditor(document.getElementById('editorOverlay'), this.store)
     new HelpDialog(document.getElementById('help-dialog'), this.store)
     new OperationPanel(document.getElementById('operationPanel'), this.store)
 
