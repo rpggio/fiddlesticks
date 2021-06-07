@@ -1,3 +1,4 @@
+import FontPicker from 'font-picker-react'
 import {SketchStore} from '../SketchStore'
 import {PositionedObjectRef, TextBlock} from '../models'
 import {map} from 'rxjs/operators'
@@ -11,6 +12,7 @@ import {HStack, VStack} from '@chakra-ui/react'
 import {ColorSelect} from './ColorSelect'
 import {SketchHelpers} from '../SketchHelpers'
 import {DeleteIcon} from '@chakra-ui/icons'
+import {defaultVariant} from '../lib/fontUtil'
 
 export function ItemEditor({state$, store}: {
   state$: Observable<PositionedObjectRef>,
@@ -71,6 +73,18 @@ export function ItemEditor({state$, store}: {
         onColorSelect={color => updateBlock({backgroundColor: color})}
       />
     </HStack>
+
+    <FontPicker
+      apiKey="AIzaSyCTaIEefKc_NPZinxZuceLEUYH6pemDMyY"
+      limit={120}
+      activeFontFamily={block.fontFamily}
+      onChange={(nextFont) => {
+        updateBlock({
+          fontFamily: nextFont.family,
+          fontVariant: defaultVariant(nextFont.variants)
+        })
+      }}
+    />
 
   </VStack>
 }
