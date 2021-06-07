@@ -112,10 +112,9 @@ export class ViewZoom {
     }
     const view = this.project.view
     view.center = rect.center
-    const zoomLevel = Math.min(
+    view.zoom = Math.min(
       view.viewSize.height / rect.height,
       view.viewSize.width / rect.width)
-    view.zoom = zoomLevel
     this._viewChanged.notify(view.bounds)
   }
 
@@ -128,7 +127,7 @@ export class ViewZoom {
     const oldCenter = view.center
     const viewPos = view.viewToProject(mousePos)
 
-    let newZoom = delta > 0
+    let newZoom = delta < 0
       ? view.zoom * this.factor
       : view.zoom / this.factor
     newZoom = this.setZoomConstrained(newZoom)
