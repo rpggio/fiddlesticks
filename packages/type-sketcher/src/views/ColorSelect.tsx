@@ -46,7 +46,7 @@ export function ColorSelect({featuredColors, color, onColorSelect}: Props) {
               }}
             >
             </div>
-            : <CloseIcon/>
+            : <CloseIcon color="#aaa"/>
           }
         </Button>
       </PopoverTrigger>
@@ -67,7 +67,7 @@ export function ColorSelect({featuredColors, color, onColorSelect}: Props) {
             width={270}
             colors={palette ?? []}
             color={localColor ?? '#ffffff'}
-            onChangeComplete={(c, e) => {
+            onChangeComplete={c => {
               setLocalColor(c.hex)
               onColorSelect(c.hex)
             }}

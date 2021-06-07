@@ -54,7 +54,7 @@ export function ItemEditor({state$, store}: {
       />
     </HStack>
 
-    <HStack align="right">
+    <HStack align="center">
       <span>Text color:</span>
       <ColorSelect
         featuredColors={featured}
@@ -63,7 +63,7 @@ export function ItemEditor({state$, store}: {
       />
     </HStack>
 
-    <HStack>
+    <HStack align="center">
       <span>Background color:</span>
       <ColorSelect
         featuredColors={featured}
