@@ -9,5 +9,8 @@
   },
   "devDependencies": {
     "typescript": "^4.3.2"
+  },
+  "resolutions": {
+    "css-what": "^5.0.1"
   }
 }
