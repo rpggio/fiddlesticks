@@ -1,0 +1,16 @@
+{
+  "name": "fstx-common",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "compile": "tsc --project tsconfig.json"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "paper": "^0.12.15",
+    "rxjs": "^7.1.0",
+    "stacktrace-js": "^2.0.2"
+  }
+}

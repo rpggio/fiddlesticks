@@ -1,0 +1,157 @@
+html,
+body {
+    margin: 0;
+    overflow: hidden;
+    height: 100%;
+    font-family: sans-serif;
+    font-size: 14px;
+}
+
+button {
+    background: #eeeeee;
+    border: 1px solid gray;
+    border-radius: 2px;
+    padding: 0.5em;
+}
+
+button:hover {
+    filter: brightness(103%);
+}
+
+#pageContainer {
+    display: flex;
+    flex: 1;
+    height: 100%;
+}
+
+.head {
+    background: #333333;
+    color: white;
+    margin-bottom: 0;
+}
+
+.head .logo {
+    height: 50px;
+    margin: 8px;
+}
+
+.head h2 {
+    font-size: 16px;
+    font-family: "Arial Black";
+    font-weight: 400;
+    text-transform: uppercase;
+    color: lightgray;
+    margin: 0;
+    padding: 8px 12px;
+}
+
+h3 {
+    text-transform: uppercase;
+    color: #888;
+    font-size: 16px;
+}
+
+#templateControls {
+    flex: 1;
+    min-width: 200px;
+    padding: 10px;
+    padding-bottom: 70px;
+    overflow-y: scroll;
+    font-size: 16px;
+}
+
+#previewCanvasContainer {
+    flex: 1;
+    min-width: 400px;
+}
+
+#previewCanvas {
+    width: 100%;
+    height: 80%;
+    max-height: 1000px;
+    max-width: 1000px;
+    margin: 10px;
+}
+
+#templateControls input,
+#templateControls textarea {
+    margin: 6px;
+    font-size: 24px;
+}
+
+#templateControls textarea {
+    width: 500px;
+    resize: none;
+}
+
+#templateControls > div {
+    display: inline-block;
+    margin-right: 20px;
+    vertical-align: top;
+}
+
+ul, menu, dir {
+    -webkit-padding-start: inherit;
+}
+
+ul.chooser {
+    list-style-type: none;
+}
+
+ul.chooser img {
+    float: left;
+    padding: 5px;
+    margin: 10px;
+    border: 3px solid lightgray;
+}
+
+.chooser img:hover {
+}
+
+.chooser {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.chooser .choice {
+    /*flex-basis: content;*/
+
+    font-size: 30px;
+    line-height: 50px;
+
+    margin: 2px 4px;
+    padding: 0 8px;
+    border: 2px solid lightgray;
+
+    cursor: pointer;
+}
+
+.fontChooser .chooser .choice {
+    font-variant: small-caps;
+    font-weight: bold;
+}
+
+.fontChooser .chooser .choice span {
+    /*vertical-align: middle;*/
+}
+
+.chooser .chosen {
+    border-color: darkred;
+}
+
+.colorChooser .choice {
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+}
+
+.paletteTile {
+    width: 50px;
+    height: 50px;
+    margin: 0;
+}
+
+.controls > * {
+    margin: 5px;
+}

@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "workspaces": [
+    "*"
+  ],
+  "scripts": {
+    "compile": "tsc --project tsconfig.json",
+    "build-all": "yarn workspace type-sketcher build; yarn workspace wavy-words build"
+  },
+  "devDependencies": {
+    "typescript": "^4.3.2"
+  }
+}
