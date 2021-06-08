@@ -8,7 +8,7 @@ import {map} from 'rxjs/operators'
 
 export class Builder {
 
-  static defaultFontUrl = '/fonts/Roboto-500.ttf'
+  static defaultFontUrl = '../fonts/Roboto-500.ttf'
 
   constructor(container: HTMLElement, store: WavyStore) {
 

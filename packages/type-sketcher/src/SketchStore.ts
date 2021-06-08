@@ -34,7 +34,7 @@ import {debounce} from 'rxjs/operators'
 export class SketchStore {
 
   static BROWSER_ID_KEY = 'browserId'
-  static FALLBACK_FONT_URL = '/fonts/Roboto-500.ttf'
+  static FALLBACK_FONT_URL = '../fonts/Roboto-500.ttf'
   static SAVE_DELAY_MS = 500
   static GREETING_SKETCH_ID = 'im2ba92i1714i'
   static LOCAL_SKETCH_KEY = 'sketch'
