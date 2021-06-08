@@ -77,11 +77,11 @@ function EditorBar({editorState$, store}: {
           <MenuItem onClick={() => actions.editor.exportPNG.dispatch({pixels: 4e6})}>Export large image</MenuItem>
           <MenuItem onClick={() => actions.editor.exportSVG.dispatch()}>Export SVG</MenuItem>
           <MenuItem onClick={() => actions.editor.openSample.dispatch()}>Load sample sketch</MenuItem>
-          <MenuItem onClick={() => store.showOperation(new UploadImage(this.store))}
-                    title="Upload image into workspace for tracing. The image will not show in final output">
-            Upload temporary tracing image</MenuItem>
-          <MenuItem onClick={() => store.removeUploadedImage()} title="Remove background tracing image">Remove tracing
-            image</MenuItem>
+          {/*<MenuItem onClick={() => store.showOperation(new UploadImage(this.store))}*/}
+          {/*          title="Upload image into workspace for tracing. The image will not show in final output">*/}
+          {/*  Upload temporary tracing image</MenuItem>*/}
+          {/*<MenuItem onClick={() => store.removeUploadedImage()} title="Remove background tracing image">Remove tracing*/}
+          {/*  image</MenuItem>*/}
           <MenuItem onClick={() => store.setTransparency(!store.state.transparency)}
                     title="See through text to elements behind">Toggle transparency</MenuItem>
         </MenuList>
