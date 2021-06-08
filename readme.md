@@ -2,47 +2,34 @@
 
 Web based typography for word art, logos, and fun.
 
-[comment]: <> (<img src="/fstx sketch - obstacles.png?raw=true" height="400">)
+<img src="/fstx sketch - obstacles.png?raw=true" height="400">
 
-[comment]: <> (## Drawing app)
+There are two separate apps which each use the same path-warping capability on font outlines:
 
-[comment]: <> (<img src="/fstx-demo.gif?raw=true" height="400">)
+## Type Sketcher
 
-[comment]: <> (The drawing app provides a number of features to allow drawing with text.)
+<img src="/fstx-demo.gif?raw=true" height="400">
 
-[comment]: <> (* Warp text region to match any shape)
+[Type Sketcher](https://rpisryan.github.io/fiddlesticks/type-sketcher/) provides a number of features to allow drawing with text.
+* Warp text region to match any shape
+* Change text font and foreground/background color
+* Intuitive drag and zoom movement
+* Upload tracing image to draw text upon
+* Export to SVG or PNG
 
-[comment]: <> (* Change text font and foreground/background color)
+State transitions are done with typed RxJS state channels. The [Store object](./packages/type-sketcher/src/SketchStore.ts) coordinates state transitions and actions.
 
-[comment]: <> (* Intuitive drag and zoom movement)
-
-[comment]: <> (* Auto-save to Amazon S3)
-
-[comment]: <> (* Upload tracing image to draw text upon)
-
-[comment]: <> (* Export to SVG or PNG &#40;multiple resolutions&#41;)
-
-[comment]: <> (Both apps are built using Snabbdom &#40;alternative to React DOM&#41; and RxJS state channels inspired by Flux and Redux. The [Store object]&#40;./client/sketchEditor/Store.ts&#41; coordinates state transitions and actions.)
-
-[comment]: <> (## Wavy Words)
+## Wavy Words
 
 <img src="/fstx-builder-demo.gif?raw=true" height="400">
 
-The builder app generates a pre-formatted drawing based on parameters the user provides. The app is designed to support  templates for formatting and user interaction, essentially self-contained tools. 
-There is currently just one template implemented, [source here](./packages/wavy-words/src/templates/Dickens.ts).
-
-## Setup
-
-```
-cd packages
-yarn
-cd ../app
-yarn
-```
+[Wavy Words](https://rpisryan.github.io/fiddlesticks/wavy-words/) generates a pre-formatted drawing based on parameters the user provides. 
 
 ## Usage
 
+To run either of the apps, from the app directory in `packages`:
+
 ```
-# ./app
+yarn install
 yarn start
 ```

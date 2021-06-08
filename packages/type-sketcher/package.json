@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "compile": "tsc --project tsconfig.json",
-    "start": "parcel serve public/index.html",
+    "start": "parcel serve public/index.html -p 8050",
     "build": "rm ../../docs/type-sketcher/* ; parcel build public/index.html --no-content-hash --no-scope-hoist --public-url ./ --dist-dir ../../docs/type-sketcher"
   },
   "dependencies": {
