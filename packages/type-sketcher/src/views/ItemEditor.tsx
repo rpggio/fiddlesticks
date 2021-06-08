@@ -74,7 +74,7 @@ export function ItemEditor({state$, store}: {
     </HStack>
 
     <FontPicker
-      apiKey="AIzaSyCTaIEefKc_NPZinxZuceLEUYH6pemDMyY"
+      apiKey="AIzaSyDiml_4Ps1fEZAaDuhr1hKDqvLb09waFME"
       limit={200}
       activeFontFamily={block.fontFamily}
       onChange={(nextFont) => {
