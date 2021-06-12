@@ -1,5 +1,5 @@
 import paper from 'paper'
-import {Curvelike} from './Curvelike'
+import { Curvelike } from './Curvelike'
 
 export const SAFARI_MAX_CANVAS_AREA = 67108864
 

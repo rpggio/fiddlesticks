@@ -1,4 +1,4 @@
-import {h, VNode} from 'snabbdom'
+import { h, VNode } from 'snabbdom'
 
 export interface MenuItem {
   content: any,

@@ -1,8 +1,8 @@
-import {of} from 'rxjs'
-import {h, VNode} from 'snabbdom'
-import {ReactiveDom} from 'fstx-common/src/vdom'
-import {map} from 'rxjs/operators'
-import {WavyStore} from './WavyStore'
+import { of } from 'rxjs'
+import { h, VNode } from 'snabbdom'
+import { ReactiveDom } from 'fstx-common/src/vdom'
+import { map } from 'rxjs/operators'
+import { WavyStore } from './WavyStore'
 
 export class ShareOptionsUI {
 

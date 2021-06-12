@@ -25,18 +25,18 @@ export class ParsedFonts {
       let font = this.fonts[url]
 
       if (font) {
-        resolve({url, font})
+        resolve({ url, font })
         return
       }
 
       opentypejs.load(url, (err, font) => {
         if (err) {
-          console.error(err, {url})
+          console.error(err, { url })
           reject(err)
         } else {
           this.fonts[url] = font
-          resolve({url, font})
-          this._fontLoaded({url, font})
+          resolve({ url, font })
+          this._fontLoaded({ url, font })
         }
       })
 

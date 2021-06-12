@@ -1,9 +1,9 @@
-import {SketchStore} from './SketchStore'
-import {AppStore} from './app'
-import {WorkspaceController} from './WorkspaceController'
-import {mountItemEditor, OperationPanel} from './views'
-import {first} from 'rxjs/operators'
-import {mountEditorBar} from './views/EditorBar'
+import { SketchStore } from './SketchStore'
+import { AppStore } from './app'
+import { WorkspaceController } from './WorkspaceController'
+import { mountItemEditor, OperationPanel } from './views'
+import { first } from 'rxjs/operators'
+import { mountEditorBar } from './views/EditorBar'
 
 export class SketchEditorModule {
 

@@ -1,5 +1,5 @@
-import {FamilyRecord} from 'font-shape'
-import {FontDescription} from '../models'
+import { FamilyRecord } from 'font-shape'
+import { FontDescription } from '../models'
 
 export function getFontDescription(family: FamilyRecord, variant?: string)
   : FontDescription {

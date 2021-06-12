@@ -1,9 +1,9 @@
-import {FontCatalog} from 'font-shape'
-import {Observable, Subject} from 'rxjs'
-import {ValueControl} from '../models'
-import {getCssStyle} from 'fstx-common'
-import {h, VNode} from 'snabbdom'
-import {Choice, chooser} from './ControlHelpers'
+import { FontCatalog } from 'font-shape'
+import { Observable, Subject } from 'rxjs'
+import { ValueControl } from '../models'
+import { getCssStyle } from 'fstx-common'
+import { h, VNode } from 'snabbdom'
+import { Choice, chooser } from './ControlHelpers'
 
 export class FontChooser implements ValueControl<FontChooserState> {
 
@@ -44,7 +44,7 @@ export class FontChooser implements ValueControl<FontChooserState> {
         chosen: value.category === category,
         callback: () => {
           FontCatalog.loadPreviewSubsets(categoryFamilies)
-          this._value$.next({category, family: firstFamily})
+          this._value$.next({ category, family: firstFamily })
         },
       }
     })
@@ -64,7 +64,7 @@ export class FontChooser implements ValueControl<FontChooserState> {
             },
             [family]),
           chosen: value.family === family,
-          callback: () => this._value$.next({family, variant: ''}),
+          callback: () => this._value$.next({ family, variant: '' }),
         }
       })
       children.push(chooser(familyOptions))
@@ -83,7 +83,7 @@ export class FontChooser implements ValueControl<FontChooserState> {
               },
               [variant]),
             chosen: value.variant === variant,
-            callback: () => this._value$.next({variant}),
+            callback: () => this._value$.next({ variant }),
           }
         })
         children.push(chooser(variantOptions))

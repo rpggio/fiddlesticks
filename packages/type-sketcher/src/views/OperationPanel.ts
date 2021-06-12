@@ -1,7 +1,7 @@
-import {SketchStore} from '../SketchStore'
-import {ReactiveDom} from 'fstx-common/src/vdom'
-import {map} from 'rxjs/operators'
-import {h} from 'snabbdom'
+import { SketchStore } from '../SketchStore'
+import { ReactiveDom } from 'fstx-common/src/vdom'
+import { map } from 'rxjs/operators'
+import { h } from 'snabbdom'
 
 export class OperationPanel {
   private store: SketchStore

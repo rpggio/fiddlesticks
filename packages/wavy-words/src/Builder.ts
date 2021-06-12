@@ -1,10 +1,10 @@
-import {ReactiveDom} from 'fstx-common/src/vdom'
-import {TemplateUIContext} from './models'
-import {WavyStore} from './WavyStore'
-import {TemplateFontChooser} from './controls'
+import { ReactiveDom } from 'fstx-common/src/vdom'
+import { TemplateUIContext } from './models'
+import { WavyStore } from './WavyStore'
+import { TemplateFontChooser } from './controls'
 import _ from 'lodash'
-import {h} from 'snabbdom'
-import {map} from 'rxjs/operators'
+import { h } from 'snabbdom'
+import { map } from 'rxjs/operators'
 
 export class Builder {
 

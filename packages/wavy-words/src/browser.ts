@@ -1,4 +1,4 @@
-import {Module} from './Module'
+import { Module } from './Module'
 import paper from 'paper'
 
 window.paper = paper

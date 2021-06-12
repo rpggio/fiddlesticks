@@ -1,10 +1,10 @@
-import {WavyStore} from './WavyStore'
-import {Design, TemplateBuildContext, TemplateState} from './models'
-import {createFileName, dataURLToBlob} from 'fstx-common'
+import { WavyStore } from './WavyStore'
+import { Design, TemplateBuildContext, TemplateState } from './models'
+import { createFileName, dataURLToBlob } from 'fstx-common'
 import paper from 'paper'
-import {getExportDpi, VerticalBoundsStretchPath} from 'font-shape'
-import {Builder} from './Builder'
-import {saveAs} from 'file-saver'
+import { getExportDpi, VerticalBoundsStretchPath } from 'font-shape'
+import { Builder } from './Builder'
+import { saveAs } from 'file-saver'
 
 export class PreviewCanvas {
   canvas: HTMLCanvasElement
@@ -64,7 +64,7 @@ export class PreviewCanvas {
 
     // Half of max DPI produces approx 4200x4200.
     const dpi = 0.5 * getExportDpi(this.workspace.bounds.size, pixels)
-    const raster = this.workspace.rasterize({resolution: dpi, insert: false})
+    const raster = this.workspace.rasterize({ resolution: dpi, insert: false })
     const data = raster.toDataURL()
     const fileName = createFileName(this.store.design.content.text, 40, 'png')
     const blob = dataURLToBlob(data)

@@ -1,5 +1,5 @@
-import {AppStore} from './AppStore'
-import {SketchEditorModule} from '../SketchEditorModule'
+import { AppStore } from './AppStore'
+import { SketchEditorModule } from '../SketchEditorModule'
 
 export class AppModule {
 

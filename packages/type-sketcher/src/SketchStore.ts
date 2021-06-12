@@ -1,6 +1,6 @@
-import {FontCatalog, ParsedFonts} from 'font-shape'
+import { FontCatalog, ParsedFonts } from 'font-shape'
 import Cookies from 'js-cookie'
-import {newid} from 'fstx-common'
+import { newid } from 'fstx-common'
 import {
   EditorState,
   Operation,
@@ -11,12 +11,12 @@ import {
   TextBlock,
   WorkspaceObjectRef,
 } from './models'
-import {interval, Subject} from 'rxjs'
+import { interval, Subject } from 'rxjs'
 import * as _ from 'lodash'
-import {AppStore} from './app/AppStore'
-import {SketchActions, SketchEvents} from './channels'
-import {getDefaultDrawing} from './data/defaultDrawing'
-import {debounce} from 'rxjs/operators'
+import { AppStore } from './app'
+import { SketchActions, SketchEvents } from './channels'
+import { getDefaultDrawing } from './data'
+import { debounce } from 'rxjs/operators'
 
 /**
  * The singleton Store controls all application state.
@@ -74,7 +74,7 @@ export class SketchStore {
     this.state.browserId = Cookies.get(SketchStore.BROWSER_ID_KEY)
     if (!this.state.browserId) {
       this.state.browserId = newid()
-      Cookies.set(SketchStore.BROWSER_ID_KEY, this.state.browserId, {expires: 2 * 365})
+      Cookies.set(SketchStore.BROWSER_ID_KEY, this.state.browserId, { expires: 2 * 365 })
     }
   }
 
@@ -84,8 +84,6 @@ export class SketchStore {
     // ----- Editor -----
 
     actions.editor.initWorkspace
-      // .observe()
-      // .pausableBuffered(events.editor.resourcesReady.observe().map(m => m.data))
       .subscribe(async m => {
         this.setSelection(null, true)
         this.setEditingItem(null, true)
@@ -116,7 +114,6 @@ export class SketchStore {
       this.setSelection(null)
       this.setEditingItem(null)
       events.editor.exportPNGRequested.dispatch(m.data)
-      this.sendGAExport(m.data.pixels)
     })
 
     actions.editor.exportSVG.subscribe(m => {
@@ -181,7 +178,7 @@ export class SketchStore {
         if (!patch.text || !patch.text.length) {
           return
         }
-        let block = {_id: newid()} as TextBlock
+        let block = { _id: newid() } as TextBlock
         this.merge(block, patch)
 
         block.textColor = this.state.sketch.defaultTextBlockAttr.textColor
@@ -247,7 +244,7 @@ export class SketchStore {
           }
         })
         if (didDelete) {
-          events.textblock.removed.dispatch({_id: ev.data._id})
+          events.textblock.removed.dispatch({ _id: ev.data._id })
           this.changedSketchContent()
           this.setEditingItem(null)
         }
@@ -314,7 +311,7 @@ export class SketchStore {
       catalog.getList(this.fontListLimit).map(f => f.family))
 
     this.resources.parsedFonts.get(SketchStore.FALLBACK_FONT_URL)
-      .then(({font}) => this.resources.fallbackFont = font)
+      .then(({ font }) => this.resources.fallbackFont = font)
 
     this.events.editor.resourcesReady.dispatch(true)
   }
@@ -343,9 +340,9 @@ export class SketchStore {
   private loadTextBlockFont(block: TextBlock) {
     this.resources.parsedFonts.get(
       this.resources.fontCatalog.getUrl(block.fontFamily, block.fontVariant))
-      .then(({font}) =>
+      .then(({ font }) =>
         this.events.textblock.fontReady.dispatch(
-          {textBlockId: block._id, font}))
+          { textBlockId: block._id, font }))
   }
 
   private changedSketchContent() {
@@ -493,16 +490,6 @@ export class SketchStore {
 
   private getBlock(id: string) {
     return _.find(this.state.sketch.textBlocks, tb => tb._id === id)
-  }
-
-  private sendGAExport(value: number) {
-    // let label = getSketchFileName(this.state.sketch, 30)
-    // gaEvent({
-    //     eventCategory: "Design",
-    //     eventAction: "export-image",
-    //     eventLabel: label,
-    //     eventValue: value
-    // })
   }
 }
     

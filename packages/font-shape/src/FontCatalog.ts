@@ -1,4 +1,4 @@
-import {FamilyRecord} from './models'
+import { FamilyRecord } from './models'
 import _ from 'lodash'
 import WebFont from 'webfontloader'
 import fontList from '../static/google-fonts.json'

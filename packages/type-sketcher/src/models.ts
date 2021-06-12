@@ -1,5 +1,5 @@
-import {VNode} from 'snabbdom'
-import {FontCatalog, ParsedFonts} from 'font-shape'
+import { VNode } from 'snabbdom'
+import { FontCatalog, ParsedFonts } from 'font-shape'
 
 export interface VControl {
   render(): VNode

@@ -1,4 +1,4 @@
-import {fromEventPattern, Observable} from 'rxjs'
+import { fromEventPattern, Observable } from 'rxjs'
 
 export class ObservableEvent<T> {
 

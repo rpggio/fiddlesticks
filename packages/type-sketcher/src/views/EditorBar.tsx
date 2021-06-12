@@ -1,19 +1,18 @@
-import React, {createElement} from 'react'
-import {Button, Flex, Heading, HStack, Menu, MenuButton, MenuItem, MenuList, Spacer, Text} from '@chakra-ui/react'
-import {map} from 'rxjs/operators'
-import {SketchStore} from '../SketchStore'
-import {EditorState} from '../models'
-import {Observable} from 'rxjs'
-import {ReactModuleRoot} from '../lib/ReactModuleRoot'
-import {render} from 'react-dom'
-import {UploadImage} from '../operations'
-import {KeyCodes} from 'fstx-common'
-import {ColorSelect} from './ColorSelect'
-import {SketchHelpers} from '../SketchHelpers'
-import {useObservableState} from '../lib/useObservable'
-import {ChevronDownIcon} from '@chakra-ui/icons'
+import React, { createElement } from 'react'
+import { Button, Flex, Heading, HStack, Menu, MenuButton, MenuItem, MenuList, Spacer, Text } from '@chakra-ui/react'
+import { map } from 'rxjs/operators'
+import { SketchStore } from '../SketchStore'
+import { EditorState } from '../models'
+import { Observable } from 'rxjs'
+import { ReactModuleRoot } from '../lib/ReactModuleRoot'
+import { render } from 'react-dom'
+import { KeyCodes } from 'fstx-common'
+import { ColorSelect } from './ColorSelect'
+import { SketchHelpers } from '../SketchHelpers'
+import { useObservableState } from '../lib/useObservable'
+import { ChevronDownIcon } from '@chakra-ui/icons'
 
-function EditorBar({editorState$, store}: {
+function EditorBar({ editorState$, store }: {
   editorState$: Observable<EditorState>
   store: SketchStore
 }) {
@@ -41,7 +40,7 @@ function EditorBar({editorState$, store}: {
       <ColorSelect
         featuredColors={store.state.sketch && SketchHelpers.colorsInUse(store.state.sketch)}
         color={editorState?.sketch.backgroundColor ?? '#ffffff'}
-        onColorSelect={color => actions.sketch.attrUpdate.dispatch({backgroundColor: color})}
+        onColorSelect={color => actions.sketch.attrUpdate.dispatch({ backgroundColor: color })}
       />
 
       <Spacer/>
@@ -50,13 +49,13 @@ function EditorBar({editorState$, store}: {
       <Spacer/>
       <input
         placeholder="Press [Enter] to add"
-        style={{height: '2em', width: '25ch'}}
+        style={{ height: '2em', width: '25ch' }}
         onKeyPress={ev => {
           if ((ev.which || ev.keyCode) === KeyCodes.Enter) {
             const target = ev.target as HTMLInputElement
             const text = target.value
             if (text.length) {
-              actions.textBlock.add.dispatch({text: text})
+              actions.textBlock.add.dispatch({ text: text })
               target.value = ''
             }
           }
@@ -72,9 +71,9 @@ function EditorBar({editorState$, store}: {
         <MenuList>
           <MenuItem onClick={() => actions.sketch.clear.dispatch()}>Clear all</MenuItem>
           <MenuItem onClick={() => actions.editor.zoomToFit.dispatch()}>Zoom to fit</MenuItem>
-          <MenuItem onClick={() => actions.editor.exportPNG.dispatch({pixels: 400 * 1e3})}>Export medium
+          <MenuItem onClick={() => actions.editor.exportPNG.dispatch({ pixels: 400 * 1e3 })}>Export medium
             image</MenuItem>
-          <MenuItem onClick={() => actions.editor.exportPNG.dispatch({pixels: 4e6})}>Export large image</MenuItem>
+          <MenuItem onClick={() => actions.editor.exportPNG.dispatch({ pixels: 4e6 })}>Export large image</MenuItem>
           <MenuItem onClick={() => actions.editor.exportSVG.dispatch()}>Export SVG</MenuItem>
           <MenuItem onClick={() => actions.editor.openSample.dispatch()}>Load sample sketch</MenuItem>
           {/*<MenuItem onClick={() => store.showOperation(new UploadImage(this.store))}*/}
@@ -99,7 +98,7 @@ export function mountEditorBar(container: HTMLElement, store: SketchStore) {
     store.events.editor.userMessageChanged,
   ).pipe(map(m => store.state))
 
-  const editorBar = createElement(EditorBar, {editorState$, store})
+  const editorBar = createElement(EditorBar, { editorState$, store })
   const root = createElement(ReactModuleRoot, null, editorBar)
 
   render(root, container)

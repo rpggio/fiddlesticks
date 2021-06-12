@@ -1,4 +1,4 @@
-import {Curvelike} from './Curvelike'
+import { Curvelike } from './Curvelike'
 import paper from 'paper'
 
 export class PathSection implements Curvelike {

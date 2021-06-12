@@ -1,9 +1,9 @@
-import {SketchItemStyle} from './interfaces'
-import {StretchPath} from './StretchPath'
-import {ChangeFlag} from 'fstx-common/src/paper'
-import {interval, merge} from 'rxjs'
-import {dualBoundsPathProjection, PathTransform, tracePathAsPoints} from 'font-shape'
-import {debounce} from 'rxjs/operators'
+import { SketchItemStyle } from './interfaces'
+import { StretchPath } from './StretchPath'
+import { ChangeFlag } from 'fstx-common/src/paper'
+import { interval, merge } from 'rxjs'
+import { dualBoundsPathProjection, PathTransform, tracePathAsPoints } from 'font-shape'
+import { debounce } from 'rxjs/operators'
 import paper from 'paper'
 
 export class DualBoundsPathWarp extends paper.Group {
@@ -44,7 +44,7 @@ export class DualBoundsPathWarp extends paper.Group {
     this._upper.visible = this.selected
     this._lower.visible = this.selected
 
-    this._outline = new paper.Path({closed: true})
+    this._outline = new paper.Path({ closed: true })
     this.updateOutlineShape()
 
     this._warped = new paper.CompoundPath(source.pathData)

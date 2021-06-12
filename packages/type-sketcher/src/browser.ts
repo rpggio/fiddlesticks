@@ -1,4 +1,4 @@
-import {AppModule} from './app'
+import { AppModule } from './app'
 
 export * from './models'
 export * from './channels'

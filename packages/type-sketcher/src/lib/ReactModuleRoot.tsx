@@ -1,8 +1,8 @@
 import * as React from 'react'
-import {ComponentType, createElement, PropsWithChildren} from 'react'
-import {ChakraProvider} from '@chakra-ui/react'
+import { ComponentType, createElement, PropsWithChildren } from 'react'
+import { ChakraProvider } from '@chakra-ui/react'
 
-export function ReactModuleRoot({children}: PropsWithChildren<any>) {
+export function ReactModuleRoot({ children }: PropsWithChildren<any>) {
   return (
     <ChakraProvider>
       {children}

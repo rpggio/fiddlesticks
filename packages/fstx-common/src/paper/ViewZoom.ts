@@ -1,7 +1,7 @@
 import paper from 'paper'
-import {PaperEventType} from './PaperEventType'
-import {ExtendedEventType} from './mouseEventExt'
-import {ObservableEvent} from '../events'
+import { PaperEventType } from './PaperEventType'
+import { ExtendedEventType } from './mouseEventExt'
+import { ObservableEvent } from '../events'
 
 export class ViewZoom {
 

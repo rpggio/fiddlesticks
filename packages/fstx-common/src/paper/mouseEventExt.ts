@@ -1,5 +1,5 @@
 import paper from 'paper'
-import {PaperEventType} from './PaperEventType'
+import { PaperEventType } from './PaperEventType'
 
 /**
  * Use of these events requires first calling extendMouseEvents

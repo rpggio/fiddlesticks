@@ -1,16 +1,16 @@
 import paper from 'paper'
 import saveAs from 'file-saver'
-import {ChangeFlag, ExtendedEventType, extendMouseEvents, observe, ViewZoom} from 'fstx-common/src/paper'
-import {PaperEventType} from 'fstx-common/src/paper/PaperEventType'
-import {SketchStore} from './SketchStore'
-import {getExportDpi} from 'font-shape'
-import {BlockArrangement, ImageExportOptions, PathRecord, PointRecord, Sketch, TextBlock} from './models'
-import {dataURLToBlob} from 'fstx-common'
-import {TextWarp} from './workspace'
-import {DocumentKeyHandler} from './DocumentKeyHandler'
-import {debounce, throttle} from 'rxjs/operators'
-import {interval} from 'rxjs'
-import {SketchHelpers} from './SketchHelpers'
+import { ChangeFlag, ExtendedEventType, extendMouseEvents, observe, ViewZoom } from 'fstx-common/src/paper'
+import { PaperEventType } from 'fstx-common/src/paper/PaperEventType'
+import { SketchStore } from './SketchStore'
+import { getExportDpi } from 'font-shape'
+import { BlockArrangement, ImageExportOptions, PathRecord, PointRecord, Sketch, TextBlock } from './models'
+import { dataURLToBlob } from 'fstx-common'
+import { TextWarp } from './workspace'
+import { DocumentKeyHandler } from './DocumentKeyHandler'
+import { debounce, throttle } from 'rxjs/operators'
+import { interval } from 'rxjs'
+import { SketchHelpers } from './SketchHelpers'
 import _ from 'lodash'
 
 interface Window {
@@ -205,7 +205,7 @@ export class WorkspaceController {
   private getSnapshotPNG(dpi: number): Promise<string> {
     return new Promise<string>(callback => {
       const complete = () => {
-        const raster = this.project.activeLayer.rasterize({resolution: dpi, insert: false})
+        const raster = this.project.activeLayer.rasterize({ resolution: dpi, insert: false })
         const data = raster.toDataURL()
         callback(data)
       }
@@ -236,7 +236,7 @@ export class WorkspaceController {
     const completeDownload = () => {
       this.project.deselectAll()
       const dataUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(
-        this.project.exportSVG({asString: true}) as string)
+        this.project.exportSVG({ asString: true }) as string)
       const blob = dataURLToBlob(dataUrl)
       const fileName = SketchHelpers.getSketchFileName(
         this.store.state.sketch, 40, 'svg')
@@ -335,14 +335,14 @@ export class WorkspaceController {
           const otherId = _.findKey(this._textBlockItems, i => i === otherItem)
           if (otherId) {
             this.store.actions.sketch.setSelection.dispatch(
-              {itemId: otherId, itemType: 'TextBlock'})
+              { itemId: otherId, itemType: 'TextBlock' })
           }
         }
       } else {
         item.bringToFront()
         if (!item.selected) {
           this.store.actions.sketch.setSelection.dispatch(
-            {itemId: textBlock._id, itemType: 'TextBlock'})
+            { itemId: textBlock._id, itemType: 'TextBlock' })
         }
       }
     })
@@ -361,7 +361,7 @@ export class WorkspaceController {
       this.store.actions.textBlock.updateArrange.dispatch(block)
       if (!item.selected) {
         this.store.actions.sketch.setSelection.dispatch(
-          {itemId: textBlock._id, itemType: 'TextBlock'})
+          { itemId: textBlock._id, itemType: 'TextBlock' })
       }
     })
 
@@ -387,12 +387,12 @@ export class WorkspaceController {
   private getBlockArrangement(item: TextWarp): BlockArrangement {
     // export returns an array with item type and serialized object:
     //   ["Path", PathRecord]
-    const top = item.upper.exportJSON({asString: false})[1] as unknown as PathRecord
-    const bottom = item.lower.exportJSON({asString: false})[1] as unknown as PathRecord
+    const top = item.upper.exportJSON({ asString: false })[1] as unknown as PathRecord
+    const bottom = item.lower.exportJSON({ asString: false })[1] as unknown as PathRecord
 
     return {
       position: [item.position.x, item.position.y],
-      outline: {top, bottom},
+      outline: { top, bottom },
     }
   }
 

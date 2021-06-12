@@ -11,7 +11,7 @@ export class AppCookies {
   }
 
   set lastSavedSketchId(value: string) {
-    Cookies.set(AppCookies.LAST_SAVED_SKETCH_ID_KEY, value, {expires: AppCookies.YEAR})
+    Cookies.set(AppCookies.LAST_SAVED_SKETCH_ID_KEY, value, { expires: AppCookies.YEAR })
   }
 
   get browserId() {
@@ -19,7 +19,7 @@ export class AppCookies {
   }
 
   set browserId(value: string) {
-    Cookies.set(AppCookies.BROWSER_ID_KEY, value, {expires: AppCookies.YEAR})
+    Cookies.set(AppCookies.BROWSER_ID_KEY, value, { expires: AppCookies.YEAR })
   }
 
 }
