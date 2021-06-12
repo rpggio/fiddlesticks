@@ -1,5 +1,5 @@
-import {h, VNode} from 'snabbdom'
-import {Subject} from 'rxjs'
+import { h, VNode } from 'snabbdom'
+import { Subject } from 'rxjs'
 
 export class ImageChooser {
 

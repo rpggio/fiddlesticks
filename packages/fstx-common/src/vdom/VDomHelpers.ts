@@ -1,5 +1,5 @@
-import {Observable, Subject} from 'rxjs'
-import {classModule, eventListenersModule, init, propsModule, styleModule, VNode} from 'snabbdom'
+import { Observable, Subject } from 'rxjs'
+import { classModule, eventListenersModule, init, propsModule, styleModule, VNode } from 'snabbdom'
 
 interface ReactiveDomComponent {
   dom$: Observable<VNode>;

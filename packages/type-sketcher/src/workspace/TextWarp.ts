@@ -1,6 +1,6 @@
 import paper from 'paper'
-import {DualBoundsPathWarp} from './DualBoundsPathWarp'
-import {SketchItemStyle} from './interfaces'
+import { DualBoundsPathWarp } from './DualBoundsPathWarp'
+import { SketchItemStyle } from './interfaces'
 
 export class TextWarp extends DualBoundsPathWarp {
 

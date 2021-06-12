@@ -6,7 +6,7 @@ export interface ElementFontStyle {
 }
 
 export function getCssStyle(family: string, variant?: string, size?: string) {
-  let style = {fontFamily: family} as ElementFontStyle
+  let style = { fontFamily: family } as ElementFontStyle
   if (variant && variant.indexOf('italic') >= 0) {
     style.fontStyle = 'italic'
   }

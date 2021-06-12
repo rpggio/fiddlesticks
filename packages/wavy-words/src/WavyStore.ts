@@ -1,8 +1,8 @@
-import {Observable, Subject} from 'rxjs'
-import {Design, RenderRequest, Template, TemplateState, TemplateStateChange} from './models'
-import {FontCatalog, ParsedFonts} from 'font-shape'
-import {Channel} from 'fstx-common'
-import {Dickens} from './templates'
+import { Observable, Subject } from 'rxjs'
+import { Design, RenderRequest, Template, TemplateState, TemplateStateChange } from './models'
+import { FontCatalog, ParsedFonts } from 'font-shape'
+import { Channel } from 'fstx-common'
+import { Dickens } from './templates'
 import _ from 'lodash'
 
 export class WavyStore {
@@ -87,7 +87,7 @@ export class WavyStore {
   }
 
   setDesign(value: Design) {
-    this.setTemplateState({design: value})
+    this.setTemplateState({ design: value })
   }
 
   updateTemplateState(change: TemplateStateChange) {

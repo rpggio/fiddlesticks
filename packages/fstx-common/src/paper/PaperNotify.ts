@@ -1,5 +1,5 @@
 import * as _ from 'lodash'
-import {fromEventPattern, Observable} from 'rxjs'
+import { fromEventPattern, Observable } from 'rxjs'
 import paper from 'paper'
 
 type ItemChangeHandler = (flags: ChangeFlag) => void

@@ -1,8 +1,8 @@
-import {WavyStore} from './WavyStore'
-import {Builder} from './Builder'
-import {PreviewCanvas} from './PreviewCanvas'
-import {ShareOptionsUI} from './ShareOptionsUI'
-import {Dickens} from './templates'
+import { WavyStore } from './WavyStore'
+import { Builder } from './Builder'
+import { PreviewCanvas } from './PreviewCanvas'
+import { ShareOptionsUI } from './ShareOptionsUI'
+import { Dickens } from './templates'
 
 export class Module {
   store: WavyStore

@@ -1,9 +1,9 @@
-import {FontChooser, FontChooserState} from './FontChooser'
-import {VNode} from 'snabbdom'
-import {BuilderControl, TemplateState} from '../models'
-import {Observable} from 'rxjs'
-import {WavyStore} from '../WavyStore'
-import {map} from 'rxjs/operators'
+import { FontChooser, FontChooserState } from './FontChooser'
+import { VNode } from 'snabbdom'
+import { BuilderControl, TemplateState } from '../models'
+import { Observable } from 'rxjs'
+import { WavyStore } from '../WavyStore'
+import { map } from 'rxjs/operators'
 
 export class TemplateFontChooser implements BuilderControl {
 

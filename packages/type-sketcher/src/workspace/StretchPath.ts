@@ -1,7 +1,7 @@
 import paper from 'paper'
-import {PaperEventType} from 'fstx-common/src/paper/PaperEventType'
-import {PathHandle} from './PathHandle'
-import {ObservableEvent} from 'fstx-common/src/events'
+import { PaperEventType } from 'fstx-common/src/paper/PaperEventType'
+import { PathHandle } from './PathHandle'
+import { ObservableEvent } from 'fstx-common/src/events'
 
 export class StretchPath extends paper.Group {
 

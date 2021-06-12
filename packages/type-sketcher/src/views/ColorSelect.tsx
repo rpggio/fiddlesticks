@@ -1,9 +1,9 @@
-import {Button, Popover, PopoverCloseButton, PopoverContent, PopoverTrigger, VStack} from '@chakra-ui/react'
-import React, {useEffect, useMemo, useState} from 'react'
-import {SwatchesPicker} from 'react-color'
+import { Button, Popover, PopoverCloseButton, PopoverContent, PopoverTrigger, VStack } from '@chakra-ui/react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { SwatchesPicker } from 'react-color'
 import _ from 'lodash'
 import paper from 'paper'
-import {CloseIcon} from '@chakra-ui/icons'
+import { CloseIcon } from '@chakra-ui/icons'
 
 type Props = {
   featuredColors: string[]
@@ -11,7 +11,7 @@ type Props = {
   onColorSelect: (color: string | null) => void
 }
 
-export function ColorSelect({featuredColors, color, onColorSelect}: Props) {
+export function ColorSelect({ featuredColors, color, onColorSelect }: Props) {
   const [localColor, setLocalColor] = useState(color)
   const [isOpen, setIsOpen] = useState(false)
 
@@ -52,7 +52,7 @@ export function ColorSelect({featuredColors, color, onColorSelect}: Props) {
       </PopoverTrigger>
       <PopoverContent>
         <VStack>
-          <div style={{width: '100%'}}>
+          <div style={{ width: '100%' }}>
             <Button
               height={25}
               margin={1}

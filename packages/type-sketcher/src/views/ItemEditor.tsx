@@ -1,24 +1,24 @@
 import FontPicker from 'font-picker-react'
-import {SketchStore} from '../SketchStore'
-import {PositionedObjectRef, TextBlock} from '../models'
-import {map} from 'rxjs/operators'
+import { SketchStore } from '../SketchStore'
+import { PositionedObjectRef, TextBlock } from '../models'
+import { map } from 'rxjs/operators'
 import _ from 'lodash'
-import React, {createElement} from 'react'
-import {ReactModuleRoot} from '../lib/ReactModuleRoot'
-import {render} from 'react-dom'
-import {Observable} from 'rxjs'
-import {useObservableState} from '../lib/useObservable'
-import {HStack, VStack} from '@chakra-ui/react'
-import {ColorSelect} from './ColorSelect'
-import {SketchHelpers} from '../SketchHelpers'
-import {DeleteIcon} from '@chakra-ui/icons'
-import {defaultVariant} from '../lib/fontUtil'
+import React, { createElement } from 'react'
+import { ReactModuleRoot } from '../lib/ReactModuleRoot'
+import { render } from 'react-dom'
+import { Observable } from 'rxjs'
+import { useObservableState } from '../lib/useObservable'
+import { HStack, VStack } from '@chakra-ui/react'
+import { ColorSelect } from './ColorSelect'
+import { SketchHelpers } from '../SketchHelpers'
+import { DeleteIcon } from '@chakra-ui/icons'
+import { defaultVariant } from '../lib/fontUtil'
 
-export function ItemEditor({state$, store}: {
+export function ItemEditor({ state$, store }: {
   state$: Observable<PositionedObjectRef>,
   store: SketchStore
 }) {
-  const {actions} = store
+  const { actions } = store
   const posItem = useObservableState(state$)
 
   const block = posItem
@@ -47,7 +47,7 @@ export function ItemEditor({state$, store}: {
         key={`${block._id}_textarea`}
         defaultValue={block.text}
         onChange={ev => {
-          updateBlock({text: ev.currentTarget.value})
+          updateBlock({ text: ev.currentTarget.value })
         }}
       />
       <DeleteIcon
@@ -60,7 +60,7 @@ export function ItemEditor({state$, store}: {
       <ColorSelect
         featuredColors={featured}
         color={block.textColor}
-        onColorSelect={color => updateBlock({textColor: color})}
+        onColorSelect={color => updateBlock({ textColor: color })}
       />
     </HStack>
 
@@ -69,7 +69,7 @@ export function ItemEditor({state$, store}: {
       <ColorSelect
         featuredColors={featured}
         color={block.backgroundColor}
-        onColorSelect={color => updateBlock({backgroundColor: color})}
+        onColorSelect={color => updateBlock({ backgroundColor: color })}
       />
     </HStack>
 
@@ -92,7 +92,7 @@ export function mountItemEditor(container: HTMLElement, store: SketchStore) {
   const state$ = store.events.sketch.editingItemChanged.observe()
     .pipe(map(it => it.data))
 
-  const itemEditor = createElement(ItemEditor, {state$, store})
+  const itemEditor = createElement(ItemEditor, { state$, store })
   const root = createElement(ReactModuleRoot, null, itemEditor)
 
   render(root, container)

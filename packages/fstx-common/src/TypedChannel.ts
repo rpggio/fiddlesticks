@@ -1,7 +1,7 @@
 // --- Core ext-types ---
 
-import {Observable, Observer, Subject} from 'rxjs'
-import {filter} from 'rxjs/operators'
+import { Observable, Observer, Subject } from 'rxjs'
+import { filter } from 'rxjs/operators'
 
 type Serializable = Object | Array<any> | number | string | boolean | Date | void;
 

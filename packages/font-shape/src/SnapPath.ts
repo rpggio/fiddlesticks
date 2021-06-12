@@ -1,7 +1,7 @@
 import paper from 'paper'
-import {dualBoundsPathProjection, pathOffsetLength, tracePathAsPoints} from './PaperHelpers'
-import {PathSection} from './PathSection'
-import {PathTransform} from './PathTransform'
+import { dualBoundsPathProjection, pathOffsetLength, tracePathAsPoints } from './PaperHelpers'
+import { PathSection } from './PathSection'
+import { PathTransform } from './PathTransform'
 
 export class SnapPath extends paper.Group {
 

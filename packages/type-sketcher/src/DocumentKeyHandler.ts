@@ -1,5 +1,5 @@
-import {SketchStore} from './SketchStore'
-import {KeyCodes} from 'fstx-common'
+import { SketchStore } from './SketchStore'
+import { KeyCodes } from 'fstx-common'
 
 export class DocumentKeyHandler {
   constructor(store: SketchStore) {

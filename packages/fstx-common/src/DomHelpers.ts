@@ -14,7 +14,7 @@ export function dataURLToBlob(dataURL): Blob {
     const contentType = parts[0].split(':')[1]
     const raw = decodeURIComponent(parts[1])
 
-    return new Blob([raw], {type: contentType})
+    return new Blob([raw], { type: contentType })
   }
 
   const parts = dataURL.split(BASE64_MARKER)
@@ -28,7 +28,7 @@ export function dataURLToBlob(dataURL): Blob {
     uInt8Array[i] = raw.charCodeAt(i)
   }
 
-  return new Blob([uInt8Array], {type: contentType})
+  return new Blob([uInt8Array], { type: contentType })
 }
 
 export function initErrorHandler(logger: (errorData: Object) => void) {

@@ -1,8 +1,8 @@
-import {VerticalBounds} from './models'
-import {CornerOffsets} from './SnapPath'
+import { VerticalBounds } from './models'
+import { CornerOffsets } from './SnapPath'
 import * as paper from 'paper'
-import {dualBoundsPathProjection, tracePathAsPoints} from './PaperHelpers'
-import {PathTransform} from './PathTransform'
+import { dualBoundsPathProjection, tracePathAsPoints } from './PaperHelpers'
+import { PathTransform } from './PathTransform'
 
 export class VerticalBoundsStretchPath extends paper.Group {
   static pointsPerPath = 200

@@ -1,4 +1,4 @@
-import {Sketch} from './models'
+import { Sketch } from './models'
 
 export class SketchHelpers {
 

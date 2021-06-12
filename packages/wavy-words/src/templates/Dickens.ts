@@ -7,14 +7,14 @@ import {
   TemplateStateChange,
   TemplateUIContext,
 } from '../models'
-import {TextInput} from '../controls/TextInput'
-import {VerticalBoundsStretchPath} from 'font-shape'
-import {Choice, chooser} from '../controls/ControlHelpers'
-import {SeedRandom} from 'fstx-common'
-import {merge, Subject} from 'rxjs'
+import { TextInput } from '../controls/TextInput'
+import { VerticalBoundsStretchPath } from 'font-shape'
+import { Choice, chooser } from '../controls/ControlHelpers'
+import { SeedRandom } from 'fstx-common'
+import { merge, Subject } from 'rxjs'
 import _ from 'lodash'
-import {h} from 'snabbdom'
-import {map} from 'rxjs/operators'
+import { h } from 'snabbdom'
+import { map } from 'rxjs/operators'
 
 export class Dickens implements Template {
 
@@ -144,7 +144,7 @@ export class Dickens implements Template {
         }
         const stretch = new VerticalBoundsStretchPath(
           layoutItem.block,
-          {upper, lower})
+          { upper, lower })
         stretch.fillColor = new paper.Color(textColor)
         box.addChild(stretch)
         upper = lower
@@ -247,9 +247,9 @@ export class Dickens implements Template {
       },
       value$: merge(
         mainTextInput.value$.pipe(map(t =>
-          ({design: {content: {text: t}}}) as TemplateStateChange))
+          ({ design: { content: { text: t } } }) as TemplateStateChange))
         , sourceTextInput.value$.pipe(map(t =>
-          ({design: {content: {source: t}}}) as TemplateStateChange)),
+          ({ design: { content: { source: t } } }) as TemplateStateChange)),
       ),
     }
   }
@@ -270,7 +270,7 @@ export class Dickens implements Template {
             [shape]),
           chosen: ts.design.shape === shape,
           callback: () => {
-            value$.next({design: {shape}})
+            value$.next({ design: { shape } })
           },
         })
 
@@ -297,7 +297,7 @@ export class Dickens implements Template {
               type: 'button',
             },
             on: {
-              click: () => value$.next({design: {seed: Math.random()}}),
+              click: () => value$.next({ design: { seed: Math.random() } }),
             },
           },
           ['Try another variation'],
@@ -334,7 +334,7 @@ export class Dickens implements Template {
               }),
             chosen: palette && palette.color === color,
             callback: () => {
-              value$.next({design: {palette: {color}}})
+              value$.next({ design: { palette: { color } } })
             },
           })
 
@@ -348,7 +348,7 @@ export class Dickens implements Template {
                 },
                 on: {
                   change: ev => value$.next(
-                    {design: {palette: {invert: (ev.target as HTMLInputElement).checked}}},
+                    { design: { palette: { invert: (ev.target as HTMLInputElement).checked } } },
                   ),
                 },
               },

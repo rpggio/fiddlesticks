@@ -1,4 +1,4 @@
-import {h, VNode} from 'snabbdom'
+import { h, VNode } from 'snabbdom'
 
 export function chooser<T>(
   choices: Choice[])

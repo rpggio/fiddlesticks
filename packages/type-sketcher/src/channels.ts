@@ -1,6 +1,6 @@
 import paper from 'paper'
-import {ImageExportOptions, PositionedObjectRef, Sketch, SketchAttr, TextBlock, WorkspaceObjectRef} from './models'
-import {Channel} from 'fstx-common'
+import { ImageExportOptions, PositionedObjectRef, Sketch, SketchAttr, TextBlock, WorkspaceObjectRef } from './models'
+import { Channel } from 'fstx-common'
 
 export class SketchActions extends Channel {
 

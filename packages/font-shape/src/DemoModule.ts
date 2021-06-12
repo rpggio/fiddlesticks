@@ -1,6 +1,6 @@
 import paper from 'paper'
-import {SnapPath} from './SnapPath'
-import {ParsedFonts} from './ParsedFonts'
+import { SnapPath } from './SnapPath'
+import { ParsedFonts } from './ParsedFonts'
 
 export class DemoModule {
 

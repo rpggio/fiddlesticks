@@ -1,4 +1,4 @@
-import {Sketch} from '../models'
+import { Sketch } from '../models'
 
 export const getDefaultDrawing = () => ({
   'browserId': 'ilul8y6ybf0f6r',

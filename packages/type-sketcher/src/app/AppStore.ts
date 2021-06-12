@@ -1,5 +1,5 @@
-import {AppCookies} from './AppCookies'
-import {Channel, newid} from 'fstx-common'
+import { AppCookies } from './AppCookies'
+import { Channel, newid } from 'fstx-common'
 
 export class AppStore {
 

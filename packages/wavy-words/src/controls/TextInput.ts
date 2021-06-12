@@ -1,7 +1,7 @@
-import {KeyCodes} from 'fstx-common'
-import {ValueControl} from '../models'
-import {Subject} from 'rxjs'
-import {h} from 'snabbdom'
+import { KeyCodes } from 'fstx-common'
+import { ValueControl } from '../models'
+import { Subject } from 'rxjs'
+import { h } from 'snabbdom'
 
 export class TextInput implements ValueControl<string> {
 
