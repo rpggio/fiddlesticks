@@ -11,6 +11,7 @@
     "typescript": "^4.3.2"
   },
   "resolutions": {
-    "css-what": "^5.0.1"
+    "css-what": "^5.0.1",
+    "normalize-url": "4.5.1"
   }
 }
