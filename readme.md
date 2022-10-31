@@ -10,7 +10,7 @@ There are two separate apps which each use the same path-warping capability on f
 
 <img src="/fstx-demo.gif?raw=true" height="400">
 
-[Type Sketcher](https://rpisryan.github.io/fiddlesticks/type-sketcher/) provides a number of features to allow drawing with text.
+[Type Sketcher](https://rpggio.github.io/fiddlesticks/type-sketcher/) provides a number of features to allow drawing with text.
 * Warp text region to match any shape
 * Change text font and foreground/background color
 * Intuitive drag and zoom movement
@@ -23,7 +23,7 @@ State transitions are done with typed RxJS state channels. The [Store object](./
 
 <img src="/fstx-builder-demo.gif?raw=true" height="400">
 
-[Wavy Words](https://rpisryan.github.io/fiddlesticks/wavy-words/) generates a pre-formatted drawing based on parameters the user provides. 
+[Wavy Words](https://rpggio.github.io/fiddlesticks/wavy-words/) generates a pre-formatted drawing based on parameters the user provides. 
 
 ## Usage
 
